@@ -1,0 +1,104 @@
+/* =========================
+   Sections (common)
+========================= */
+.section{
+    padding: 24px 0;
+}
+
+.section-head h2 {
+    color: #1e3a8a; /* 🔵 тёмно-синий */
+}
+
+.section-head .subtitle {
+    color: #2563eb; /* 🔵 светлее */
+}
+
+/* Why section */
+.why-grid{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.why-card{
+    text-align: center;
+}
+
+.why-icon{
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+/* Reviews section */
+.reviews-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.review-card{
+    padding: 16px;
+}
+
+.stars{
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.review-text{
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.review-author{
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--muted);
+}
+/* CTA block */
+.cta{
+    margin: 14px 0 6px;
+}
+
+.cta-inner{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    padding: 16px 18px;
+    border-radius: 16px;
+
+    background: #ffffff;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.cta-text h2{
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.cta-text p{
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.cta-actions{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px){
+    .cta-inner{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cta-actions{
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

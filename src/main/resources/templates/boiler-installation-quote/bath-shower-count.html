@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Baths And Showers</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            How many <span style="color:#ff5a3c;">bathtubs and separate shower units</span> does your home have?
+        </h2>
+        <p class="section-subtitle">
+            Count baths and separate shower units only. Do not count electric showers or a shower over the bath.
+        </p>
+
+        <div class="bath-shower-grid">
+            <article class="card fuel-card bath-shower-card" onclick="selectBathShowerCount('1')">
+                <div class="unit-count">1</div>
+                <div class="unit-icons" aria-hidden="true">
+                    <span class="unit-icon">🛁</span>
+                    <span class="unit-icon">🚿</span>
+                </div>
+                <h3 class="fuel-title">1 unit</h3>
+                <div class="fuel-desc">
+                    Do not count electric showers or a shower over the bath.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card bath-shower-card" onclick="selectBathShowerCount('2')">
+                <div class="unit-count">2</div>
+                <div class="unit-icons" aria-hidden="true">
+                    <span class="unit-icon">🛁</span>
+                    <span class="unit-icon">🚿</span>
+                </div>
+                <h3 class="fuel-title">2 units</h3>
+                <div class="fuel-desc">
+                    Do not count electric showers or a shower over the bath.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card bath-shower-card" onclick="selectBathShowerCount('3')">
+                <div class="unit-count">3</div>
+                <div class="unit-icons" aria-hidden="true">
+                    <span class="unit-icon">🛁</span>
+                    <span class="unit-icon">🚿</span>
+                </div>
+                <h3 class="fuel-title">3 units</h3>
+                <div class="fuel-desc">
+                    Do not count electric showers or a shower over the bath.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card bath-shower-card" onclick="selectBathShowerCount('4+')">
+                <div class="unit-count">4+</div>
+                <div class="unit-icons" aria-hidden="true">
+                    <span class="unit-icon">🛁</span>
+                    <span class="unit-icon">🚿</span>
+                </div>
+                <h3 class="fuel-title">4+ units</h3>
+                <div class="fuel-desc">
+                    Do not count electric showers or a shower over the bath.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectBathShowerCount(bathShowerCount) {
+        clearError();
+
+        try {
+            const response = await fetch("/quote/bath-shower-count", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ bathShowerCount: bathShowerCount })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep.trim();
+        } catch (error) {
+            console.error("Bath/shower count error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

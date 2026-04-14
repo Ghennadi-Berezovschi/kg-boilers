@@ -1,0 +1,139 @@
+/* ======================================================
+   CARDS (Improved + Visible Blue Style)
+====================================================== */
+
+/* =========================
+   Grid
+========================= */
+
+.grid-services {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+/* =========================
+   Card
+========================= */
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    padding: 22px;
+
+    background: #f4f8ff; /* 🔥 мягкий голубой */
+    border: 2px solid #bfdbfe; /* 🔥 ЧЁТКАЯ синяя рамка */
+
+    border-radius: 14px;
+
+    box-shadow: 0 6px 14px rgba(30, 64, 175, 0.06);
+
+    transition: all 0.25s ease;
+}
+
+/* =========================
+   Hover
+========================= */
+
+.card:hover {
+    transform: translateY(-6px);
+
+    background: #eef4ff;
+    border-color: #3b82f6; /* 🔥 яркий синий */
+
+    box-shadow: 0 14px 32px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================
+   Top block
+========================= */
+
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-icon {
+    font-size: 22px;
+}
+
+/* =========================
+   Title
+========================= */
+
+.card h3 {
+    font-size: 16px;
+    font-weight: 700;
+
+    color: var(--blue-main);
+}
+
+/* =========================
+   Text
+========================= */
+
+.card p {
+    font-size: 13.5px;
+    line-height: 1.5;
+
+    color: #475569;
+}
+
+/* =========================
+   CTA
+========================= */
+
+.card-cta-link {
+    margin-top: auto;
+    text-decoration: none;
+}
+
+.card-cta {
+    padding: 8px 12px;
+    border-radius: 6px;
+
+    border: none;
+    background: var(--primary);
+    color: #fff;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* hover кнопки */
+
+.card-cta:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 980px) {
+    .grid-services {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .grid-services {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .card h3 {
+        font-size: 15px;
+    }
+
+    .card p {
+        font-size: 13px;
+    }
+}

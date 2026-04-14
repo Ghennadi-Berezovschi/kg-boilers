@@ -1,0 +1,105 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/kg_boilers_db}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - classpath:catalog/boilers-combi.yml
+      - classpath:catalog/boilers-system.yml
+      - classpath:catalog/boilers-heat-only.yml
+
+# =========================
+# Resilience4j
+# =========================
+
+resilience4j:
+
+  retry:
+    retry-aspect-order: 1
+    instances:
+      postcodeApi:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - com.kgboilers.exception.ExternalServiceException
+        ignore-exceptions:
+          - com.kgboilers.exception.PostcodeNotFoundException
+
+  circuitbreaker:
+    circuit-breaker-aspect-order: 2
+    instances:
+      postcodeApi:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        ignore-exceptions:
+          - com.kgboilers.exception.PostcodeNotFoundException
+
+# =========================
+# Logging
+# =========================
+
+logging:
+  level:
+    root: INFO
+    com.kgboilers: INFO
+    org.springframework.web: INFO
+    io.github.resilience4j.retry: INFO
+    io.github.resilience4j.circuitbreaker: INFO
+
+# =========================
+# Business Config (kg)
+# =========================
+
+kg:
+
+  contact:
+    email: "heatingandplumbingdirect@gmail.com"
+    phone: "+447709023018"
+    phone-display: "+44 7709 023018"
+    whatsapp: "https://wa.me/447709023018"
+
+  location:
+    postcode: "E16 4JJ"
+    max-distance-miles: 70
+
+  http:
+    client:
+      connect-timeout: 5000
+      read-timeout: 5000
+
+  pricing:
+    relocation:
+      zero-to-one: 0
+      two-to-three: 300
+      four-to-five: 400
+      six-to-seven: 500
+      seven-plus: 700
+    flue-length:
+      zero-to-one: 0
+      two-to-three: 250
+      four-to-five: 500
+      six-to-seven: 700
+      seven-plus: 900
+    flue-clearance:
+      thirty-cm-or-more: 0
+      less-than-thirty-cm: 150
+      unsure: 0
+    flue-position:
+      under-structure: 50
+      open-area: 0

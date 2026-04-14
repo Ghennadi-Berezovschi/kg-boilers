@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Conversion</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            Do you want to <span style="color:#ff5a3c;">convert Heat Only to Combi</span>?
+        </h2>
+        <p class="section-subtitle">
+            If you choose yes, we’ll note that your current Heat Only boiler will be changed to a Combi boiler.
+        </p>
+
+        <div class="grid fuel-grid">
+            <article class="card fuel-card" onclick="selectConversion('YES')">
+                <div class="fuel-icon">✅</div>
+                <h3 class="fuel-title">Yes</h3>
+                <div class="fuel-desc">
+                    Mark Heat Only conversion to Combi.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectConversion('NO')">
+                <div class="fuel-icon">➡️</div>
+                <h3 class="fuel-title">No</h3>
+                <div class="fuel-desc">
+                    Keep the current boiler type and continue.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectConversion(conversion) {
+        clearError();
+
+        try {
+            const response = await fetch("/quote/boiler-conversion", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ conversion: conversion })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Boiler conversion error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

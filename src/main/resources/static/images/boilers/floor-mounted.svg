@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="700" viewBox="0 0 500 700">
+
+    <defs>
+        <linearGradient id="boilerGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f9f9f9"/>
+            <stop offset="100%" stop-color="#eaeaea"/>
+        </linearGradient>
+
+        <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d7d7d7"/>
+            <stop offset="100%" stop-color="#bfbfbf"/>
+        </linearGradient>
+
+        <filter id="shadow">
+            <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.15"/>
+        </filter>
+    </defs>
+
+    <rect width="100%" height="100%" fill="#ffffff"/>
+
+    <g filter="url(#shadow)">
+        <rect x="120" y="80" width="260" height="360" rx="18" fill="url(#boilerGrad)" stroke="#d0d0d0"/>
+        <line x1="120" y1="300" x2="380" y2="300" stroke="#e0e0e0"/>
+        <rect x="200" y="140" width="100" height="12" rx="6" fill="#888"/>
+    </g>
+
+    <g fill="#cfcfcf" stroke="#8e8e8e" stroke-width="2">
+        <circle cx="200" cy="330" r="12"/>
+        <circle cx="300" cy="330" r="12"/>
+        <circle cx="200" cy="370" r="12"/>
+        <circle cx="300" cy="370" r="12"/>
+        <circle cx="240" cy="370" r="8"/>
+        <circle cx="260" cy="370" r="8"/>
+    </g>
+
+    <g filter="url(#shadow)">
+        <rect x="95" y="465" width="310" height="18" rx="9" fill="url(#floorGrad)" opacity="0.95"/>
+        <rect x="115" y="458" width="270" height="8" rx="4" fill="#a9a9a9" opacity="0.55"/>
+    </g>
+
+</svg>

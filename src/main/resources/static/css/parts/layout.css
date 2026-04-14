@@ -1,0 +1,20 @@
+/* =========================
+   Layout
+========================= */
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+/* Grid base */
+.grid {
+    display: grid;
+    gap: 20px;
+}
+
+/* Services grid */
+.grid-services {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}

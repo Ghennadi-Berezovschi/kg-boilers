@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Contact Details</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>Choose your boiler and leave your details</h2>
+        <p class="section-subtitle">
+            We’ll use your email and phone number to contact you about the selected boiler.
+        </p>
+
+        <div class="contact-page-grid">
+            <article class="summary-boiler-card contact-selected-card">
+                <div class="summary-boiler-image-wrap">
+                    <img class="summary-boiler-image"
+                         th:src="${selectedBoilerImage}"
+                         th:alt="${selectedBoiler.brand + ' ' + selectedBoiler.model}">
+                </div>
+
+                <div class="summary-boiler-body">
+                    <p class="summary-boiler-brand" th:text="${selectedBoiler.brand}">Brand</p>
+                    <h3 class="summary-boiler-title" th:text="${selectedBoiler.model}">Boiler model</h3>
+
+                    <div class="summary-boiler-meta">
+                        <span>Output: <strong th:text="${selectedBoiler.powerKw + ' kW'}">24 kW</strong></span>
+                        <span>
+                            Boiler price installation:
+                            <strong>£<span th:text="${selectedBoilerPriceGbp}">1000</span></strong>
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <div class="summary-panel contact-form-panel">
+                <div class="summary-success-banner" th:if="${contactSuccess}">
+                    Thanks, we received your request
+                    <strong th:if="${selectedBoilerLead != null}" th:text="${' for ' + selectedBoilerLead}">for your boiler</strong>.
+                    We will contact you soon.
+                </div>
+
+                <div class="contact-form-panel-body" th:if="${!contactSuccess}">
+                    <div class="summary-selected-boiler has-selection">
+                        <span class="summary-selected-label">Selected boiler</span>
+                        <strong th:text="${selectedBoilerLabel}">Vaillant ecoTEC Plus 828 28kW Combi</strong>
+                    </div>
+
+                    <form th:action="@{/quote/contact}"
+                          th:object="${contactRequest}"
+                          method="post"
+                          class="summary-contact-form">
+                        <input type="hidden" th:field="*{selectedBoiler}">
+
+                        <p class="summary-field-error"
+                           th:if="${#fields.hasErrors('selectedBoiler')}"
+                           th:errors="*{selectedBoiler}">
+                            Please choose a boiler first.
+                        </p>
+
+                        <div class="summary-contact-fields">
+                            <label class="summary-contact-field">
+                                <span>Email</span>
+                                <input class="quote-input summary-contact-input"
+                                       type="email"
+                                       th:field="*{email}"
+                                       placeholder="name@example.com">
+                                <span class="summary-field-error"
+                                      th:if="${#fields.hasErrors('email')}"
+                                      th:errors="*{email}">
+                                    Please enter a valid email address.
+                                </span>
+                            </label>
+
+                            <label class="summary-contact-field">
+                                <span>Phone</span>
+                                <input class="quote-input summary-contact-input"
+                                       type="tel"
+                                       th:field="*{phone}"
+                                       placeholder="+44 7700 900123">
+                                <span class="summary-field-error"
+                                      th:if="${#fields.hasErrors('phone')}"
+                                      th:errors="*{phone}">
+                                    Please enter a valid phone number.
+                                </span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-phone summary-contact-submit">
+                            Send my details
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+</body>
+</html>

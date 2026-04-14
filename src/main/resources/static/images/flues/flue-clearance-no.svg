@@ -1,0 +1,36 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <text x="90" y="38" text-anchor="middle" fill="#FF5A3C" font-family="system-ui, sans-serif" font-size="10" font-weight="600">flue</text>
+
+    <g stroke="#2F3440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <rect x="128" y="78" width="42" height="58"/>
+        <line x1="149" y1="78" x2="149" y2="136"/>
+        <line x1="128" y1="107" x2="170" y2="107"/>
+    </g>
+
+    <g stroke="#2F3440" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <circle cx="90" cy="64" r="3.5" fill="#FF8A1E"/>
+        <path d="M84 58C81 56 81 52 84 50"/>
+        <path d="M91 54C89 52 89 49 91 47"/>
+    </g>
+
+    <g stroke="#FF8A1E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <line x1="96" y1="72" x2="124" y2="72"/>
+        <path d="M96 72L102 68"/>
+        <path d="M96 72L102 76"/>
+        <path d="M124 72L118 68"/>
+        <path d="M124 72L118 76"/>
+    </g>
+
+    <text x="110" y="86" text-anchor="middle" fill="#FF5A3C" font-family="system-ui, sans-serif" font-size="10" font-weight="600">less 30</text>
+
+    <g fill="#FF8A1E" stroke="#2F3440" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="128" y="26" width="30" height="22" rx="1.5"/>
+        <line x1="132" y1="31" x2="154" y2="31"/>
+        <line x1="132" y1="37" x2="154" y2="37"/>
+        <line x1="132" y1="43" x2="154" y2="43"/>
+        <line x1="136" y1="26" x2="136" y2="48"/>
+        <line x1="143" y1="26" x2="143" y2="48"/>
+        <line x1="150" y1="26" x2="150" y2="48"/>
+    </g>
+
+</svg>

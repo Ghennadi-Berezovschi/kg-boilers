@@ -1,0 +1,94 @@
+kg:
+  boilers:
+    heat-only:
+
+      - brand: "Main"
+        model: "Eco Compact 15kW"
+        powerKw: 15
+        radiatorsMin: 1
+        radiatorsMax: 8
+        bathroomsMin: 1
+        bathroomsMax: 1
+        averagePriceGbp: 900
+        image: "/images/boilers/catalog/main-heat-only.png"
+        enabled: true
+
+      - brand: "Main"
+        model: "Eco Compact 18kW"
+        powerKw: 18
+        radiatorsMin: 6
+        radiatorsMax: 10
+        bathroomsMin: 1
+        bathroomsMax: 2
+        averagePriceGbp: 950
+        image: "/images/boilers/catalog/main-heat-only.png"
+        enabled: true
+
+      - brand: "Main"
+        model: "Eco Compact 24kW"
+        powerKw: 24
+        radiatorsMin: 9
+        radiatorsMax: 12
+        bathroomsMin: 1
+        bathroomsMax: 2
+        averagePriceGbp: 1000
+        image: "/images/boilers/catalog/main-heat-only.png"
+        enabled: true
+
+
+      # Vaillant heat-only (system boilers)
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 12kW System"
+        powerKw: 12
+        radiatorsMin: 1
+        radiatorsMax: 6
+        bathroomsMin: 1
+        bathroomsMax: 1
+        averagePriceGbp: 1400
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 15kW System"
+        powerKw: 15
+        radiatorsMin: 4
+        radiatorsMax: 8
+        bathroomsMin: 1
+        bathroomsMax: 2
+        averagePriceGbp: 1500
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 18kW System"
+        powerKw: 18
+        radiatorsMin: 6
+        radiatorsMax: 10
+        bathroomsMin: 1
+        bathroomsMax: 2
+        averagePriceGbp: 1600
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 24kW System"
+        powerKw: 24
+        radiatorsMin: 9
+        radiatorsMax: 14
+        bathroomsMin: 1
+        bathroomsMax: 3
+        averagePriceGbp: 1750
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 30kW System"
+        powerKw: 30
+        radiatorsMin: 12
+        radiatorsMax: 18
+        bathroomsMin: 2
+        bathroomsMax: 3
+        averagePriceGbp: 1900
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        enabled: true

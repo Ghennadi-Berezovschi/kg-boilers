@@ -1,0 +1,126 @@
+/* ======================================================
+   BASE (Colors + Reset + Layout)
+====================================================== */
+
+/* =========================
+   ROOT (🔥 ЦВЕТОВАЯ СИСТЕМА)
+========================= */
+
+:root {
+
+    /* TEXT */
+    --text: #0f172a;
+    --muted: #64748b;
+
+    /* BACKGROUND */
+    --bg: #f8fafc;
+    --card-bg: #f1f5ff;
+
+    /* BORDERS */
+    --border: #e2e8f0;
+    --border-blue: #bfdbfe;
+
+    /* PRIMARY (🍒 ВИШНЯ) */
+    --primary: #b91c1c;
+    --primary-hover: #991b1b;
+
+    /* BLUE SYSTEM */
+    --blue-main: #1e3a8a;
+    --blue-light: #2563eb;
+    --blue-soft: #93c5fd;
+    --blue-bg: #eff6ff;
+
+    /* STATUS */
+    --green: #16a34a;
+    --yellow: #facc15;
+
+    /* EFFECTS */
+    --shadow: 0 10px 25px rgba(0,0,0,0.06);
+
+    /* SPACING */
+    --container-padding: 20px;
+}
+
+/* =========================
+   RESET
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+
+    color: var(--text);
+    background: var(--bg);
+}
+
+h1, h2, h3 {
+    margin: 0;
+    font-weight: 800;
+}
+
+p {
+    margin: 0;
+}
+
+/* =========================
+   LINKS
+========================= */
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* =========================
+   BUTTON BASE
+========================= */
+
+button {
+    font-family: inherit;
+}
+
+/* =========================
+   LAYOUT (🔥 САМОЕ ВАЖНОЕ)
+========================= */
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+/* =========================
+   GRID
+========================= */
+
+.grid {
+    display: grid;
+    gap: 20px;
+}
+
+/* Services grid */
+
+.grid-services {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* =========================
+   GLOBAL TITLES
+========================= */
+
+h2 {
+    color: var(--blue-main);
+}
+
+/* =========================
+   SMALL UTILITIES
+========================= */
+
+.subtitle {
+    color: var(--muted);
+    font-size: 13px;
+}

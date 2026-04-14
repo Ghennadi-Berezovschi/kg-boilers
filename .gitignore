@@ -1,0 +1,9 @@
+target/
+*.log
+*.class
+.idea/
+.env
+.env.*
+!.env.example
+*.iml
+*.txt

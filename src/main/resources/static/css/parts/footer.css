@@ -1,0 +1,24 @@
+/* =========================
+   Footer
+========================= */
+
+.site-footer {
+    margin-top: 40px;
+    padding: 20px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+.footer-row {
+    text-align: center;
+}
+
+.footer-line {
+    font-size: 13px;
+}
+
+.footer-small {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+}

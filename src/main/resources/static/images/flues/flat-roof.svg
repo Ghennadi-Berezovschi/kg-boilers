@@ -1,0 +1,19 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#6E7784" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="72" y1="110" x2="72" y2="148"/>
+        <line x1="72" y1="110" x2="132" y2="110"/>
+
+        <rect x="96" y="84" width="14" height="26"/>
+        <line x1="94" y1="84" x2="112" y2="84"/>
+        <line x1="94" y1="76" x2="112" y2="76"/>
+        <line x1="98" y1="76" x2="98" y2="84"/>
+        <line x1="108" y1="76" x2="108" y2="84"/>
+
+        <line x1="90" y1="136" x2="90" y2="148"/>
+        <line x1="90" y1="136" x2="118" y2="136"/>
+        <line x1="118" y1="136" x2="118" y2="148"/>
+
+        <line x1="132" y1="46" x2="132" y2="148"/>
+    </g>
+    <text x="110" y="182" text-anchor="middle" fill="#6E7784" font-family="system-ui, sans-serif" font-size="18" font-weight="600">Flat roof</text>
+</svg>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>K&G Boiler Installation and Repair</title>
+
+    <meta name="description"
+          content="Boiler installation London, boiler repair London, gas engineer London and central heating repair.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kg-boilers.com/">
+    <meta property="og:title" content="K&G Boiler Installation and Repair London">
+    <meta property="og:description" content="Professional boiler installation and repair services in London. Get a free quote today!">
+    <meta property="og:image" content="https://kg-boilers.com/images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kg-boilers.com/">
+    <meta property="twitter:title" content="K&G Boiler Installation and Repair London">
+    <meta property="twitter:description" content="Professional boiler installation and repair services in London. Get a free quote today!">
+    <meta property="twitter:image" content="https://kg-boilers.com/images/og-image.jpg">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <div th:replace="~{fragments/_hero :: hero}"></div>
+    <div th:replace="~{fragments/_services :: services}"></div>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+</body>
+</html>

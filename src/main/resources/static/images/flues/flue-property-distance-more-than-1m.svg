@@ -1,0 +1,47 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(112 52) scale(-0.56 0.56)" stroke="#6E7784" stroke-width="4.0" fill="none">
+        <line x1="120" y1="32" x2="120" y2="170"/>
+        <line x1="120" y1="50" x2="168" y2="50"/>
+
+        <line x1="88" y1="32" x2="76" y2="100"/>
+        <line x1="76" y1="100" x2="120" y2="100"/>
+        <line x1="100" y1="100" x2="100" y2="170"/>
+
+        <rect x="42" y="126" width="26" height="18"/>
+        <rect x="68" y="121" width="10" height="28"/>
+        <path d="M78 127L100 115V155L78 143Z"/>
+
+        <path d="M30 128C26 125 26 119 30 116" stroke-linecap="round"/>
+        <path d="M22 135C18 131 18 124 22 120" stroke-linecap="round"/>
+    </g>
+
+    <g stroke="#6E7784" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <line x1="144" y1="146" x2="192" y2="146"/>
+        <line x1="152" y1="95" x2="152" y2="146"/>
+        <line x1="144" y1="95" x2="164" y2="81"/>
+        <line x1="164" y1="81" x2="184" y2="81"/>
+        <line x1="184" y1="81" x2="196" y2="95"/>
+        <line x1="144" y1="95" x2="196" y2="95"/>
+
+        <path d="M152 87C155 91 161 91 164 87"/>
+        <path d="M164 87C167 91 173 91 176 87"/>
+        <path d="M176 87C179 91 185 91 188 87"/>
+
+        <rect x="156" y="113" width="12" height="22"/>
+        <rect x="172" y="113" width="12" height="22"/>
+        <line x1="162" y1="113" x2="162" y2="135"/>
+        <line x1="178" y1="113" x2="178" y2="135"/>
+        <line x1="156" y1="124" x2="168" y2="124"/>
+        <line x1="172" y1="124" x2="184" y2="124"/>
+    </g>
+
+    <g stroke="#FF8A1E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <line x1="102" y1="110" x2="142" y2="110" stroke-dasharray="4 4"/>
+        <path d="M102 110L108 106"/>
+        <path d="M102 110L108 114"/>
+        <path d="M142 110L136 106"/>
+        <path d="M142 110L136 114"/>
+    </g>
+
+    <text x="122" y="103" text-anchor="middle" fill="#FF8A1E" font-family="system-ui, sans-serif" font-size="10" font-weight="700">more 1m</text>
+</svg>

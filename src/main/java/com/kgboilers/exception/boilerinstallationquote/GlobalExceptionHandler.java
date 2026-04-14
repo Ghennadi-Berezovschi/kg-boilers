@@ -1,0 +1,120 @@
+package com.kgboilers.exception.boilerinstallationquote;
+
+import com.kgboilers.controller.boilerinstallationquote.QuoteWizardApiController;
+import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
+import com.kgboilers.exception.ExternalServiceException;
+import com.kgboilers.exception.PostcodeNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice(assignableTypes = QuoteWizardApiController.class)
+public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final String UNSUPPORTED_FUEL_MESSAGE =
+            "Sorry, we currently do not support this type of fuel.";
+
+    @ExceptionHandler(PostcodeNotFoundException.class)
+    public ResponseEntity<QuoteResponseDto> handlePostcodeNotFound(PostcodeNotFoundException ex) {
+        log.warn("Invalid postcode submitted");
+        return badRequest("INVALID_POSTCODE", "Please enter a valid postcode");
+    }
+
+    @ExceptionHandler(OutOfAreaException.class)
+    public ResponseEntity<QuoteResponseDto> handleOutOfArea(OutOfAreaException ex) {
+        log.warn("Address is out of service area");
+        return forbidden("OUT_OF_AREA", "Sorry, we do not cover your area");
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<QuoteResponseDto> handleExternalService(ExternalServiceException ex) {
+        log.error("External service error", ex);
+        return serviceUnavailable(
+                "SERVICE_UNAVAILABLE",
+                "Service temporarily unavailable. Please try again later"
+        );
+    }
+
+    @ExceptionHandler(UnsupportedFuelException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedFuel(UnsupportedFuelException ex) {
+        log.warn("Unsupported fuel submitted");
+        return badRequest("UNSUPPORTED_FUEL", UNSUPPORTED_FUEL_MESSAGE);
+    }
+
+    @ExceptionHandler(UnsupportedOwnershipException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedOwnership(UnsupportedOwnershipException ex) {
+        log.warn("Unsupported ownership submitted");
+        return badRequest("UNSUPPORTED_OWNERSHIP", "Unsupported ownership type");
+    }
+
+    @ExceptionHandler(UnsupportedPropertyTypeException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedPropertyType(UnsupportedPropertyTypeException ex) {
+        log.warn("Unsupported property type submitted");
+        return badRequest("UNSUPPORTED_PROPERTY_TYPE", "Unsupported property type");
+    }
+
+    @ExceptionHandler(UnsupportedBoilerLocationException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerLocation(UnsupportedBoilerLocationException ex) {
+        log.warn("Unsupported boiler location submitted");
+        return badRequest("UNSUPPORTED_BOILER_LOCATION", "Unsupported boiler location");
+    }
+
+    @ExceptionHandler(UnsupportedBedroomsException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBedrooms(UnsupportedBedroomsException ex) {
+        log.warn("Unsupported bedrooms submitted");
+        return badRequest("UNSUPPORTED_BEDROOMS", "Unsupported bedrooms value");
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<QuoteResponseDto> handleValidation(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        log.warn("Validation error on quote request");
+
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getDefaultMessage())
+                .findFirst()
+                .orElse("Invalid input");
+
+        return badRequest("INVALID_INPUT", message);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<QuoteResponseDto> handleUnknown(Exception ex) {
+        log.error("Unexpected error", ex);
+        return internalError("INTERNAL_SERVER_ERROR", "An unexpected error occurred.");
+    }
+
+    private ResponseEntity<QuoteResponseDto> badRequest(String code, String message) {
+        return build(HttpStatus.BAD_REQUEST, code, message);
+    }
+
+    private ResponseEntity<QuoteResponseDto> forbidden(String code, String message) {
+        return build(HttpStatus.FORBIDDEN, code, message);
+    }
+
+    private ResponseEntity<QuoteResponseDto> serviceUnavailable(String code, String message) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, code, message);
+    }
+
+    private ResponseEntity<QuoteResponseDto> internalError(String code, String message) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, code, message);
+    }
+
+    private ResponseEntity<QuoteResponseDto> build(HttpStatus status,
+                                                   String errorCode,
+                                                   String message) {
+
+        QuoteResponseDto body = QuoteResponseDto.builder()
+                .success(false)
+                .errorCode(errorCode)
+                .message(message)
+                .build();
+
+        return ResponseEntity.status(status).body(body);
+    }
+}

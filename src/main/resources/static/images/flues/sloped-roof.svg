@@ -1,0 +1,44 @@
+<svg
+        width="220"
+        height="220"
+        viewBox="0 0 220 220"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+>
+    <g
+            stroke="#6E7784"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+    >
+        <!-- Top block -->
+        <rect x="86" y="92" width="14" height="28" />
+        <line x1="84" y1="92" x2="102" y2="92" />
+        <line x1="84" y1="84" x2="102" y2="84" />
+        <line x1="88" y1="84" x2="88" y2="92" />
+        <line x1="98" y1="84" x2="98" y2="92" />
+
+        <!-- Left vertical + diagonal -->
+        <line x1="76" y1="120" x2="76" y2="148" />
+        <line x1="76" y1="126" x2="136" y2="78" />
+
+        <!-- Top right corner -->
+        <line x1="136" y1="78" x2="136" y2="42" />
+        <line x1="136" y1="42" x2="164" y2="42" />
+
+        <!-- Bottom right structure -->
+        <line x1="148" y1="108" x2="148" y2="140" />
+        <line x1="148" y1="108" x2="166" y2="108" />
+        <line x1="148" y1="132" x2="162" y2="132" />
+        <line x1="148" y1="140" x2="166" y2="140" />
+    </g>
+    <text
+            x="110"
+            y="182"
+            text-anchor="middle"
+            fill="#6E7784"
+            font-family="system-ui, sans-serif"
+            font-size="18"
+            font-weight="600"
+    >Sloped roof</text>
+</svg>

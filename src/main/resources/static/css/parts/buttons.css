@@ -1,0 +1,99 @@
+/* ======================================================
+   BUTTONS (Clean + Semantic Colors)
+====================================================== */
+
+/* =========================
+   Base button
+========================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    padding: 10px 14px;
+
+    border-radius: 8px;
+    border: none;
+
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+
+    text-decoration: none;
+    color: #fff;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.btn-label-short {
+    display: none;
+}
+
+.btn-phone-number {
+    white-space: nowrap;
+}
+
+/* =========================
+   PHONE (🔴 главный CTA)
+========================= */
+
+.btn-phone {
+    background: #dc2626;
+    color: #ffffff;
+
+    font-weight: 700;
+    letter-spacing: 0.3px;
+
+    box-shadow: 0 6px 14px rgba(220, 38, 38, 0.25);
+}
+
+.btn-phone:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   WHATSAPP (🟢)
+========================= */
+
+.btn-wa {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.btn-wa:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   EMAIL (🟡)
+========================= */
+
+.btn-email {
+    background: #facc15;
+    color: #111827; /* контраст для текста */
+}
+
+.btn-email:hover {
+    background: #eab308;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   CALLBACK (🔵)
+========================= */
+
+.btn-callback {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-callback:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}

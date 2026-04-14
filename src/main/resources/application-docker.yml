@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: ${DB_URL_DOCKER:${DB_URL:jdbc:postgresql://kg_boilers_postgres:5432/kg_boilers_db}}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver

@@ -1,0 +1,18 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#6E7784" stroke-width="2.2" fill="none">
+        <line x1="120" y1="32" x2="120" y2="170"/>
+        <line x1="120" y1="50" x2="168" y2="50"/>
+
+        <line x1="88" y1="32" x2="76" y2="100"/>
+        <line x1="76" y1="100" x2="120" y2="100"/>
+        <line x1="100" y1="100" x2="100" y2="170"/>
+
+        <rect x="42" y="126" width="26" height="18"/>
+        <rect x="68" y="121" width="10" height="28"/>
+        <path d="M78 127L100 115V155L78 143Z"/>
+
+        <path d="M30 128C26 125 26 119 30 116" stroke-linecap="round"/>
+        <path d="M22 135C18 131 18 124 22 120" stroke-linecap="round"/>
+    </g>
+    <text x="110" y="202" text-anchor="middle" fill="#6E7784" font-family="system-ui, sans-serif" font-size="22" font-weight="600">Wall</text>
+</svg>
