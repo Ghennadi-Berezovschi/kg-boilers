@@ -3,11 +3,13 @@ package com.kgboilers.service.boilerinstallationquote;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgboilers.model.boilerinstallationquote.BoilerModel;
+import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +34,9 @@ public class QuotePersistenceService {
                              int relocationPriceGbp,
                              int flueLengthPriceGbp,
                              int fluePositionPriceGbp,
-                             int flueClearancePriceGbp) {
+                             int flueClearancePriceGbp,
+                             List<QuoteOptionalExtra> selectedOptionalExtras,
+                             int optionalExtrasPriceGbp) {
 
         MapSqlParameterSource params = buildParameters(
                 serviceType,
@@ -41,7 +45,9 @@ public class QuotePersistenceService {
                 relocationPriceGbp,
                 flueLengthPriceGbp,
                 fluePositionPriceGbp,
-                flueClearancePriceGbp
+                flueClearancePriceGbp,
+                selectedOptionalExtras,
+                optionalExtrasPriceGbp
         );
 
         if (savedQuoteId == null) {
@@ -69,6 +75,8 @@ public class QuotePersistenceService {
                         bath_shower_count,
                         recommended_boiler,
                         installation_price_gbp,
+                        selected_optional_extras_json,
+                        optional_extras_price_gbp,
                         client_answers_json,
                         created_at,
                         updated_at
@@ -95,6 +103,8 @@ public class QuotePersistenceService {
                         :bathShowerCount,
                         :recommendedBoiler,
                         :installationPriceGbp,
+                        CAST(:selectedOptionalExtrasJson AS jsonb),
+                        :optionalExtrasPriceGbp,
                         CAST(:clientAnswersJson AS jsonb),
                         CURRENT_TIMESTAMP,
                         CURRENT_TIMESTAMP
@@ -128,11 +138,44 @@ public class QuotePersistenceService {
                     bath_shower_count = :bathShowerCount,
                     recommended_boiler = :recommendedBoiler,
                     installation_price_gbp = :installationPriceGbp,
+                    selected_optional_extras_json = CAST(:selectedOptionalExtrasJson AS jsonb),
+                    optional_extras_price_gbp = :optionalExtrasPriceGbp,
                     client_answers_json = CAST(:clientAnswersJson AS jsonb),
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = :id
                 """, params);
         return savedQuoteId;
+    }
+
+    @Transactional
+    public Long saveLead(Long savedQuoteId,
+                         String serviceType,
+                         QuoteSessionState state,
+                         BoilerRecommendationResult recommendation,
+                         int relocationPriceGbp,
+                         int flueLengthPriceGbp,
+                         int fluePositionPriceGbp,
+                         int flueClearancePriceGbp,
+                         List<QuoteOptionalExtra> selectedOptionalExtras,
+                         int optionalExtrasPriceGbp,
+                         String selectedBoiler,
+                         String email,
+                         String phone) {
+        Long quoteId = saveOrUpdate(
+                savedQuoteId,
+                serviceType,
+                state,
+                recommendation,
+                relocationPriceGbp,
+                flueLengthPriceGbp,
+                fluePositionPriceGbp,
+                flueClearancePriceGbp,
+                selectedOptionalExtras,
+                optionalExtrasPriceGbp
+        );
+
+        saveContactDetails(quoteId, selectedBoiler, email, phone);
+        return quoteId;
     }
 
     public void saveContactDetails(Long quoteId,
@@ -154,6 +197,7 @@ public class QuotePersistenceService {
                 SET selected_boiler = :selectedBoiler,
                     client_email = :clientEmail,
                     client_phone = :clientPhone,
+                    status = 'NEW_LEAD',
                     contact_requested_at = CURRENT_TIMESTAMP,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = :id
@@ -166,12 +210,14 @@ public class QuotePersistenceService {
                                                   int relocationPriceGbp,
                                                   int flueLengthPriceGbp,
                                                   int fluePositionPriceGbp,
-                                                  int flueClearancePriceGbp) {
+                                                  int flueClearancePriceGbp,
+                                                  List<QuoteOptionalExtra> selectedOptionalExtras,
+                                                  int optionalExtrasPriceGbp) {
 
         int extrasTotalPriceGbp = relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp;
         BoilerModel primaryBoiler = getPrimaryBoiler(recommendation);
         Integer installationPriceGbp = primaryBoiler != null
-                ? primaryBoiler.getAveragePriceGbp() + extrasTotalPriceGbp
+                ? primaryBoiler.getAveragePriceGbp() + extrasTotalPriceGbp + optionalExtrasPriceGbp
                 : null;
 
         return new MapSqlParameterSource()
@@ -197,6 +243,8 @@ public class QuotePersistenceService {
                 .addValue("bathShowerCount", enumName(state.getBathShowerCount()))
                 .addValue("recommendedBoiler", buildRecommendedBoilerLabel(primaryBoiler))
                 .addValue("installationPriceGbp", installationPriceGbp)
+                .addValue("selectedOptionalExtrasJson", toJson(buildSelectedOptionalExtrasSnapshot(selectedOptionalExtras)))
+                .addValue("optionalExtrasPriceGbp", optionalExtrasPriceGbp)
                 .addValue("clientAnswersJson", toJson(buildClientAnswersSnapshot(
                         serviceType,
                         state,
@@ -205,6 +253,8 @@ public class QuotePersistenceService {
                         flueLengthPriceGbp,
                         fluePositionPriceGbp,
                         flueClearancePriceGbp,
+                        selectedOptionalExtras,
+                        optionalExtrasPriceGbp,
                         installationPriceGbp
                 )));
     }
@@ -216,6 +266,8 @@ public class QuotePersistenceService {
                                                            int flueLengthPriceGbp,
                                                            int fluePositionPriceGbp,
                                                            int flueClearancePriceGbp,
+                                                           List<QuoteOptionalExtra> selectedOptionalExtras,
+                                                           int optionalExtrasPriceGbp,
                                                            Integer installationPriceGbp) {
 
         Map<String, Object> snapshot = new LinkedHashMap<>();
@@ -248,8 +300,11 @@ public class QuotePersistenceService {
         pricing.put("flueLengthPriceGbp", flueLengthPriceGbp);
         pricing.put("fluePositionPriceGbp", fluePositionPriceGbp);
         pricing.put("flueClearancePriceGbp", flueClearancePriceGbp);
+        pricing.put("optionalExtrasPriceGbp", optionalExtrasPriceGbp);
         pricing.put("installationPriceGbp", installationPriceGbp);
         snapshot.put("pricing", pricing);
+
+        snapshot.put("selectedOptionalExtras", buildSelectedOptionalExtrasSnapshot(selectedOptionalExtras));
 
         Map<String, Object> recommendationData = new LinkedHashMap<>();
         recommendationData.put("targetType", recommendation != null ? enumName(recommendation.getTargetType()) : null);
@@ -278,6 +333,24 @@ public class QuotePersistenceService {
                 .toList();
     }
 
+    private List<Map<String, Object>> buildSelectedOptionalExtrasSnapshot(List<QuoteOptionalExtra> selectedOptionalExtras) {
+        if (selectedOptionalExtras == null || selectedOptionalExtras.isEmpty()) {
+            return List.of();
+        }
+
+        return selectedOptionalExtras.stream()
+                .map(extra -> {
+                    Map<String, Object> extraData = new LinkedHashMap<>();
+                    extraData.put("id", extra.getId());
+                    extraData.put("title", extra.getTitle());
+                    extraData.put("description", extra.getDescription());
+                    extraData.put("priceGbp", extra.getPriceGbp());
+                    extraData.put("image", extra.getImage());
+                    return extraData;
+                })
+                .toList();
+    }
+
     private BoilerModel getPrimaryBoiler(BoilerRecommendationResult recommendation) {
         if (recommendation == null || recommendation.getBoilers() == null || recommendation.getBoilers().isEmpty()) {
             return null;
@@ -296,7 +369,7 @@ public class QuotePersistenceService {
         return value != null ? value.name() : null;
     }
 
-    private String toJson(Map<String, Object> snapshot) {
+    private String toJson(Object snapshot) {
         try {
             return objectMapper.writeValueAsString(snapshot);
         } catch (JsonProcessingException ex) {

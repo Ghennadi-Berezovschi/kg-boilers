@@ -6,7 +6,8 @@
 
     <title>Quote Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
+    <script th:src="@{/js/summary-options.js(v='20260416-0805')}" defer></script>
 </head>
 <body>
 
@@ -20,108 +21,17 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2>Your boiler quote summary</h2>
+        <h2>Choose your new boiler</h2>
         <p class="section-subtitle">
-            Based on your answers, here are the boiler models from the current catalog that fit best.
+            Based on your answers, here are the boiler models from the current catalog that fit best. These prices already include your selected installation requirements.
         </p>
 
-        <div class="summary-grid">
-            <div class="summary-panel">
-                <h3 class="summary-panel-title">Client answers</h3>
-
-                <div class="summary-items">
-                    <div class="summary-item">
-                        <span class="summary-label">Postcode</span>
-                        <span class="summary-value" th:text="${state.postcode}">E16 4JJ</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Fuel</span>
-                        <span class="summary-value" th:text="${state.fuel}">GAS</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Ownership</span>
-                        <span class="summary-value" th:text="${state.ownership}">HOMEOWNER</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Property</span>
-                        <span class="summary-value" th:text="${state.propertyType}">FLAT</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Boiler</span>
-                        <span class="summary-value" th:text="${state.boilerType}">HEAT_ONLY</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Position</span>
-                        <span class="summary-value" th:text="${state.boilerPosition}">FLOOR_STANDING</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Location</span>
-                        <span class="summary-value" th:text="${state.boilerLocation}">FIRST_FLOOR</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Bedrooms</span>
-                        <span class="summary-value" th:text="${state.bedrooms}">FIVE</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Condition</span>
-                        <span class="summary-value" th:text="${state.boilerCondition}">OTHER</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Relocation</span>
-                        <span class="summary-value" th:text="${state.relocation}">YES</span>
-                    </div>
-                    <div class="summary-item" th:if="${state.relocationDistance != null}">
-                        <span class="summary-label">Relocation distance</span>
-                        <span class="summary-value" th:text="${state.relocationDistanceSummary}">0-1 metres</span>
-                    </div>
-                    <div class="summary-item" th:if="${relocationPriceGbp != null}">
-                        <span class="summary-label">Relocation price</span>
-                        <span class="summary-value">£<span th:text="${relocationPriceGbp}">0</span></span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Flue type</span>
-                        <span class="summary-value" th:text="${state.flueSummary}">Vertical flue</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Flue length</span>
-                        <span class="summary-value" th:text="${state.flueLengthSummary}">4-5 metres</span>
-                    </div>
-                    <div class="summary-item" th:if="${flueLengthPriceGbp != null}">
-                        <span class="summary-label">Flue length price</span>
-                        <span class="summary-value">£<span th:text="${flueLengthPriceGbp}">500</span></span>
-                    </div>
-                    <div class="summary-item" th:if="${state.fluePosition != null}">
-                        <span class="summary-label">Flue position</span>
-                        <span class="summary-value" th:text="${state.fluePositionSummary}">Wall</span>
-                    </div>
-                    <div class="summary-item" th:if="${fluePositionPriceGbp != null}">
-                        <span class="summary-label">Flue position price</span>
-                        <span class="summary-value">£<span th:text="${fluePositionPriceGbp}">50</span></span>
-                    </div>
-                    <div class="summary-item" th:if="${state.flueClearance != null}">
-                        <span class="summary-label">Flue clearance</span>
-                        <span class="summary-value" th:text="${state.flueClearanceSummary}">Meets clearance</span>
-                    </div>
-                    <div class="summary-item" th:if="${flueClearancePriceGbp != null}">
-                        <span class="summary-label">Flue clearance price</span>
-                        <span class="summary-value">£<span th:text="${flueClearancePriceGbp}">0</span></span>
-                    </div>
-                    <div class="summary-item" th:if="${state.fluePropertyDistance != null}">
-                        <span class="summary-label">Flue property distance</span>
-                        <span class="summary-value" th:text="${state.fluePropertyDistanceSummary}">More than 1 metre</span>
-                    </div>
-                    <div class="summary-item" th:if="${state.radiatorCount != null}">
-                        <span class="summary-label">Radiators</span>
-                        <span class="summary-value" th:text="${state.radiatorCountSummary}">0-5 radiators</span>
-                    </div>
-                    <div class="summary-item" th:if="${state.bathShowerCount != null}">
-                        <span class="summary-label">Baths and showers</span>
-                        <span class="summary-value" th:text="${state.bathShowerCountSummary}">1</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="summary-panel" th:if="${boilerRecommendation != null}">
+        <form th:if="${boilerRecommendation != null}"
+              th:action="@{/quote/contact}"
+              method="get"
+              class="summary-selection-form js-summary-selection-form">
+        <div class="summary-offer-layout">
+            <div class="summary-offer-main" th:if="${boilerRecommendation != null}">
                 <div class="summary-recommendation-head">
                     <div>
                         <h3 class="summary-panel-title"
@@ -142,7 +52,11 @@
                 </p>
 
                 <div class="summary-boiler-grid" th:if="${!#lists.isEmpty(boilerRecommendation.boilers)}">
-                    <article class="summary-boiler-card" th:each="boiler : ${boilerRecommendation.boilers}">
+                    <article class="summary-boiler-card"
+                             th:classappend="${boilerStat.index == 0 ? ' summary-boiler-card-featured' : ''}"
+                             th:each="boiler, boilerStat : ${boilerRecommendation.boilers}">
+                        <div class="summary-boiler-badge" th:if="${boilerStat.index == 0}">Top match</div>
+
                         <div class="summary-boiler-image-wrap">
                             <img class="summary-boiler-image"
                                  th:src="${#strings.isEmpty(boiler.image) ? (recommendedBoilerFallbackImage != null ? recommendedBoilerFallbackImage : '/images/boilers/combi.svg') : boiler.image}"
@@ -153,32 +67,169 @@
                             <p class="summary-boiler-brand" th:text="${boiler.brand}">Brand</p>
                             <h4 class="summary-boiler-title" th:text="${boiler.model}">Boiler model</h4>
 
+                            <div class="summary-boiler-price-block">
+                                <span class="summary-boiler-price-label">Boiler price installation</span>
+                                <strong class="summary-boiler-price-value">£<span class="js-boiler-total"
+                                                                                  th:attr="data-base-price=${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
+                                                                                  th:text="${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">1000</span></strong>
+                            </div>
+
                             <div class="summary-boiler-meta">
                                 <span>Output: <strong th:text="${boiler.powerKw + ' kW'}">24 kW</strong></span>
-                                <span>
-                                    Boiler price installation:
-                                    <strong>£<span th:text="${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}">1000</span></strong>
-                                </span>
+                                <span>Fixed installation price for your property requirements</span>
                             </div>
 
                             <div class="summary-boiler-actions">
-                                <a class="btn btn-callback summary-choose-btn"
-                                   th:href="@{/quote/contact(boiler=${boiler.brand + ' ' + boiler.model})}">
+                                <button type="submit"
+                                        name="boiler"
+                                        th:value="${boiler.brand + ' ' + boiler.model}"
+                                        class="summary-boxt-btn summary-boxt-btn-primary summary-choose-btn">
                                     Choose
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </article>
                 </div>
+
+                <section class="summary-optional-section" th:if="${!#lists.isEmpty(quoteOptionalExtras)}">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Optional extras</h3>
+                            <p class="summary-empty-copy">
+                                Add anything extra you’d like with your installation. These are completely optional.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="summary-optional-grid">
+                        <article class="summary-optional-card js-optional-extra-card"
+                                 th:each="extra : ${quoteOptionalExtras}"
+                                 th:classappend="${selectedExtraIds.contains(extra.id) ? ' is-selected' : ''}">
+                            <input class="summary-optional-checkbox js-optional-extra-checkbox"
+                                   type="checkbox"
+                                   name="selectedExtras"
+                                   th:value="${extra.id}"
+                                   th:checked="${selectedExtraIds.contains(extra.id)}"
+                                   th:attr="data-extra-title=${extra.title},data-extra-price=${extra.priceGbp}">
+
+                            <div class="summary-optional-media">
+                                <img th:if="${extra.image != null and !#strings.isEmpty(extra.image)}"
+                                     class="summary-optional-image"
+                                     th:src="${extra.image}"
+                                     th:alt="${extra.title}">
+                                <span th:if="${extra.image == null or #strings.isEmpty(extra.image)}"
+                                      class="summary-optional-fallback">
+                                    Extra
+                                </span>
+                            </div>
+
+                            <div class="summary-optional-body">
+                                <h4 class="summary-optional-title" th:text="${extra.title}">Hive Thermostat Mini</h4>
+                                <p class="summary-optional-desc" th:text="${extra.description}">
+                                    Optional extra description
+                                </p>
+                                <div class="summary-optional-footer">
+                                    <strong class="summary-optional-price">+£<span th:text="${extra.priceGbp}">150</span></strong>
+                                    <button type="button"
+                                            class="summary-optional-toggle js-optional-extra-toggle"
+                                            th:attr="data-extra-id=${extra.id},data-selected=${selectedExtraIds.contains(extra.id)}"
+                                            th:text="${selectedExtraIds.contains(extra.id) ? 'Added' : 'Add'}">Add</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
             </div>
 
-            <div class="summary-panel" th:if="${boilerRecommendation == null}">
-                <h3 class="summary-panel-title">Recommended boilers</h3>
-                <p class="summary-empty-copy">
-                    Your answers were saved, but the recommendation block is not available in the current app instance yet.
-                    Refresh the page after restarting the application to load boiler matches and real photos.
-                </p>
-            </div>
+            <aside class="summary-offer-sidebar"
+                   th:with="featuredBoiler=${boilerRecommendation != null and !#lists.isEmpty(boilerRecommendation.boilers) ? boilerRecommendation.boilers[0] : null}">
+                <div class="summary-breakdown-card summary-boxt-sidebar">
+                    <span class="summary-breakdown-eyebrow">Fixed installation quote</span>
+                    <h3 class="summary-panel-title">Your fixed price including installation:</h3>
+                    <div class="summary-sidebar-featured" th:if="${featuredBoiler != null}">
+                        <p class="summary-sidebar-model"
+                           th:text="${featuredBoiler.brand + ' ' + featuredBoiler.model}">
+                            Vaillant ecoTEC Plus 28kW Combi
+                        </p>
+                        <div class="summary-sidebar-price-row">
+                            <strong>£<span class="js-featured-total"
+                                            th:attr="data-base-price=${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
+                                            th:text="${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">3000</span></strong>
+                        </div>
+                    </div>
+
+                    <p class="summary-empty-copy">
+                        Choose the boiler you want and we’ll use your selected installation requirements to prepare your final booking.
+                    </p>
+
+                    <div class="summary-breakdown-list">
+                        <div class="summary-breakdown-row"
+                             th:each="includedItem : ${quoteIncludedItems}">
+                            <span th:text="${includedItem}">Programmable Room Thermostat</span>
+                            <strong>Included</strong>
+                        </div>
+
+                        <div class="summary-breakdown-divider"></div>
+
+                        <div class="summary-breakdown-row" th:if="${relocationPriceGbp != null and relocationPriceGbp > 0}">
+                            <span>Moving boiler</span>
+                            <strong>£<span th:text="${relocationPriceGbp}">400</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row" th:if="${flueLengthPriceGbp != null and flueLengthPriceGbp > 0}">
+                            <span>Flue extension pack</span>
+                            <strong>£<span th:text="${flueLengthPriceGbp}">900</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row" th:if="${fluePositionPriceGbp != null and fluePositionPriceGbp > 0}">
+                            <span>Balcony or structure flue adjustment</span>
+                            <strong>£<span th:text="${fluePositionPriceGbp}">50</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row" th:if="${flueClearancePriceGbp != null and flueClearancePriceGbp > 0}">
+                            <span>Flue clearance adjustment</span>
+                            <strong>£<span th:text="${flueClearancePriceGbp}">150</span></strong>
+                        </div>
+
+                        <div class="summary-breakdown-divider js-optional-extras-divider"
+                             th:hidden="${#lists.isEmpty(selectedOptionalExtras)}"></div>
+
+                        <div class="js-optional-extras-breakdown"
+                             th:hidden="${#lists.isEmpty(selectedOptionalExtras)}">
+                            <div class="summary-breakdown-row summary-breakdown-row-optional"
+                                 th:each="extra : ${selectedOptionalExtras}">
+                                <div class="summary-breakdown-optional-copy">
+                                    <span th:text="${extra.title}">Hive Thermostat Mini</span>
+                                    <button type="button"
+                                            class="summary-remove-extra js-remove-extra"
+                                            th:attr="data-extra-id=${extra.id}">
+                                        Remove
+                                    </button>
+                                </div>
+                                <strong>£<span th:text="${extra.priceGbp}">150</span></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-breakdown-total">
+                        <span>Total selected extras</span>
+                        <strong>£<span class="js-total-selected-extras"
+                                        th:attr="data-base-extras-total=${recommendedBoilerExtraPriceGbp}"
+                                        th:text="${recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">0</span></strong>
+                    </div>
+
+                    <p class="summary-breakdown-note">
+                        The boiler prices shown on this page include your selected installation requirements and any optional extras you add.
+                    </p>
+                </div>
+            </aside>
+
+        </div>
+        </form>
+
+        <div class="summary-panel" th:if="${boilerRecommendation == null}">
+            <h3 class="summary-panel-title">Recommended boilers</h3>
+            <p class="summary-empty-copy">
+                Your answers were saved, but the recommendation block is not available in the current app instance yet.
+                Refresh the page after restarting the application to load boiler matches and real photos.
+            </p>
         </div>
     </section>
 </main>

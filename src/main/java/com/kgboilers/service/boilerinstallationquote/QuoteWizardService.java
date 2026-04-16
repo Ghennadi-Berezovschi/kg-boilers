@@ -87,6 +87,8 @@ public class QuoteWizardService {
                     && state.hasBathShowerCount()
                     && (state.getFlueType() != FlueType.HORIZONTAL
                     || (state.hasFlueClearance() && state.hasFluePropertyDistance()));
+
+            case CONTACT -> state.isComplete();
         };
     }
 

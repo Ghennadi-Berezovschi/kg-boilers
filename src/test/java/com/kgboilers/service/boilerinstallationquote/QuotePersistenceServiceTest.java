@@ -19,6 +19,7 @@ import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
 import com.kgboilers.model.boilerinstallationquote.BoilerModel;
+import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,6 +82,8 @@ class QuotePersistenceServiceTest {
                 300,
                 250,
                 50,
+                150,
+                List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)),
                 150
         );
 
@@ -100,14 +103,17 @@ class QuotePersistenceServiceTest {
         assertEquals("COMBI", params.getValue("boilerType"));
         assertEquals("UNDER_STRUCTURE", params.getValue("fluePosition"));
         assertEquals("Vaillant ecoTEC Plus 28kW Combi", params.getValue("recommendedBoiler"));
-        assertEquals(2750, params.getValue("installationPriceGbp"));
+        assertEquals(2900, params.getValue("installationPriceGbp"));
+        assertEquals(150, params.getValue("optionalExtrasPriceGbp"));
 
         String snapshotJson = (String) params.getValue("clientAnswersJson");
         assertTrue(snapshotJson.contains("\"serviceType\":\"boiler-installation\""));
         assertTrue(snapshotJson.contains("\"postcode\":\"E16 4JJ\""));
         assertTrue(snapshotJson.contains("\"flueLengthPriceGbp\":250"));
-        assertTrue(snapshotJson.contains("\"installationPriceGbp\":2750"));
+        assertTrue(snapshotJson.contains("\"optionalExtrasPriceGbp\":150"));
+        assertTrue(snapshotJson.contains("\"installationPriceGbp\":2900"));
         assertTrue(snapshotJson.contains("\"model\":\"ecoTEC Plus 28kW Combi\""));
+        assertTrue(snapshotJson.contains("\"title\":\"Hive Thermostat Mini\""));
     }
 
     @Test
@@ -122,7 +128,9 @@ class QuotePersistenceServiceTest {
                 0,
                 250,
                 0,
-                150
+                150,
+                List.of(),
+                0
         );
 
         assertEquals(99L, quoteId);
@@ -157,12 +165,54 @@ class QuotePersistenceServiceTest {
         verify(jdbcTemplate).update(sqlCaptor.capture(), paramsCaptor.capture());
 
         assertTrue(sqlCaptor.getValue().contains("selected_boiler"));
+        assertTrue(sqlCaptor.getValue().contains("status = 'NEW_LEAD'"));
 
         MapSqlParameterSource params = paramsCaptor.getValue();
         assertEquals(44L, params.getValue("id"));
         assertEquals("Main Eco Compact 30kW Combi", params.getValue("selectedBoiler"));
         assertEquals("client@example.com", params.getValue("clientEmail"));
         assertEquals("+44 7700 900123", params.getValue("clientPhone"));
+    }
+
+    @Test
+    void saveLead_shouldInsertQuoteAndSaveContactDetails() {
+        QuoteSessionState state = completeState();
+        BoilerModel boiler = new BoilerModel();
+        boiler.setBrand("Vaillant");
+        boiler.setModel("ecoTEC Plus 28kW Combi");
+        boiler.setAveragePriceGbp(2000);
+
+        BoilerRecommendationResult recommendation = new BoilerRecommendationResult(
+                BoilerType.COMBI,
+                "Combi boiler",
+                9,
+                2,
+                true,
+                List.of(boiler)
+        );
+
+        when(jdbcTemplate.queryForObject(anyString(), any(MapSqlParameterSource.class), eq(Long.class)))
+                .thenReturn(88L);
+
+        Long quoteId = quotePersistenceService.saveLead(
+                null,
+                "boiler-installation",
+                state,
+                recommendation,
+                300,
+                250,
+                50,
+                150,
+                List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)),
+                150,
+                "Vaillant ecoTEC Plus 28kW Combi",
+                "client@example.com",
+                "+44 7700 900123"
+        );
+
+        assertEquals(88L, quoteId);
+        verify(jdbcTemplate).queryForObject(anyString(), any(MapSqlParameterSource.class), eq(Long.class));
+        verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
     }
 
     @Test
@@ -192,5 +242,13 @@ class QuotePersistenceServiceTest {
         state.setRadiatorCount(RadiatorCount.SIX_TO_NINE);
         state.setBathShowerCount(BathShowerCount.TWO);
         return state;
+    }
+
+    private QuoteOptionalExtra optionalExtra(String id, String title, int priceGbp) {
+        QuoteOptionalExtra extra = new QuoteOptionalExtra();
+        extra.setId(id);
+        extra.setTitle(title);
+        extra.setPriceGbp(priceGbp);
+        return extra;
     }
 }

@@ -1,0 +1,31 @@
+<section class="quote-progress-shell"
+         th:fragment="progress"
+         th:if="${quoteProgress != null}"
+         aria-label="Quote progress">
+    <div class="container">
+        <div class="quote-progress-card">
+            <div class="quote-progress-copy">
+                <div>
+                    <span class="quote-progress-kicker"
+                          th:text="${'Step ' + quoteProgress.currentStepNumber + ' of ' + quoteProgress.totalSteps}">
+                        Step 1 of 15
+                    </span>
+                    <strong class="quote-progress-percent"
+                            th:text="${quoteProgress.percentComplete + '% complete'}">
+                        7% complete
+                    </strong>
+                </div>
+                <span class="quote-progress-remaining"
+                      th:text="${quoteProgress.stepsRemaining + ' steps left'}">
+                    14 steps left
+                </span>
+            </div>
+
+            <div class="quote-progress-track" aria-hidden="true">
+                <span class="quote-progress-fill"
+                      th:style="'width:' + ${quoteProgress.percentComplete} + '%'"></span>
+            </div>
+
+        </div>
+    </div>
+</section>

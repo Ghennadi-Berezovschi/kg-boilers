@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class BoilerContactRequestDto {
 
@@ -21,4 +24,6 @@ public class BoilerContactRequestDto {
             message = "Please enter a valid phone number."
     )
     private String phone;
+
+    private List<String> selectedExtras = new ArrayList<>();
 }

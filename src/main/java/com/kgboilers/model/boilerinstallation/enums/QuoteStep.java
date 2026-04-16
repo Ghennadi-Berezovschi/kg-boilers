@@ -40,7 +40,9 @@ public enum QuoteStep {
 
     BATH_SHOWER_COUNT("/quote/bath-shower-count"),
 
-    SUMMARY("/quote/summary");
+    SUMMARY("/quote/summary"),
+
+    CONTACT("/quote/contact");
 
     private final String path;
 
@@ -93,6 +95,8 @@ public enum QuoteStep {
             case BATH_SHOWER_COUNT -> RADIATOR_COUNT;
 
             case SUMMARY -> BATH_SHOWER_COUNT;
+
+            case CONTACT -> SUMMARY;
         };
     }
 }

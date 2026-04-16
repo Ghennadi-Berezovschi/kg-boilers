@@ -103,3 +103,32 @@ kg:
     flue-position:
       under-structure: 50
       open-area: 0
+
+  quote-offer:
+    included-items:
+      - "Boiler installation"
+      - "Programmable Room Thermostat"
+      - "Magnetic System Filter"
+      - "In-line scale reducer"
+      - "Disposal of your old boiler"
+      - "Carbon Monoxide Alarm"
+      - "Vaillant Integral Filling Link"
+      - "Condensate pipework"
+      - "Pipework installation, alterations and upgrades"
+      - "Sentinel Water Treatment"
+      - "Electrical work"
+      - "Boiler Aftercare: 10 years warranty (on-site parts & labour)"
+      - "BOXT to register the warranty & Building Control Certificate"
+      - "Chemical Flush"
+      - "Fused Spur"
+      - "Combi Boiler Fittings Pack"
+    optional-extras:
+      - id: "hive-thermostat-mini"
+        title: "Hive Thermostat Mini"
+        description: "Save up to £174 a year on energy bills with intelligent heating control from the Hive Thermostat Mini."
+        price-gbp: 150
+
+      - id: "esi-smart-thermostat"
+        title: "ESi Smart Thermostat with Wi-Fi Hub"
+        description: "Control your heating from your phone with a smart thermostat and Wi-Fi hub."
+        price-gbp: 79

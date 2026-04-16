@@ -6,7 +6,7 @@
 
     <title>Boiler Contact Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -60,11 +60,31 @@
                         <strong th:text="${selectedBoilerLabel}">Vaillant ecoTEC Plus 828 28kW Combi</strong>
                     </div>
 
+                    <div class="summary-selected-boiler summary-selected-extras"
+                         th:if="${!#lists.isEmpty(selectedOptionalExtras)}">
+                        <span class="summary-selected-label">Optional extras</span>
+                        <div class="contact-selected-extra-list">
+                            <div class="contact-selected-extra-item"
+                                 th:each="extra : ${selectedOptionalExtras}">
+                                <span th:text="${extra.title}">Hive Thermostat Mini</span>
+                                <strong>£<span th:text="${extra.priceGbp}">150</span></strong>
+                            </div>
+                        </div>
+                        <div class="contact-selected-extra-total">
+                            Optional extras total:
+                            <strong>£<span th:text="${selectedOptionalExtrasPriceGbp}">0</span></strong>
+                        </div>
+                    </div>
+
                     <form th:action="@{/quote/contact}"
                           th:object="${contactRequest}"
                           method="post"
                           class="summary-contact-form">
                         <input type="hidden" th:field="*{selectedBoiler}">
+                        <input type="hidden"
+                               name="selectedExtras"
+                               th:each="selectedExtraId : ${selectedExtraIds}"
+                               th:value="${selectedExtraId}">
 
                         <p class="summary-field-error"
                            th:if="${#fields.hasErrors('selectedBoiler')}"
