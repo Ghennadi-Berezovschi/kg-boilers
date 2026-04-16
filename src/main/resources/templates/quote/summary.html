@@ -1,0 +1,22 @@
+<h1>Summary</h1>
+
+<p>Postcode: <span th:text="${state.postcode}"></span></p>
+<p>Fuel: <span th:text="${state.fuel}"></span></p>
+<p>Ownership: <span th:text="${state.ownership}"></span></p>
+<p>Property: <span th:text="${state.propertyType}"></span></p>
+<p>Boiler: <span th:text="${state.boilerType}"></span></p>
+<p>Position: <span th:text="${state.boilerPosition}"></span></p>
+<p>Location: <span th:text="${state.boilerLocation}"></span></p>
+<p>Bedrooms: <span th:text="${state.bedrooms}"></span></p>
+<p>Condition: <span th:text="${state.boilerCondition}"></span></p>
+<p>Relocation: <span th:text="${state.relocation}"></span></p>
+<p th:if="${state.relocationDistance != null}">Relocation distance: <span th:text="${state.relocationDistanceSummary}"></span></p>
+<p th:if="${relocationPriceGbp != null}">Relocation price: £<span th:text="${relocationPriceGbp}"></span></p>
+<p>Flue type: <span th:text="${state.flueSummary}"></span></p>
+<p>Flue length: <span th:text="${state.flueLengthSummary}"></span></p>
+<p th:if="${flueLengthPriceGbp != null}">Flue length price: £<span th:text="${flueLengthPriceGbp}"></span></p>
+<p th:if="${state.fluePosition != null}">Flue position: <span th:text="${state.fluePositionSummary}"></span></p>
+<p th:if="${state.flueClearance != null}">Flue clearance: <span th:text="${state.flueClearanceSummary}"></span></p>
+<p th:if="${flueClearancePriceGbp != null}">Flue clearance price: £<span th:text="${flueClearancePriceGbp}"></span></p>
+<p th:if="${state.fluePropertyDistance != null}">Flue property distance: <span th:text="${state.fluePropertyDistanceSummary}"></span></p>
+<p th:if="${state.radiatorCount != null}">Radiators: <span th:text="${state.radiatorCountSummary}"></span></p>

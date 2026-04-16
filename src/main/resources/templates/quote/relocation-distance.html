@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Relocation Distance</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            How far do you want to <span style="color:#ff5a3c;">move your boiler</span>?
+        </h2>
+        <p class="section-subtitle">
+            This helps us estimate how much extra pipework and labour may be needed.
+        </p>
+
+        <div class="grid fuel-grid">
+
+            <article class="card fuel-card" onclick="selectRelocationDistance('0-1')">
+                <div class="fuel-icon">📏</div>
+                <h3 class="fuel-title">0-1 metres</h3>
+                <div class="fuel-desc">
+                    A short move within the same area. Price: <span th:text="${'£' + relocationPrices['0-1']}"></span>
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectRelocationDistance('2-3')">
+                <div class="fuel-icon">📐</div>
+                <h3 class="fuel-title">2-3 metres</h3>
+                <div class="fuel-desc">
+                    A moderate move to a nearby location. Price: <span th:text="${'£' + relocationPrices['2-3']}"></span>
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectRelocationDistance('4-5')">
+                <div class="fuel-icon">📍</div>
+                <h3 class="fuel-title">4-5 metres</h3>
+                <div class="fuel-desc">
+                    A longer move that may need more installation work. Price: <span th:text="${'£' + relocationPrices['4-5']}"></span>
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectRelocationDistance('6-7')">
+                <div class="fuel-icon">🚚</div>
+                <h3 class="fuel-title">6-7 metres</h3>
+                <div class="fuel-desc">
+                    A major relocation requiring significant extra work. Price: <span th:text="${'£' + relocationPrices['6-7']}"></span>
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectRelocationDistance('7+')">
+                <div class="fuel-icon">🚚</div>
+                <h3 class="fuel-title">More than 7 metres</h3>
+                <div class="fuel-desc">
+                    A major relocation requiring significant extra work. Price: <span th:text="${'£' + relocationPrices['7+']}"></span>
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectRelocationDistance(relocationDistance) {
+        clearError();
+
+        try {
+            const response = await fetch("/quote/relocation-distance", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ relocationDistance: relocationDistance })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep.trim();
+        } catch (error) {
+            console.error("Relocation distance error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

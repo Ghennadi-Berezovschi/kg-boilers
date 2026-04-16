@@ -167,6 +167,15 @@
     margin-bottom: 10px;
 }
 
+.power-flush-photo {
+    display: block;
+    width: 144px;
+    height: 144px;
+    object-fit: cover;
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
 .range-value {
     font-size: 58px;
     font-weight: 800;
@@ -1121,6 +1130,11 @@
 
     .fuel-icon {
         font-size: 40px;
+    }
+
+    .power-flush-photo {
+        width: 124px;
+        height: 124px;
     }
 
     .range-value {

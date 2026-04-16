@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Flue Property Distance</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            How close to <span style="color:#ff5a3c;">another property</span> is your flue?
+        </h2>
+        <p class="section-subtitle">
+            Measure from the flue terminal to the nearest facing property.
+        </p>
+
+        <div class="grid fuel-grid">
+            <article class="card fuel-card" onclick="selectFluePropertyDistance('less-than-1m')">
+                <div class="fuel-icon">
+                    <img src="/images/flues/flue-property-distance-less-than-1m.svg"
+                         alt="Flue is less than one metre from another property"
+                         width="150"
+                         height="150">
+                </div>
+                <h3 class="fuel-title">Less than 1 metre</h3>
+                <div class="fuel-desc">
+                    The flue is less than 1 metre from the nearest facing property.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectFluePropertyDistance('more-than-1m')">
+                <div class="fuel-icon">
+                    <img src="/images/flues/flue-property-distance-more-than-1m.svg"
+                         alt="Flue is more than one metre from another property"
+                         width="150"
+                         height="150">
+                </div>
+                <h3 class="fuel-title">More than 1 metre</h3>
+                <div class="fuel-desc">
+                    The flue is more than 1 metre from the nearest facing property.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectFluePropertyDistance(fluePropertyDistance) {
+        clearError();
+
+        try {
+            const response = await fetch("/quote/flue-property-distance", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ fluePropertyDistance: fluePropertyDistance })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep.trim();
+        } catch (error) {
+            console.error("Flue property distance error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

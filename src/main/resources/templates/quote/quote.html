@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Get a Quote</title>
+    <meta name="description" content="Get a free online quote for boiler installation or repair in London.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kg-boilers.com/quote">
+    <meta property="og:title" content="Get a Free Boiler Quote - K&G Boilers">
+    <meta property="og:description" content="Use our quick wizard to get a free estimate for your new boiler or repair in London.">
+    <meta property="og:image" content="https://kg-boilers.com/images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kg-boilers.com/quote">
+    <meta property="twitter:title" content="Get a Free Boiler Quote - K&G Boilers">
+    <meta property="twitter:description" content="Use our quick wizard to get a free estimate for your new boiler or repair in London.">
+    <meta property="twitter:image" content="https://kg-boilers.com/images/og-image.jpg">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+        <h2 th:text="'Get a quote for ' + ${serviceTitle}">Get a quote</h2>
+
+        <div class="card quote-card">
+            <div class="quote-form-row">
+                <input
+                        type="text"
+                        id="postcode"
+                        class="quote-input"
+                        placeholder="Enter your postcode"
+                        autocomplete="postal-code"
+                        aria-label="Postcode"
+                >
+
+                <button
+                        type="button"
+                        id="checkBtn"
+                        class="card-cta"
+                >
+                    Continue →
+                </button>
+            </div>
+
+            <p id="result" class="quote-result" aria-live="polite"></p>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const postcodeInput = document.getElementById("postcode");
+    const checkButton = document.getElementById("checkBtn");
+    const resultElement = document.getElementById("result");
+
+    checkButton.addEventListener("click", submitPostcode);
+
+    postcodeInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            submitPostcode();
+        }
+    });
+
+    postcodeInput.addEventListener("input", clearError);
+
+    async function submitPostcode() {
+        const postcode = postcodeInput.value.trim();
+
+        clearError();
+
+        if (!postcode) {
+            showError("Please enter your postcode");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch("/quote/start", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ postcode })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Quote start error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const errorCode = data?.errorCode;
+        const message = data?.message;
+
+        switch (errorCode) {
+            case "INVALID_POSTCODE":
+            case "INVALID_INPUT":
+                showError(message || "Please enter a valid postcode");
+                break;
+
+            case "OUT_OF_AREA":
+                showError(message || "Sorry, we do not cover your area");
+                break;
+
+            case "SERVICE_UNAVAILABLE":
+                showError(message || "Service temporarily unavailable. Please try again.");
+                break;
+
+            case "SESSION_EXPIRED":
+                showError(message || "Please start your quote again");
+                break;
+
+            default:
+                showError(message || "Something went wrong. Please try again.");
+        }
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+        postcodeInput.classList.add("input-error");
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+        postcodeInput.classList.remove("input-error");
+    }
+
+    function setLoading(isLoading) {
+        checkButton.disabled = isLoading;
+        checkButton.textContent = isLoading ? "Checking..." : "Check availability →";
+    }
+</script>
+
+</body>
+</html>

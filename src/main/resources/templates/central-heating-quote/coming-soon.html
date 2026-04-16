@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Quote</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-1849')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <div class="summary-panel">
+            <h2>Central heating flow is ready for the next custom steps</h2>
+            <p class="section-subtitle">
+                We separated this journey from boiler installation. The first shared questions are now in the new flow, and the next central-heating-specific steps can be added here safely.
+            </p>
+
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span class="summary-label">Postcode</span>
+                    <span class="summary-value" th:text="${state.postcode}">E16 4JJ</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Fuel</span>
+                    <span class="summary-value" th:text="${state.fuel}">GAS</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Radiators</span>
+                    <span class="summary-value" th:text="${state.radiatorCountSummary}">6-9 radiators</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">TRV valves</span>
+                    <span class="summary-value" th:text="${state.trvValveStatusSummary}">Not all of them</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Ownership</span>
+                    <span class="summary-value" th:text="${state.ownership}">HOMEOWNER</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Property</span>
+                    <span class="summary-value" th:text="${state.propertyType}">HOUSE</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Bedrooms</span>
+                    <span class="summary-value" th:text="${state.bedrooms}">THREE</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Power flush</span>
+                    <span class="summary-value" th:text="${state.powerFlushStatus}">Yes, it was done</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Magnetic filter</span>
+                    <span class="summary-value" th:text="${state.magneticFilterStatus}">Yes, it has one</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+</body>
+</html>

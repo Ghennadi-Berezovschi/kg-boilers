@@ -1,5 +1,6 @@
 package com.kgboilers.exception.boilerinstallationquote;
 
+import com.kgboilers.controller.centralheatingquote.CentralHeatingQuoteApiController;
 import com.kgboilers.controller.boilerinstallationquote.QuoteWizardApiController;
 import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
 import com.kgboilers.exception.ExternalServiceException;
@@ -11,7 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = QuoteWizardApiController.class)
+@RestControllerAdvice(assignableTypes = {
+        QuoteWizardApiController.class,
+        CentralHeatingQuoteApiController.class
+})
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -67,6 +71,30 @@ public class GlobalExceptionHandler {
     public ResponseEntity<QuoteResponseDto> handleUnsupportedBedrooms(UnsupportedBedroomsException ex) {
         log.warn("Unsupported bedrooms submitted");
         return badRequest("UNSUPPORTED_BEDROOMS", "Unsupported bedrooms value");
+    }
+
+    @ExceptionHandler(UnsupportedBoilerTypeException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerType(UnsupportedBoilerTypeException ex) {
+        log.warn("Unsupported boiler type submitted");
+        return badRequest("UNSUPPORTED_BOILER_TYPE", "Unsupported boiler type");
+    }
+
+    @ExceptionHandler(UnsupportedPowerFlushException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedPowerFlush(UnsupportedPowerFlushException ex) {
+        log.warn("Unsupported power flush answer submitted");
+        return badRequest("UNSUPPORTED_POWER_FLUSH", "Unsupported power flush answer");
+    }
+
+    @ExceptionHandler(UnsupportedMagneticFilterException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedMagneticFilter(UnsupportedMagneticFilterException ex) {
+        log.warn("Unsupported magnetic filter answer submitted");
+        return badRequest("UNSUPPORTED_MAGNETIC_FILTER", "Unsupported magnetic filter answer");
+    }
+
+    @ExceptionHandler(UnsupportedTrvValveException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedTrvValve(UnsupportedTrvValveException ex) {
+        log.warn("Unsupported TRV valve answer submitted");
+        return badRequest("UNSUPPORTED_TRV_VALVE", "Unsupported TRV valve answer");
     }
 
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)

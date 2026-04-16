@@ -82,7 +82,7 @@ class QuoteWizardApiControllerTest {
 
     @Test
     void startQuote_shouldReturnSuccessResponse_andSavePostcodeInSession() {
-        when(quoteService.startQuote(anyString())).thenReturn(QuoteStep.FUEL_TYPE);
+        when(quoteService.startQuote(anyString(), anyString())).thenReturn(QuoteStep.FUEL_TYPE);
         when(sessionService.getOrCreateState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.startWizard(any(), anyString())).thenReturn(QuoteStep.FUEL_TYPE);
 

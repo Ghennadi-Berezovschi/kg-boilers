@@ -77,6 +77,8 @@ kg:
   location:
     postcode: "E16 4JJ"
     max-distance-miles: 70
+    service-max-distance-miles:
+      central-heating: 15
 
   http:
     client:
@@ -112,7 +114,7 @@ kg:
       - "In-line scale reducer"
       - "Disposal of your old boiler"
       - "Carbon Monoxide Alarm"
-      - "Vaillant Integral Filling Link"
+      - "Integral Filling Link"
       - "Condensate pipework"
       - "Pipework installation, alterations and upgrades"
       - "Sentinel Water Treatment"
@@ -121,7 +123,7 @@ kg:
       - "BOXT to register the warranty & Building Control Certificate"
       - "Chemical Flush"
       - "Fused Spur"
-      - "Combi Boiler Fittings Pack"
+      - "Boiler Fittings Pack"
     optional-extras:
       - id: "hive-thermostat-mini"
         title: "Hive Thermostat Mini"

@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Locale;
+import java.util.Map;
+
 @Service
 public class QuoteService {
 
@@ -30,9 +33,14 @@ public class QuoteService {
     }
 
     public QuoteStep startQuote(String postcode) {
+        return startQuote(postcode, "boiler-installation");
+    }
+
+    public QuoteStep startQuote(String postcode, String service) {
 
         String normalizedPostcode = normalizePostcode(postcode);
         String engineerPostcode = getEngineerPostcode();
+        String normalizedService = normalizeService(service);
 
         log.info("Starting quote distance validation");
 
@@ -43,7 +51,7 @@ public class QuoteService {
 
         log.info("Calculated distance: {} miles", distance);
 
-        validateDistance(distance);
+        validateDistance(distance, normalizedService);
 
         log.info("Address is within service area");
 
@@ -76,12 +84,29 @@ public class QuoteService {
         return postcode.trim().toUpperCase();
     }
 
-    private void validateDistance(double distance) {
-        double maxDistance = locationProperties.getMaxDistanceMiles();
+    private void validateDistance(double distance, String service) {
+        double maxDistance = getMaxDistanceMiles(service);
 
         if (distance > maxDistance) {
             log.warn("Address is out of service area at {} miles", distance);
             throw new OutOfAreaException();
         }
+    }
+
+    private double getMaxDistanceMiles(String service) {
+        Map<String, Double> serviceLimits = locationProperties.getServiceMaxDistanceMiles();
+        if (serviceLimits == null) {
+            return locationProperties.getMaxDistanceMiles();
+        }
+
+        return serviceLimits.getOrDefault(service, locationProperties.getMaxDistanceMiles());
+    }
+
+    private String normalizeService(String service) {
+        if (!StringUtils.hasText(service)) {
+            return "boiler-installation";
+        }
+
+        return service.trim().toLowerCase(Locale.ROOT);
     }
 }

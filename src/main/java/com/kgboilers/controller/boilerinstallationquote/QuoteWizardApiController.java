@@ -41,7 +41,7 @@ public class QuoteWizardApiController {
                                                        HttpSession session) {
 
         String postcode = request.getPostcode().trim().toUpperCase();
-        quoteService.startQuote(postcode);
+        quoteService.startQuote(postcode, getSelectedService(session));
 
         sessionService.clearState(session);
         QuoteSessionState state = sessionService.getOrCreateState(session);
@@ -51,6 +51,15 @@ public class QuoteWizardApiController {
         log.info("Quote started");
 
         return responseFactory.success(nextStep);
+    }
+
+    private String getSelectedService(HttpSession session) {
+        Object service = session.getAttribute("service");
+        if (service instanceof String serviceValue && !serviceValue.isBlank()) {
+            return serviceValue;
+        }
+
+        return "boiler-installation";
     }
 
     @PostMapping("/fuel")

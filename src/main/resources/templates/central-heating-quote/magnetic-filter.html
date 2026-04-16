@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Magnetic Filter</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-1955')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            Does your boiler have a <span style="color:#ff5a3c;">magnetic filter</span> (usually under the boiler)?
+        </h2>
+
+        <div class="grid fuel-grid">
+            <article class="card fuel-card" onclick="selectMagneticFilter('yes-has')">
+                <div class="fuel-icon">
+                    <img src="/images/central-heating/magnetic-filter.jpg"
+                         alt="Magnetic filter example"
+                         class="power-flush-photo"
+                         width="144"
+                         height="144">
+                </div>
+                <h3 class="fuel-title">Yes, it has one</h3>
+                <div class="fuel-desc">
+                    Usually found under the boiler.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectMagneticFilter('no-does-not-have')">
+                <div class="fuel-icon">
+                    <img src="/images/central-heating/magnetic-filter.jpg"
+                         alt="Magnetic filter example"
+                         class="power-flush-photo"
+                         width="144"
+                         height="144">
+                </div>
+                <h3 class="fuel-title">No, it does not have one</h3>
+                <div class="fuel-desc">
+                    Magnetic filters are usually fitted under the boiler.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectMagneticFilter('do-not-know')">
+                <div class="fuel-icon">❓</div>
+                <h3 class="fuel-title">I do not know what it is</h3>
+                <div class="fuel-desc">
+                    It is usually found under the boiler.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectMagneticFilter(magneticFilterStatus) {
+        clearError();
+
+        try {
+            const response = await fetch("/central-heating-quote/magnetic-filter", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ magneticFilterStatus: magneticFilterStatus })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Magnetic filter error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

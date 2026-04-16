@@ -588,10 +588,18 @@ public class QuotePageController {
     }
 
     private String normalizeService(String service) {
-        return service == null ? "boiler-installation" : service.trim().toLowerCase();
+        if (service == null || service.isBlank()) {
+            return "boiler-installation";
+        }
+
+        return service.trim().toLowerCase();
     }
 
     private String formatServiceTitle(String service) {
+        if ("central-heating".equals(service)) {
+            return "Central Heating Installation & Repair";
+        }
+
         String[] parts = service.split("-");
         StringBuilder title = new StringBuilder();
 

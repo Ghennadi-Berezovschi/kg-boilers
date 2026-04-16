@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Flue Type</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            Your <span style="color:#ff5a3c;">flue</span> comes out through the wall, a sloped roof, or a flat roof?
+        </h2>
+        <p class="section-subtitle">
+            Choose the option that looks closest to your current flue.
+        </p>
+
+
+        <div class="grid fuel-grid">
+
+            <article class="card fuel-card" onclick="selectFlueType('horizontal')">
+                <div class="fuel-icon">
+                    <img src="/images/flues/horizontal-flue.svg"
+                         alt="Horizontal flue diagram"
+                         width="140"
+                         height="140">
+                </div>
+                <h3 class="fuel-title">Horizontal flue</h3>
+                <div class="fuel-desc">
+                    The flue goes out through an external wall.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectFlueType('vertical', 'sloped-roof')">
+                <div class="fuel-icon">
+                    <img src="/images/flues/vertical-flue.svg"
+                         alt="Vertical flue through a sloped roof diagram"
+                         width="140"
+                         height="140">
+                </div>
+                <h3 class="fuel-title">Vertical flue</h3>
+                <div class="fuel-desc">
+                    The flue goes up through a sloped roof.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectFlueType('vertical', 'flat-roof')">
+                <div class="fuel-icon">
+                    <img src="/images/flues/flat-roof.svg"
+                         alt="Vertical flue through a flat roof diagram"
+                         width="140"
+                         height="140">
+                </div>
+                <h3 class="fuel-title">Vertical flue</h3>
+                <div class="fuel-desc">
+                    The flue goes up through a flat roof.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectFlueType(flueType, verticalFlueType = null) {
+        clearError();
+
+        try {
+            const response = await fetch("/quote/flue-type", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    flueType: flueType,
+                    verticalFlueType: verticalFlueType
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep.trim();
+        } catch (error) {
+            console.error("Flue type error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>
