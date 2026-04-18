@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Add Another Installation</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260417-1740')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>Do you want to choose another radiator or towel rail?</h2>
+        <p class="section-subtitle">
+            Review what you have added so far, then choose whether you want to add another item.
+        </p>
+
+        <div class="summary-panel">
+            <div class="summary-grid" th:if="${installationItemsPreview != null && !installationItemsPreview.isEmpty()}">
+                <div class="summary-item" th:each="item, itemStat : ${installationItemsPreview}">
+                    <span class="summary-label" th:text="'Item ' + ${itemStat.count}">Item 1</span>
+                    <span class="summary-value" th:text="${item.summary}">Radiator: Same position, Double convector, 1200mm x 600mm, qty 2</span>
+                </div>
+            </div>
+
+            <div class="radiator-issues-actions add-another-actions">
+                <button type="button" class="card-cta" onclick="submitAddAnother(true)">Yes, add another</button>
+                <button type="button" class="card-cta card-cta-secondary" onclick="submitAddAnother(false)">No, continue to summary</button>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function submitAddAnother(addAnother) {
+        clearError();
+
+        try {
+            const response = await fetch("/central-heating-quote/add-another-installation", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    addAnother: addAnother
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Add another installation error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

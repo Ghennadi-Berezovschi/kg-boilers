@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Installation Item</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260417-1718')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>What do you want installed?</h2>
+        <p class="section-subtitle">
+            Choose whether you want a radiator or a towel rail.
+        </p>
+
+        <div class="radiator-spec-panel card"
+             th:attr="data-selected-item-type=${selectedInstallationItemType != null ? selectedInstallationItemType.value : ''}">
+
+            <div class="grid fuel-grid radiator-spec-grid">
+                <article class="card fuel-card js-install-item-card" data-value="radiator" onclick="selectInstallationItem('radiator')">
+                    <div class="fuel-icon">▭</div>
+                    <h3 class="fuel-title">Radiator</h3>
+                    <div class="fuel-desc">
+                        Choose this if you want a standard radiator installed.
+                    </div>
+                    <div class="fuel-select">Select</div>
+                </article>
+
+                <article class="card fuel-card js-install-item-card" data-value="towel-rail" onclick="selectInstallationItem('towel-rail')">
+                    <div class="fuel-icon">╏</div>
+                    <h3 class="fuel-title">Towel rail</h3>
+                    <div class="fuel-desc">
+                        Choose this if you want a towel rail installed.
+                    </div>
+                    <div class="fuel-select">Select</div>
+                </article>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const itemPanel = document.querySelector(".radiator-spec-panel");
+    const resultElement = document.getElementById("result");
+    const installItemCards = Array.from(document.querySelectorAll(".js-install-item-card"));
+    let selectedInstallationItem = itemPanel?.dataset.selectedItemType || null;
+
+    if (selectedInstallationItem) {
+        syncInstallationItemView();
+    }
+
+    function selectInstallationItem(value) {
+        selectedInstallationItem = value;
+        syncInstallationItemView();
+        clearError();
+        submitInstallationItem();
+    }
+
+    function syncInstallationItemView() {
+        installItemCards.forEach(card => {
+            card.classList.toggle("active", card.dataset.value === selectedInstallationItem);
+        });
+    }
+
+    async function submitInstallationItem() {
+        clearError();
+
+        if (!selectedInstallationItem) {
+            showError("Please choose radiator or towel rail");
+            return;
+        }
+
+        try {
+            const response = await fetch("/central-heating-quote/installation-item", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    installationItemType: selectedInstallationItem
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Installation item error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

@@ -84,6 +84,8 @@ kg:
     client:
       connect-timeout: 5000
       read-timeout: 5000
+    request:
+      max-content-length-bytes: 16384
 
   pricing:
     relocation:

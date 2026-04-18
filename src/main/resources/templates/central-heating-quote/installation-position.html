@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Installation Position</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260417-1725')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>Where do you want it installed?</h2>
+        <p class="section-subtitle">
+            Choose whether you want it in the same position, a different position, or if there is nothing there now.
+        </p>
+
+        <div class="radiator-spec-panel card"
+             th:attr="data-selected-position-type=${selectedInstallationPositionType != null ? selectedInstallationPositionType.value : ''}">
+
+            <div class="grid fuel-grid radiator-spec-grid">
+                <article class="card fuel-card js-install-position-card" data-value="same-position" onclick="selectInstallationPosition('same-position')">
+                    <div class="fuel-icon">↺</div>
+                    <h3 class="fuel-title">Same position</h3>
+                    <div class="fuel-desc">
+                        Choose this if you want the new item installed in the same place.
+                    </div>
+                    <div class="fuel-select">Select</div>
+                </article>
+
+                <article class="card fuel-card js-install-position-card" data-value="different-position" onclick="selectInstallationPosition('different-position')">
+                    <div class="fuel-icon">⇄</div>
+                    <h3 class="fuel-title">Different position</h3>
+                    <div class="fuel-desc">
+                        Choose this if you want the new item moved to a different place.
+                    </div>
+                    <div class="fuel-select">Select</div>
+                </article>
+
+                <article class="card fuel-card js-install-position-card" data-value="no-existing-item" onclick="selectInstallationPosition('no-existing-item')">
+                    <div class="fuel-icon">＋</div>
+                    <h3 class="fuel-title">No existing item there</h3>
+                    <div class="fuel-desc">
+                        Choose this if there is no radiator or towel rail there now and you want a new one installed.
+                    </div>
+                    <div class="fuel-select">Select</div>
+                </article>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const positionPanel = document.querySelector(".radiator-spec-panel");
+    const resultElement = document.getElementById("result");
+    const installPositionCards = Array.from(document.querySelectorAll(".js-install-position-card"));
+    let selectedInstallationPosition = positionPanel?.dataset.selectedPositionType || null;
+
+    if (selectedInstallationPosition) {
+        syncInstallationPositionView();
+    }
+
+    function selectInstallationPosition(value) {
+        selectedInstallationPosition = value;
+        syncInstallationPositionView();
+        clearError();
+        submitInstallationPosition();
+    }
+
+    function syncInstallationPositionView() {
+        installPositionCards.forEach(card => {
+            card.classList.toggle("active", card.dataset.value === selectedInstallationPosition);
+        });
+    }
+
+    async function submitInstallationPosition() {
+        clearError();
+
+        if (!selectedInstallationPosition) {
+            showError("Please choose same position, different position or no existing item there");
+            return;
+        }
+
+        try {
+            const response = await fetch("/central-heating-quote/installation-position", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    installationPositionType: selectedInstallationPosition
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Installation position error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

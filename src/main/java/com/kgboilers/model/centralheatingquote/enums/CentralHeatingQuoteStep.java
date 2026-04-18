@@ -22,7 +22,23 @@ public enum CentralHeatingQuoteStep {
 
     MAGNETIC_FILTER("/central-heating-quote/magnetic-filter"),
 
-    COMING_SOON("/central-heating-quote/coming-soon");
+    RADIATOR_ISSUES("/central-heating-quote/radiator-issues"),
+
+    TRV_INSTALLATION_QUANTITY("/central-heating-quote/trv-installation-quantity"),
+
+    INSTALLATION_ITEM("/central-heating-quote/installation-item"),
+
+    INSTALLATION_POSITION("/central-heating-quote/installation-position"),
+
+    INSTALLATION_MOVE_DISTANCE("/central-heating-quote/installation-move-distance"),
+
+    INSTALLATION_PIPE_DISTANCE("/central-heating-quote/installation-pipe-distance"),
+
+    RADIATOR_SPECIFICATION("/central-heating-quote/radiator-specification"),
+
+    ADD_ANOTHER_INSTALLATION("/central-heating-quote/add-another-installation"),
+
+    SUMMARY("/central-heating-quote/summary");
 
     private final String path;
 
@@ -46,7 +62,15 @@ public enum CentralHeatingQuoteStep {
             case TRV_VALVES -> RADIATOR_COUNT;
             case POWER_FLUSH -> TRV_VALVES;
             case MAGNETIC_FILTER -> POWER_FLUSH;
-            case COMING_SOON -> MAGNETIC_FILTER;
+            case RADIATOR_ISSUES -> MAGNETIC_FILTER;
+            case TRV_INSTALLATION_QUANTITY -> RADIATOR_ISSUES;
+            case INSTALLATION_ITEM -> TRV_INSTALLATION_QUANTITY;
+            case INSTALLATION_POSITION -> INSTALLATION_ITEM;
+            case INSTALLATION_MOVE_DISTANCE -> INSTALLATION_POSITION;
+            case INSTALLATION_PIPE_DISTANCE -> INSTALLATION_POSITION;
+            case RADIATOR_SPECIFICATION -> INSTALLATION_PIPE_DISTANCE;
+            case ADD_ANOTHER_INSTALLATION -> RADIATOR_SPECIFICATION;
+            case SUMMARY -> ADD_ANOTHER_INSTALLATION;
         };
     }
 }

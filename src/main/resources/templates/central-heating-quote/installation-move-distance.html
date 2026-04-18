@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Central Heating TRV Valves</title>
+    <title>Central Heating Installation Move Distance</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-1955')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260418-2015')}">
 </head>
 <body>
 
@@ -21,60 +21,59 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            Do your radiators have <span style="color:#ff5a3c;">TRV valves</span>?
+            How far do you want to <span style="color:#ff5a3c;">move it</span>?
         </h2>
         <p class="section-subtitle">
-            These are usually the numbered valves fitted on the side of a radiator.
+            This helps us understand how much extra pipework may be needed.
         </p>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectTrvValves('yes')">
-                <div class="fuel-icon">
-                    <img src="/images/central-heating/trv-valve.jpg"
-                         alt="TRV valve example"
-                         class="power-flush-photo"
-                         width="144"
-                         height="144">
-                </div>
-                <h3 class="fuel-title">Yes</h3>
+
+            <article class="card fuel-card" onclick="selectMoveDistance('0-1')">
+                <div class="fuel-icon">📏</div>
+                <h3 class="fuel-title">0-1 metres</h3>
                 <div class="fuel-desc">
-                    A TRV valve is usually on the side of the radiator.
+                    A short move within the same area.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectTrvValves('no')">
-                <div class="fuel-icon" style="color:#ff5a3c;">✖</div>
-                <h3 class="fuel-title">No</h3>
+            <article class="card fuel-card" onclick="selectMoveDistance('2-3')">
+                <div class="fuel-icon">📐</div>
+                <h3 class="fuel-title">2-3 metres</h3>
                 <div class="fuel-desc">
-                    TRV valves are usually the numbered valves on a radiator.
+                    A moderate move to a nearby location.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectTrvValves('not-all-of-them')">
-                <div class="fuel-icon">
-                    <img src="/images/central-heating/trv-valve.jpg"
-                         alt="TRV valve example"
-                         class="power-flush-photo"
-                         width="144"
-                         height="144">
-                </div>
-                <h3 class="fuel-title">Not all of them</h3>
+            <article class="card fuel-card" onclick="selectMoveDistance('4-5')">
+                <div class="fuel-icon">📍</div>
+                <h3 class="fuel-title">4-5 metres</h3>
                 <div class="fuel-desc">
-                    Some radiators have them, but not every radiator.
+                    A longer move that may need more installation work.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectTrvValves('do-not-know')">
-                <div class="fuel-icon">❓</div>
-                <h3 class="fuel-title">I do not know</h3>
+            <article class="card fuel-card" onclick="selectMoveDistance('6-7')">
+                <div class="fuel-icon">🚚</div>
+                <h3 class="fuel-title">6-7 metres</h3>
                 <div class="fuel-desc">
-                    They are usually the numbered valves on the side of a radiator.
+                    A major move requiring significant extra work.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
+
+            <article class="card fuel-card" onclick="selectMoveDistance('7+')">
+                <div class="fuel-icon">🚚</div>
+                <h3 class="fuel-title">More than 7 metres</h3>
+                <div class="fuel-desc">
+                    A major move requiring significant extra work.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
         </div>
 
         <p id="result" class="quote-result" aria-live="polite"></p>
@@ -86,16 +85,16 @@
 <script>
     const resultElement = document.getElementById("result");
 
-    async function selectTrvValves(trvValveStatus) {
+    async function selectMoveDistance(moveDistance) {
         clearError();
 
         try {
-            const response = await fetch("/central-heating-quote/trv-valves", {
+            const response = await fetch("/central-heating-quote/installation-move-distance", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ trvValveStatus: trvValveStatus })
+                body: JSON.stringify({ moveDistance: moveDistance })
             });
 
             const data = await response.json();
@@ -105,9 +104,9 @@
                 return;
             }
 
-            window.location.href = data.nextStep;
+            window.location.href = data.nextStep.trim();
         } catch (error) {
-            console.error("TRV valve error:", error);
+            console.error("Installation move distance error:", error);
             showError("Something went wrong. Please try again.");
         }
     }

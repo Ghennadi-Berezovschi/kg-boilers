@@ -509,6 +509,242 @@
     text-decoration: underline;
 }
 
+.radiator-issues-panel {
+    max-width: 760px;
+    margin: 30px auto 0;
+    padding: 24px;
+    border: 2px solid #dbe3ec;
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.radiator-issues-list {
+    display: grid;
+    gap: 14px;
+}
+
+.radiator-issue-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 2px solid #dbe3ec;
+    border-radius: 14px;
+    background: #f8fbff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.radiator-issue-option:hover {
+    border-color: #ff5a3c;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    transform: translateY(-2px);
+}
+
+.radiator-issue-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: #ff5a3c;
+    flex: 0 0 auto;
+}
+
+.radiator-issue-copy {
+    display: grid;
+    gap: 4px;
+}
+
+.radiator-issue-title {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #1f2f57;
+}
+
+.radiator-issues-other {
+    margin-top: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+.radiator-issues-other-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.radiator-issues-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 14px 16px;
+    border: 2px solid #dbe3ec;
+    border-radius: 12px;
+    font: inherit;
+    color: #1f2937;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.radiator-issues-textarea:focus {
+    border-color: #ff5a3c;
+    box-shadow: 0 0 0 3px rgba(255, 90, 60, 0.12);
+}
+
+.radiator-issues-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-another-actions {
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.card-cta-secondary {
+    background: #ffffff;
+    color: #1f2f57;
+    border: 2px solid #dbe3ec;
+}
+
+.card-cta-secondary:hover {
+    background: #f8fbff;
+    color: #1f2f57;
+    border-color: #cbd5e1;
+}
+
+.radiator-spec-panel {
+    max-width: 760px;
+    margin: 30px auto 0;
+    padding: 24px;
+    border: 2px solid #dbe3ec;
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.radiator-spec-grid {
+    margin-top: 0;
+}
+
+.convector-toggle {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.convector-toggle-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.convector-choice-list {
+    display: grid;
+    gap: 10px;
+}
+
+.convector-choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 2px solid #dbe3ec;
+    border-radius: 14px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.convector-choice:hover {
+    border-color: #ffb29f;
+    background: #fffaf8;
+}
+
+.convector-choice.active {
+    border-color: #ff7a59;
+    background: #fff3ee;
+    box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.12);
+}
+
+.convector-choice-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.convector-choice-indicator {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    margin-top: 2px;
+    border: 2px solid #cbd5e1;
+    border-radius: 999px;
+    background: #ffffff;
+    position: relative;
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+.convector-choice.active .convector-choice-indicator {
+    border-color: #ff7a59;
+    background: #ffffff;
+}
+
+.convector-choice.active .convector-choice-indicator::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 999px;
+    background: #ff7a59;
+}
+
+.convector-choice-copy {
+    display: grid;
+    gap: 3px;
+}
+
+.convector-choice-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1f2f57;
+}
+
+.convector-choice-note {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.convector-toggle-hint {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+.radiator-dimensions-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 22px;
+}
+
+.radiator-dimension-field {
+    display: grid;
+    gap: 8px;
+}
+
+.radiator-dimension-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.radiator-dimension-input {
+    width: 100%;
+}
+
 .summary-breakdown-divider {
     height: 1px;
     background: #dbe3ec;
@@ -1049,6 +1285,54 @@
 
 .summary-contact-submit {
     min-height: 48px;
+}
+
+.central-heating-summary-layout {
+    margin-top: 30px;
+}
+
+.central-heating-summary-stack {
+    display: grid;
+    gap: 12px;
+}
+
+.central-heating-installation-list {
+    display: grid;
+    gap: 14px;
+}
+
+.central-heating-installation-item {
+    display: grid;
+    gap: 8px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    border: 1px solid #dbe3ec;
+}
+
+.central-heating-installation-index {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ff5a3c;
+}
+
+.central-heating-installation-summary {
+    color: #1f2f57;
+    line-height: 1.55;
+}
+
+.central-heating-request-meta {
+    display: grid;
+    gap: 6px;
+    color: #334155;
+}
+
+.central-heating-contact-note {
+    margin: 0;
+    color: #475569;
+    line-height: 1.55;
 }
 
 /* =========================

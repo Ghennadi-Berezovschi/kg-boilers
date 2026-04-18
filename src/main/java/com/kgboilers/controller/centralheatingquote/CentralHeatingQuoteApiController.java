@@ -10,7 +10,15 @@ import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
 import com.kgboilers.dto.boilerinstallationquote.RadiatorCountRequestDto;
 import com.kgboilers.dto.centralheatingquote.MagneticFilterRequestDto;
 import com.kgboilers.dto.centralheatingquote.PowerFlushRequestDto;
+import com.kgboilers.dto.centralheatingquote.RadiatorIssuesRequestDto;
+import com.kgboilers.dto.centralheatingquote.RadiatorSpecificationRequestDto;
+import com.kgboilers.dto.centralheatingquote.TrvInstallationQuantityRequestDto;
 import com.kgboilers.dto.centralheatingquote.TrvValveRequestDto;
+import com.kgboilers.dto.centralheatingquote.InstallationItemRequestDto;
+import com.kgboilers.dto.centralheatingquote.InstallationMoveDistanceRequestDto;
+import com.kgboilers.dto.centralheatingquote.InstallationPipeDistanceRequestDto;
+import com.kgboilers.dto.centralheatingquote.InstallationPositionRequestDto;
+import com.kgboilers.dto.centralheatingquote.AddAnotherInstallationRequestDto;
 import com.kgboilers.model.centralheatingquote.CentralHeatingQuoteSessionState;
 import com.kgboilers.model.centralheatingquote.enums.CentralHeatingQuoteStep;
 import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
@@ -128,6 +136,135 @@ public class CentralHeatingQuoteApiController {
         }
 
         CentralHeatingQuoteStep nextStep = wizardService.updateMagneticFilter(state, request.getMagneticFilterStatus());
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/radiator-issues")
+    public ResponseEntity<QuoteResponseDto> setRadiatorIssues(@RequestBody @Valid RadiatorIssuesRequestDto request,
+                                                              HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.RADIATOR_ISSUES)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateRadiatorIssues(
+                state,
+                request.getRadiatorIssues(),
+                request.getOtherIssueDetails()
+        );
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/trv-installation-quantity")
+    public ResponseEntity<QuoteResponseDto> setTrvInstallationQuantity(@RequestBody @Valid TrvInstallationQuantityRequestDto request,
+                                                                       HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateTrvInstallationQuantity(
+                state,
+                request.getTrvValvesQuantity(),
+                request.getLockshieldValvesQuantity(),
+                request.getTowelRailValvesQuantity()
+        );
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/radiator-specification")
+    public ResponseEntity<QuoteResponseDto> setRadiatorSpecification(@RequestBody @Valid RadiatorSpecificationRequestDto request,
+                                                                     HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.RADIATOR_SPECIFICATION)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateRadiatorSpecification(
+                state,
+                request.getRadiatorConvectorType(),
+                request.getRadiatorLengthMm(),
+                request.getRadiatorWidthMm(),
+                request.getTowelRailLengthMm(),
+                request.getTowelRailWidthMm(),
+                request.getInstallationQuantity()
+        );
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/installation-item")
+    public ResponseEntity<QuoteResponseDto> setInstallationItem(@RequestBody @Valid InstallationItemRequestDto request,
+                                                                HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.INSTALLATION_ITEM)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateInstallationItem(state, request.getInstallationItemType());
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/installation-position")
+    public ResponseEntity<QuoteResponseDto> setInstallationPosition(@RequestBody @Valid InstallationPositionRequestDto request,
+                                                                    HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.INSTALLATION_POSITION)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateInstallationPosition(state, request.getInstallationPositionType());
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/installation-move-distance")
+    public ResponseEntity<QuoteResponseDto> setInstallationMoveDistance(@RequestBody @Valid InstallationMoveDistanceRequestDto request,
+                                                                        HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.INSTALLATION_MOVE_DISTANCE)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateInstallationMoveDistance(state, request.getMoveDistance());
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/installation-pipe-distance")
+    public ResponseEntity<QuoteResponseDto> setInstallationPipeDistance(@RequestBody @Valid InstallationPipeDistanceRequestDto request,
+                                                                        HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.INSTALLATION_PIPE_DISTANCE)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateInstallationPipeDistance(state, request.getPipeDistance());
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/add-another-installation")
+    public ResponseEntity<QuoteResponseDto> setAddAnotherInstallation(@RequestBody @Valid AddAnotherInstallationRequestDto request,
+                                                                      HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.ADD_ANOTHER_INSTALLATION)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateAddAnotherInstallation(state, request.isAddAnother());
         sessionService.saveState(session, state);
         return success(nextStep);
     }

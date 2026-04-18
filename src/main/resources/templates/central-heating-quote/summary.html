@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Summary</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260418-2148')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>Your central heating summary</h2>
+        <p class="section-subtitle">
+            Check the details below and leave your contact information. We’ll send a copy of this request to you and to our team.
+        </p>
+
+        <div class="summary-offer-layout central-heating-summary-layout">
+            <div class="summary-offer-main">
+
+                <section class="summary-panel">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Requested work</h3>
+                            <p class="summary-empty-copy">
+                                Here is everything selected for this central heating request.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="central-heating-summary-stack">
+                        <div class="summary-item"
+                             th:each="issue : ${state.radiatorIssues}">
+                            <span class="summary-label">Issue</span>
+                            <span class="summary-value" th:text="${issue.label}">Radiator leak</span>
+                        </div>
+
+                        <div class="summary-item"
+                             th:if="${hasValveQuantities}">
+                            <span class="summary-label">Valve quantities</span>
+                            <span class="summary-value" th:text="${state.trvInstallationQuantitySummary}">
+                                TRV valves: 6, Lockshield valves: 6
+                            </span>
+                        </div>
+
+                        <div class="summary-item"
+                             th:if="${hasOtherRadiatorIssue}">
+                            <span class="summary-label">Other details</span>
+                            <span class="summary-value" th:text="${state.otherRadiatorIssueDetails}">
+                                Hallway radiator needs checking
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-panel" th:if="${hasInstallationItems}">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Radiators and towel rails</h3>
+                            <p class="summary-empty-copy">
+                                These are the radiator or towel rail items you added to the request.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="central-heating-installation-list">
+                        <article class="central-heating-installation-item"
+                                 th:each="item, itemStat : ${state.installationItems}">
+                            <span class="central-heating-installation-index"
+                                  th:text="${'Item ' + itemStat.count}">Item 1</span>
+                            <strong class="central-heating-installation-summary"
+                                    th:text="${item.summary}">
+                                Radiator: Same position, Double convector, 1200mm x 600mm, qty 2
+                            </strong>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="summary-panel">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Property and system details</h3>
+                        </div>
+                    </div>
+
+                    <div class="central-heating-summary-stack">
+                        <div class="summary-item">
+                            <span class="summary-label">Postcode</span>
+                            <span class="summary-value" th:text="${state.postcode}">E16 4JJ</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Ownership</span>
+                            <span class="summary-value" th:text="${state.ownership}">HOMEOWNER</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Property</span>
+                            <span class="summary-value" th:text="${state.propertyType}">HOUSE</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Bedrooms</span>
+                            <span class="summary-value" th:text="${state.bedrooms}">THREE</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Boiler type</span>
+                            <span class="summary-value" th:text="${state.boilerType}">COMBI</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fuel</span>
+                            <span class="summary-value" th:text="${state.fuel}">GAS</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Radiators</span>
+                            <span class="summary-value" th:text="${state.radiatorCountSummary}">6-9 radiators</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">TRV valves</span>
+                            <span class="summary-value" th:text="${state.trvValveStatusSummary}">Not all of them</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Power flush</span>
+                            <span class="summary-value" th:text="${state.powerFlushStatus != null ? state.powerFlushStatus.label : '-'}">Yes, it was done</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Magnetic filter</span>
+                            <span class="summary-value" th:text="${state.magneticFilterStatus != null ? state.magneticFilterStatus.label : '-'}">Yes, it has one</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="summary-offer-sidebar">
+                <div class="summary-breakdown-card summary-boxt-sidebar">
+                    <span class="summary-breakdown-eyebrow">Central heating request</span>
+                    <h3 class="summary-panel-title">Leave your details</h3>
+
+                    <div class="summary-success-banner" th:if="${contactSuccess}">
+                        Thanks, we received your request. We will contact you soon.
+                    </div>
+
+                    <div class="contact-form-panel-body" th:if="${!contactSuccess}">
+                        <div class="summary-selected-boiler has-selection">
+                            <span class="summary-selected-label">Service</span>
+                            <strong th:text="${requestTitle}">Central Heating Installation & Repair</strong>
+                        </div>
+
+                        <div class="summary-selected-boiler">
+                            <span class="summary-selected-label">Request overview</span>
+                            <div class="central-heating-request-meta">
+                                <span th:text="${requestIssueCount + ' selected issue' + (requestIssueCount == 1 ? '' : 's')}">2 selected issues</span>
+                                <span th:if="${installationItemsCount > 0}"
+                                      th:text="${installationItemsCount + ' installation item' + (installationItemsCount == 1 ? '' : 's')}">
+                                    1 installation item
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="central-heating-contact-note">
+                            We’ll use your email and phone number to contact you about this request and send a copy to your inbox.
+                        </p>
+
+                        <form th:action="@{/central-heating-quote/contact}"
+                              th:object="${contactRequest}"
+                              method="post"
+                              class="summary-contact-form">
+
+                            <div class="summary-contact-fields">
+                                <label class="summary-contact-field">
+                                    <span>Email</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="email"
+                                           th:field="*{email}"
+                                           placeholder="name@example.com">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('email')}"
+                                          th:errors="*{email}">
+                                        Please enter a valid email address.
+                                    </span>
+                                </label>
+
+                                <label class="summary-contact-field">
+                                    <span>Phone</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="tel"
+                                           th:field="*{phone}"
+                                           placeholder="+44 7700 900123">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('phone')}"
+                                          th:errors="*{phone}">
+                                        Please enter a valid phone number.
+                                    </span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-phone summary-contact-submit">
+                                Send my details
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+</body>
+</html>

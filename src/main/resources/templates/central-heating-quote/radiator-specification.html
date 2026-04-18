@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Radiator Specification</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260418-2128')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2 th:text="${radiatorSelection} ? 'Tell us about the radiator you want installed' : 'Tell us about the towel rail you want installed'">
+            Tell us about what you want installed
+        </h2>
+        <p class="section-subtitle"
+           th:text="${radiatorSelection} ? 'Choose the radiator type, size and quantity.' : 'Enter the towel rail size and quantity.'">
+            Enter the size and quantity.
+        </p>
+
+        <div class="radiator-spec-panel card">
+
+            <div class="convector-toggle" th:if="${radiatorSelection}">
+                <span class="convector-toggle-label">Radiator type</span>
+                <div class="convector-choice-list" role="radiogroup" aria-label="Radiator type">
+                    <label class="convector-choice js-convector-choice">
+                        <input type="radio"
+                               name="convectorType"
+                               value="single-convector"
+                               class="convector-choice-input js-convector-input">
+                        <span class="convector-choice-indicator" aria-hidden="true"></span>
+                        <span class="convector-choice-copy">
+                            <span class="convector-choice-title">Single convector</span>
+                            <span class="convector-choice-note">Slimmer radiator with one heating panel.</span>
+                        </span>
+                    </label>
+
+                    <label class="convector-choice js-convector-choice">
+                        <input type="radio"
+                               name="convectorType"
+                               value="double-convector"
+                               class="convector-choice-input js-convector-input">
+                        <span class="convector-choice-indicator" aria-hidden="true"></span>
+                        <span class="convector-choice-copy">
+                            <span class="convector-choice-title">Double convector</span>
+                            <span class="convector-choice-note">Deeper radiator.</span>
+                        </span>
+                    </label>
+                </div>
+                <p class="convector-toggle-hint">
+                    Choose the radiator output type before entering the size and quantity.
+                </p>
+            </div>
+
+            <div class="radiator-dimensions-row" th:if="${radiatorSelection}">
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Radiator length (mm)</span>
+                    <input id="radiatorLengthMm"
+                           type="number"
+                           min="1"
+                           max="2000"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 600">
+                </label>
+
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Radiator width (mm)</span>
+                    <input id="radiatorWidthMm"
+                           type="number"
+                           min="1"
+                           max="2000"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 1200">
+                </label>
+
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Quantity</span>
+                    <input id="installationQuantity"
+                           type="number"
+                           min="1"
+                           max="99"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 2">
+                </label>
+            </div>
+
+            <div class="radiator-dimensions-row" th:if="${towelRailSelection}">
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Towel rail length (mm)</span>
+                    <input id="towelRailLengthMm"
+                           type="number"
+                           min="1"
+                           max="2000"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 500">
+                </label>
+
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Towel rail width (mm)</span>
+                    <input id="towelRailWidthMm"
+                           type="number"
+                           min="1"
+                           max="2000"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 1200">
+                </label>
+
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Quantity</span>
+                    <input id="installationQuantityTowelRail"
+                           type="number"
+                           min="1"
+                           max="99"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 1">
+                </label>
+            </div>
+
+            <div class="radiator-issues-actions">
+                <button type="button" id="radiatorSpecificationBtn" class="card-cta">Add item →</button>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const resultElement = document.getElementById("result");
+    const continueButton = document.getElementById("radiatorSpecificationBtn");
+    const convectorChoices = Array.from(document.querySelectorAll(".js-convector-choice"));
+    const convectorInputs = Array.from(document.querySelectorAll(".js-convector-input"));
+    const hasRadiatorSelection = /*[[${radiatorSelection}]]*/ false;
+    const hasTowelRailSelection = /*[[${towelRailSelection}]]*/ false;
+    const radiatorLengthInput = document.getElementById("radiatorLengthMm");
+    const radiatorWidthInput = document.getElementById("radiatorWidthMm");
+    const installationQuantityInput = document.getElementById("installationQuantity");
+    const towelRailLengthInput = document.getElementById("towelRailLengthMm");
+    const towelRailWidthInput = document.getElementById("towelRailWidthMm");
+    const installationQuantityTowelRailInput = document.getElementById("installationQuantityTowelRail");
+    const MAX_DIMENSION_MM = 2000;
+    const MAX_QUANTITY = 99;
+    let selectedConvector = null;
+
+    continueButton.addEventListener("click", submitRadiatorSpecification);
+    radiatorLengthInput?.addEventListener("input", clearError);
+    radiatorWidthInput?.addEventListener("input", clearError);
+    installationQuantityInput?.addEventListener("input", clearError);
+    towelRailLengthInput?.addEventListener("input", clearError);
+    towelRailWidthInput?.addEventListener("input", clearError);
+    installationQuantityTowelRailInput?.addEventListener("input", clearError);
+
+    attachLimitValidation(radiatorLengthInput, MAX_DIMENSION_MM, "Maximum length is 2000 mm");
+    attachLimitValidation(radiatorWidthInput, MAX_DIMENSION_MM, "Maximum width is 2000 mm");
+    attachLimitValidation(towelRailLengthInput, MAX_DIMENSION_MM, "Maximum length is 2000 mm");
+    attachLimitValidation(towelRailWidthInput, MAX_DIMENSION_MM, "Maximum width is 2000 mm");
+    attachLimitValidation(installationQuantityInput, MAX_QUANTITY, "Maximum quantity is 99");
+    attachLimitValidation(installationQuantityTowelRailInput, MAX_QUANTITY, "Maximum quantity is 99");
+
+    convectorInputs.forEach(input => {
+        input.addEventListener("change", () => selectConvector(input.value));
+    });
+
+    function selectConvector(value) {
+        selectedConvector = value;
+        convectorChoices.forEach(choice => {
+            const input = choice.querySelector(".js-convector-input");
+            const isActive = input?.value === value;
+            if (input) {
+                input.checked = isActive;
+            }
+            choice.classList.toggle("active", isActive);
+        });
+        clearError();
+    }
+
+    async function submitRadiatorSpecification() {
+        clearError();
+
+        const radiatorLengthMm = Number(radiatorLengthInput?.value);
+        const radiatorWidthMm = Number(radiatorWidthInput?.value);
+        const radiatorQuantity = Number(installationQuantityInput?.value);
+        const towelRailLengthMm = Number(towelRailLengthInput?.value);
+        const towelRailWidthMm = Number(towelRailWidthInput?.value);
+        const towelRailQuantity = Number(installationQuantityTowelRailInput?.value);
+
+        if (hasRadiatorSelection) {
+            if (!selectedConvector) {
+                showError("Please select single convector or double convector");
+                return;
+            }
+
+            if (!radiatorLengthInput.value || Number.isNaN(radiatorLengthMm) || radiatorLengthMm <= 0) {
+                showFieldError(radiatorLengthInput, "Please enter the radiator length in mm");
+                return;
+            }
+
+            if (radiatorLengthMm > MAX_DIMENSION_MM) {
+                showFieldError(radiatorLengthInput, "Maximum length is 2000 mm");
+                return;
+            }
+
+            if (!radiatorWidthInput.value || Number.isNaN(radiatorWidthMm) || radiatorWidthMm <= 0) {
+                showFieldError(radiatorWidthInput, "Please enter the radiator width in mm");
+                return;
+            }
+
+            if (radiatorWidthMm > MAX_DIMENSION_MM) {
+                showFieldError(radiatorWidthInput, "Maximum width is 2000 mm");
+                return;
+            }
+
+            if (!installationQuantityInput.value || Number.isNaN(radiatorQuantity) || radiatorQuantity <= 0) {
+                showFieldError(installationQuantityInput, "Please enter the quantity");
+                return;
+            }
+
+            if (radiatorQuantity > MAX_QUANTITY) {
+                showFieldError(installationQuantityInput, "Maximum quantity is 99");
+                return;
+            }
+        }
+
+        if (hasTowelRailSelection) {
+            if (!towelRailLengthInput.value || Number.isNaN(towelRailLengthMm) || towelRailLengthMm <= 0) {
+                showFieldError(towelRailLengthInput, "Please enter the towel rail length in mm");
+                return;
+            }
+
+            if (towelRailLengthMm > MAX_DIMENSION_MM) {
+                showFieldError(towelRailLengthInput, "Maximum length is 2000 mm");
+                return;
+            }
+
+            if (!towelRailWidthInput.value || Number.isNaN(towelRailWidthMm) || towelRailWidthMm <= 0) {
+                showFieldError(towelRailWidthInput, "Please enter the towel rail width in mm");
+                return;
+            }
+
+            if (towelRailWidthMm > MAX_DIMENSION_MM) {
+                showFieldError(towelRailWidthInput, "Maximum width is 2000 mm");
+                return;
+            }
+
+            if (!installationQuantityTowelRailInput.value || Number.isNaN(towelRailQuantity) || towelRailQuantity <= 0) {
+                showFieldError(installationQuantityTowelRailInput, "Please enter the quantity");
+                return;
+            }
+
+            if (towelRailQuantity > MAX_QUANTITY) {
+                showFieldError(installationQuantityTowelRailInput, "Maximum quantity is 99");
+                return;
+            }
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch("/central-heating-quote/radiator-specification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    radiatorConvectorType: hasRadiatorSelection ? selectedConvector : null,
+                    radiatorLengthMm: hasRadiatorSelection ? radiatorLengthMm : null,
+                    radiatorWidthMm: hasRadiatorSelection ? radiatorWidthMm : null,
+                    towelRailLengthMm: hasTowelRailSelection ? towelRailLengthMm : null,
+                    towelRailWidthMm: hasTowelRailSelection ? towelRailWidthMm : null,
+                    installationQuantity: hasRadiatorSelection ? radiatorQuantity : towelRailQuantity
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Radiator specification error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        clearFieldValidity();
+        resultElement.textContent = "";
+    }
+
+    function showFieldError(input, message) {
+        clearFieldValidity();
+        input.setCustomValidity(message);
+        input.reportValidity();
+        input.focus();
+        resultElement.textContent = "";
+    }
+
+    function clearFieldValidity() {
+        [
+            radiatorLengthInput,
+            radiatorWidthInput,
+            installationQuantityInput,
+            towelRailLengthInput,
+            towelRailWidthInput,
+            installationQuantityTowelRailInput
+        ].forEach(input => input?.setCustomValidity(""));
+    }
+
+    function attachLimitValidation(input, maxValue, message) {
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener("input", () => validateLimit(input, maxValue, message));
+        input.addEventListener("blur", () => validateLimit(input, maxValue, message, true));
+    }
+
+    function validateLimit(input, maxValue, message, showPopup = false) {
+        if (!input.value) {
+            input.setCustomValidity("");
+            return true;
+        }
+
+        const numericValue = Number(input.value);
+
+        if (!Number.isNaN(numericValue) && numericValue > maxValue) {
+            input.setCustomValidity(message);
+            if (showPopup) {
+                input.reportValidity();
+            }
+            return false;
+        }
+
+        input.setCustomValidity("");
+        return true;
+    }
+
+    function setLoading(isLoading) {
+        continueButton.disabled = isLoading;
+        continueButton.textContent = isLoading ? "Saving..." : "Add item →";
+    }
+</script>
+
+</body>
+</html>

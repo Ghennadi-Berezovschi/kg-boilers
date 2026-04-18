@@ -63,6 +63,23 @@
                     <span class="summary-label">Magnetic filter</span>
                     <span class="summary-value" th:text="${state.magneticFilterStatus}">Yes, it has one</span>
                 </div>
+                <div class="summary-item">
+                    <span class="summary-label">Radiator issues</span>
+                    <span class="summary-value" th:text="${state.radiatorIssuesSummary}">Radiator leak, Radiator valve issue</span>
+                </div>
+                <div class="summary-item" th:if="${state.hasTrvInstallationQuantity()}">
+                    <span class="summary-label">Valve quantities</span>
+                    <span class="summary-value" th:text="${state.trvInstallationQuantitySummary}">6</span>
+                </div>
+                <div class="summary-item" th:if="${state.otherRadiatorIssueDetails != null && !state.otherRadiatorIssueDetails.isBlank()}">
+                    <span class="summary-label">Other radiator issue</span>
+                    <span class="summary-value" th:text="${state.otherRadiatorIssueDetails}">Radiator in hallway needs checking</span>
+                </div>
+                <div class="summary-item" th:if="${state.installationItems != null && !state.installationItems.isEmpty()}"
+                     th:each="item, itemStat : ${state.installationItems}">
+                    <span class="summary-label" th:text="'Installation item ' + ${itemStat.count}">Installation item 1</span>
+                    <span class="summary-value" th:text="${item.summary}">Radiator: Same position, Double convector, 1200mm x 600mm, qty 2</span>
+                </div>
             </div>
         </div>
     </section>

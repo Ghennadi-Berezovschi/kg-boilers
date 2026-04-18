@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Central Heating Valve Quantity</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260418-2108')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>How many valves do you need installed?</h2>
+        <p class="section-subtitle">
+            Enter the quantity for each type you need. Leave a field empty if you do not need that type.
+        </p>
+
+        <div class="radiator-spec-panel card">
+            <div class="radiator-dimensions-row">
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">TRV valves</span>
+                    <input id="trvValvesQuantity"
+                           type="number"
+                           min="0"
+                           max="99"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 6"
+                           th:value="${existingTrvValvesQuantity}">
+                </label>
+
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Lockshield valves</span>
+                    <input id="lockshieldValvesQuantity"
+                           type="number"
+                           min="0"
+                           max="99"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 6"
+                           th:value="${existingLockshieldValvesQuantity}">
+                </label>
+
+                <label class="radiator-dimension-field">
+                    <span class="radiator-dimension-label">Towel rail valves</span>
+                    <input id="towelRailValvesQuantity"
+                           type="number"
+                           min="0"
+                           max="99"
+                           inputmode="numeric"
+                           class="quote-input radiator-dimension-input"
+                           placeholder="e.g. 2"
+                           th:value="${existingTowelRailValvesQuantity}">
+                </label>
+            </div>
+
+            <div class="radiator-issues-actions">
+                <button type="button" id="trvInstallationQuantityBtn" class="card-cta">Continue →</button>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+    const continueButton = document.getElementById("trvInstallationQuantityBtn");
+    const trvValvesQuantityInput = document.getElementById("trvValvesQuantity");
+    const lockshieldValvesQuantityInput = document.getElementById("lockshieldValvesQuantity");
+    const towelRailValvesQuantityInput = document.getElementById("towelRailValvesQuantity");
+    const quantityInputs = [
+        trvValvesQuantityInput,
+        lockshieldValvesQuantityInput,
+        towelRailValvesQuantityInput
+    ];
+    const MAX_QUANTITY = 99;
+    const MAX_QUANTITY_MESSAGE = "Maximum quantity is 99";
+
+    continueButton.addEventListener("click", submitTrvInstallationQuantity);
+    quantityInputs.forEach(input => {
+        input.addEventListener("input", clearError);
+        input.addEventListener("input", () => validateLimit(input, MAX_QUANTITY, MAX_QUANTITY_MESSAGE));
+        input.addEventListener("blur", () => validateLimit(input, MAX_QUANTITY, MAX_QUANTITY_MESSAGE, true));
+    });
+
+    async function submitTrvInstallationQuantity() {
+        clearError();
+
+        const trvValvesQuantity = parseQuantity(trvValvesQuantityInput.value);
+        const lockshieldValvesQuantity = parseQuantity(lockshieldValvesQuantityInput.value);
+        const towelRailValvesQuantity = parseQuantity(towelRailValvesQuantityInput.value);
+
+        if (!validateNonNegative(trvValvesQuantityInput, trvValvesQuantity)
+            || !validateNonNegative(lockshieldValvesQuantityInput, lockshieldValvesQuantity)
+            || !validateNonNegative(towelRailValvesQuantityInput, towelRailValvesQuantity)) {
+            return;
+        }
+
+        if (trvValvesQuantity > MAX_QUANTITY) {
+            showFieldError(trvValvesQuantityInput, MAX_QUANTITY_MESSAGE);
+            return;
+        }
+
+        if (lockshieldValvesQuantity > MAX_QUANTITY) {
+            showFieldError(lockshieldValvesQuantityInput, MAX_QUANTITY_MESSAGE);
+            return;
+        }
+
+        if (towelRailValvesQuantity > MAX_QUANTITY) {
+            showFieldError(towelRailValvesQuantityInput, MAX_QUANTITY_MESSAGE);
+            return;
+        }
+
+        if (trvValvesQuantity === 0 && lockshieldValvesQuantity === 0 && towelRailValvesQuantity === 0) {
+            showError("Please enter how many valves you need installed");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch("/central-heating-quote/trv-installation-quantity", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    trvValvesQuantity: trvValvesQuantity,
+                    lockshieldValvesQuantity: lockshieldValvesQuantity,
+                    towelRailValvesQuantity: towelRailValvesQuantity
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("TRV installation quantity error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function parseQuantity(value) {
+        if (!value) {
+            return 0;
+        }
+
+        const parsed = Number(value);
+        return Number.isNaN(parsed) ? NaN : parsed;
+    }
+
+    function validateNonNegative(input, value) {
+        if (Number.isNaN(value) || value < 0) {
+            showFieldError(input, "Please enter a valid valve quantity");
+            return false;
+        }
+
+        return true;
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        if (message === MAX_QUANTITY_MESSAGE) {
+            const overflowingInput = quantityInputs.find(input => Number(input.value || 0) > MAX_QUANTITY) || trvValvesQuantityInput;
+            showFieldError(overflowingInput, message);
+            return;
+        }
+
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        clearFieldValidity();
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        clearFieldValidity();
+        resultElement.textContent = "";
+    }
+
+    function showFieldError(input, message) {
+        clearFieldValidity();
+        input.setCustomValidity(message);
+        input.reportValidity();
+        input.focus();
+        resultElement.textContent = "";
+    }
+
+    function clearFieldValidity() {
+        quantityInputs.forEach(input => input.setCustomValidity(""));
+    }
+
+    function validateLimit(input, maxValue, message, showPopup = false) {
+        if (!input.value) {
+            input.setCustomValidity("");
+            return true;
+        }
+
+        const numericValue = Number(input.value);
+
+        if (!Number.isNaN(numericValue) && numericValue > maxValue) {
+            input.setCustomValidity(message);
+            if (showPopup) {
+                input.reportValidity();
+            }
+            return false;
+        }
+
+        input.setCustomValidity("");
+        return true;
+    }
+
+    function setLoading(isLoading) {
+        continueButton.disabled = isLoading;
+        continueButton.textContent = isLoading ? "Saving..." : "Continue →";
+    }
+</script>
+
+</body>
+</html>

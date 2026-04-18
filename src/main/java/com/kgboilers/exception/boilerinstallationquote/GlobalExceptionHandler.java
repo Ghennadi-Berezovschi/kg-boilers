@@ -97,6 +97,18 @@ public class GlobalExceptionHandler {
         return badRequest("UNSUPPORTED_TRV_VALVE", "Unsupported TRV valve answer");
     }
 
+    @ExceptionHandler(UnsupportedRadiatorIssueException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedRadiatorIssue(UnsupportedRadiatorIssueException ex) {
+        log.warn("Unsupported radiator issue submitted");
+        return badRequest("UNSUPPORTED_RADIATOR_ISSUE", ex.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedRadiatorSpecificationException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedRadiatorSpecification(UnsupportedRadiatorSpecificationException ex) {
+        log.warn("Unsupported radiator specification submitted");
+        return badRequest("UNSUPPORTED_RADIATOR_SPECIFICATION", ex.getMessage());
+    }
+
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<QuoteResponseDto> handleValidation(org.springframework.web.bind.MethodArgumentNotValidException ex) {
         log.warn("Validation error on quote request");
