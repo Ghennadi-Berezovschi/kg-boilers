@@ -561,6 +561,121 @@
     color: #1f2f57;
 }
 
+.boiler-make-panel {
+    max-width: 760px;
+    margin: 30px auto 0;
+}
+
+.boiler-make-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 4px 14px;
+    border-bottom: 2px solid #dbe3ec;
+}
+
+.boiler-make-search-icon {
+    font-size: 24px;
+    line-height: 1;
+    color: #94a3b8;
+}
+
+.boiler-make-search-input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2f57;
+}
+
+.boiler-make-search-input::placeholder {
+    color: #94a3b8;
+}
+
+.boiler-make-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.boiler-make-option {
+    appearance: none;
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 18px;
+    width: 100%;
+    min-height: 64px;
+    padding: 12px 20px;
+    border: 2px solid #cfdceb;
+    border-radius: 12px;
+    background: #ffffff;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.boiler-make-option:hover {
+    border-color: #ff7a59;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+    transform: translateY(-1px);
+}
+
+.boiler-make-option:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.boiler-make-option.is-loading {
+    border-color: #ff7a59;
+    box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.12);
+}
+
+.boiler-make-visual {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 40px;
+}
+
+.boiler-make-logo {
+    display: block;
+    max-width: 48px;
+    max-height: 40px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.boiler-make-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 30px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--boiler-make-accent, #ff7a59) 14%, white);
+    color: var(--boiler-make-accent, #ff7a59);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+}
+
+.boiler-make-name {
+    color: #1f2f57;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
 .radiator-issues-other {
     margin-top: 18px;
     display: grid;

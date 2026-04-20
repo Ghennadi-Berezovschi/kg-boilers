@@ -61,6 +61,12 @@ public class GlobalExceptionHandler {
         return badRequest("UNSUPPORTED_PROPERTY_TYPE", "Unsupported property type");
     }
 
+    @ExceptionHandler(UnsupportedBoilerFloorLevelException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerFloorLevel(UnsupportedBoilerFloorLevelException ex) {
+        log.warn("Unsupported boiler floor level submitted");
+        return badRequest("UNSUPPORTED_BOILER_FLOOR_LEVEL", "Unsupported boiler floor level");
+    }
+
     @ExceptionHandler(UnsupportedBoilerLocationException.class)
     public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerLocation(UnsupportedBoilerLocationException ex) {
         log.warn("Unsupported boiler location submitted");
@@ -77,6 +83,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerType(UnsupportedBoilerTypeException ex) {
         log.warn("Unsupported boiler type submitted");
         return badRequest("UNSUPPORTED_BOILER_TYPE", "Unsupported boiler type");
+    }
+
+    @ExceptionHandler(UnsupportedBoilerMakeException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerMake(UnsupportedBoilerMakeException ex) {
+        log.warn("Unsupported boiler make submitted");
+        return badRequest("UNSUPPORTED_BOILER_MAKE", "Unsupported boiler make");
     }
 
     @ExceptionHandler(UnsupportedPowerFlushException.class)
@@ -107,6 +119,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<QuoteResponseDto> handleUnsupportedRadiatorSpecification(UnsupportedRadiatorSpecificationException ex) {
         log.warn("Unsupported radiator specification submitted");
         return badRequest("UNSUPPORTED_RADIATOR_SPECIFICATION", ex.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedSlopedRoofPositionException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedSlopedRoofPosition(UnsupportedSlopedRoofPositionException ex) {
+        log.warn("Unsupported sloped roof position submitted");
+        return badRequest("UNSUPPORTED_SLOPED_ROOF_POSITION", "Unsupported roof position");
     }
 
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)

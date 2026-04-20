@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum BoilerLocation {
 
-    BASEMENT("basement"),
-    GROUND_FLOOR("ground-floor"),
-    FIRST_FLOOR("first-floor"),
-    LOFT("loft"),
-    GARAGE_OR_OUTSIDE("garage-outside"),
-    SECOND_OR_HIGHER("second-plus");
+    UTILITY_ROOM("utility-room"),
+    KITCHEN("kitchen"),
+    GARAGE("garage"),
+    AIRING_CUPBOARD("airing-cupboard"),
+    BEDROOM("bedroom"),
+    LOFT_OR_ATTIC("loft-attic"),
+    SOMEWHERE_ELSE("somewhere-else");
 
     private final String value;
 
@@ -26,17 +27,18 @@ public enum BoilerLocation {
     @JsonCreator
     public static BoilerLocation fromValue(String input) {
         if (input == null) {
-            throw new IllegalArgumentException("Location is null");
+            throw new IllegalArgumentException("Boiler location is null");
         }
 
         String normalized = input.trim().toLowerCase();
 
         for (BoilerLocation location : values()) {
-            if (location.value.equals(normalized) || location.name().toLowerCase().equals(normalized.replace("-", "_"))) {
+            if (location.value.equals(normalized)
+                    || location.name().toLowerCase().equals(normalized.replace("-", "_"))) {
                 return location;
             }
         }
 
-        throw new IllegalArgumentException("Unsupported location: " + input);
+        throw new IllegalArgumentException("Unsupported boiler location: " + input);
     }
 }

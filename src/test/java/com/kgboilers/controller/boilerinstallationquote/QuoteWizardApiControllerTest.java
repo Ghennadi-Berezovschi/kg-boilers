@@ -3,7 +3,9 @@ package com.kgboilers.controller.boilerinstallationquote;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.kgboilers.dto.boilerinstallationquote.BathShowerCountRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.BedroomsRequestDto;
+import com.kgboilers.dto.boilerinstallationquote.BoilerFloorLevelRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.BoilerLocationRequestDto;
+import com.kgboilers.dto.boilerinstallationquote.BoilerMakeRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.BoilerPositionRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.BoilerTypeRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.FlueTypeRequestDto;
@@ -17,11 +19,14 @@ import com.kgboilers.dto.boilerinstallationquote.QuoteRequestPostcodeDto;
 import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
 import com.kgboilers.dto.boilerinstallationquote.RelocationDistanceRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.RelocationRequestDto;
+import com.kgboilers.dto.boilerinstallationquote.SlopedRoofPositionRequestDto;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedFuelException;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
+import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
+import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
@@ -34,6 +39,7 @@ import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
+import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
 import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
 import com.kgboilers.service.boilerinstallationquote.QuoteService;
@@ -140,6 +146,30 @@ class QuoteWizardApiControllerTest {
     }
 
     @Test
+    void setFuel_shouldReturnSuccess_whenElectricFuelIsValidForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setCurrentStep(QuoteStep.FUEL_TYPE);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(wizardService.canAccessStep(state, QuoteStep.FUEL_TYPE, "boiler-repair")).thenReturn(true);
+        when(wizardService.updateFuel(state, FuelType.ELECTRIC, "boiler-repair"))
+                .thenReturn(QuoteStep.PROPERTY_OWNERSHIP);
+
+        FuelRequestDto request = new FuelRequestDto();
+        request.setFuel(FuelType.ELECTRIC);
+
+        ResponseEntity<QuoteResponseDto> response = controller.setFuel(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/boiler-repair-quote/property-ownership", response.getBody().getNextStep());
+
+        verify(sessionService).saveState(session, state);
+    }
+
+    @Test
     void setFuel_shouldThrowException_whenFuelUnsupported() {
         QuoteSessionState state = new QuoteSessionState();
         state.setCurrentStep(QuoteStep.FUEL_TYPE);
@@ -185,7 +215,7 @@ class QuoteWizardApiControllerTest {
 
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.PROPERTY_TYPE)).thenReturn(true);
-        when(wizardService.updatePropertyType(state, PropertyType.HOUSE)).thenReturn(QuoteStep.BOILER_LOCATION);
+        when(wizardService.updatePropertyType(state, PropertyType.HOUSE)).thenReturn(QuoteStep.BOILER_FLOOR_LEVEL);
 
         PropertyTypeRequestDto request = new PropertyTypeRequestDto();
         request.setPropertyType(PropertyType.HOUSE);
@@ -195,7 +225,7 @@ class QuoteWizardApiControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
-        assertEquals("/quote/boiler-location", response.getBody().getNextStep());
+        assertEquals("/quote/boiler-floor-level", response.getBody().getNextStep());
     }
 
     @Test
@@ -216,6 +246,48 @@ class QuoteWizardApiControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
         assertEquals("/quote/boiler-position", response.getBody().getNextStep());
+    }
+
+    @Test
+    void setBoilerType_shouldReturnBoilerMakeForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setCurrentStep(QuoteStep.BOILER_TYPE);
+
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_TYPE, "boiler-repair")).thenReturn(true);
+        when(wizardService.updateBoilerType(state, BoilerType.COMBI, "boiler-repair")).thenReturn(QuoteStep.BOILER_MAKE);
+
+        BoilerTypeRequestDto request = new BoilerTypeRequestDto();
+        request.setBoilerType(BoilerType.COMBI);
+
+        ResponseEntity<QuoteResponseDto> response = controller.setBoilerType(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/boiler-repair-quote/boiler-make", response.getBody().getNextStep());
+    }
+
+    @Test
+    void setBoilerMake_shouldReturnBoilerLocationForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setCurrentStep(QuoteStep.BOILER_MAKE);
+
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_MAKE, "boiler-repair")).thenReturn(true);
+        when(wizardService.updateBoilerMake(state, BoilerMake.VAILLANT, "boiler-repair")).thenReturn(QuoteStep.BOILER_LOCATION);
+
+        BoilerMakeRequestDto request = new BoilerMakeRequestDto();
+        request.setBoilerMake(BoilerMake.VAILLANT);
+
+        ResponseEntity<QuoteResponseDto> response = controller.setBoilerMake(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/boiler-repair-quote/boiler-location", response.getBody().getNextStep());
     }
 
     @Test
@@ -245,12 +317,53 @@ class QuoteWizardApiControllerTest {
 
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.BOILER_LOCATION)).thenReturn(true);
-        when(wizardService.updateBoilerLocation(state, BoilerLocation.BASEMENT)).thenReturn(QuoteStep.BEDROOMS);
+        when(wizardService.updateBoilerLocation(state, BoilerLocation.KITCHEN)).thenReturn(QuoteStep.BOILER_FLOOR_LEVEL);
 
         BoilerLocationRequestDto request = new BoilerLocationRequestDto();
-        request.setLocation(BoilerLocation.BASEMENT);
+        request.setLocation(BoilerLocation.KITCHEN);
 
         ResponseEntity<QuoteResponseDto> response = controller.setBoilerLocation(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/quote/boiler-floor-level", response.getBody().getNextStep());
+    }
+
+    @Test
+    void setBoilerLocation_shouldReturnRadiatorCountForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setCurrentStep(QuoteStep.BOILER_LOCATION);
+
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_LOCATION, "boiler-repair")).thenReturn(true);
+        when(wizardService.updateBoilerLocation(state, BoilerLocation.KITCHEN, "boiler-repair")).thenReturn(QuoteStep.RADIATOR_COUNT);
+
+        BoilerLocationRequestDto request = new BoilerLocationRequestDto();
+        request.setLocation(BoilerLocation.KITCHEN);
+
+        ResponseEntity<QuoteResponseDto> response = controller.setBoilerLocation(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/boiler-repair-quote/radiator-count", response.getBody().getNextStep());
+    }
+
+    @Test
+    void setBoilerFloorLevel_shouldReturnSuccess_whenFloorLevelIsValid() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setCurrentStep(QuoteStep.BOILER_FLOOR_LEVEL);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL)).thenReturn(true);
+        when(wizardService.updateBoilerFloorLevel(state, BoilerFloorLevel.BASEMENT)).thenReturn(QuoteStep.BEDROOMS);
+
+        BoilerFloorLevelRequestDto request = new BoilerFloorLevelRequestDto();
+        request.setFloorLevel(BoilerFloorLevel.BASEMENT);
+
+        ResponseEntity<QuoteResponseDto> response = controller.setBoilerFloorLevel(request, session);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -359,6 +472,27 @@ class QuoteWizardApiControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
         assertEquals("/quote/flue-position", response.getBody().getNextStep());
+    }
+
+    @Test
+    void setSlopedRoofPosition_shouldReturnSuccess_whenRoofPositionIsValid() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setCurrentStep(QuoteStep.SLOPED_ROOF_POSITION);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.SLOPED_ROOF_POSITION)).thenReturn(true);
+        when(wizardService.updateSlopedRoofPosition(state, SlopedRoofPosition.HIGHEST_TWO_THIRDS))
+                .thenReturn(QuoteStep.RADIATOR_COUNT);
+
+        SlopedRoofPositionRequestDto request = new SlopedRoofPositionRequestDto();
+        request.setRoofPosition(SlopedRoofPosition.HIGHEST_TWO_THIRDS);
+
+        ResponseEntity<QuoteResponseDto> response = controller.setSlopedRoofPosition(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/quote/radiator-count", response.getBody().getNextStep());
     }
 
     @Test

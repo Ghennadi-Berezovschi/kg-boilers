@@ -10,7 +10,9 @@ import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
+import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
+import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
@@ -24,6 +26,7 @@ import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
+import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
 import com.kgboilers.service.boilerinstallationquote.FlueClearancePricingService;
@@ -177,6 +180,20 @@ class QuotePageControllerTest {
     }
 
     @Test
+    void boilerMakePage_shouldReturnBoilerMakePageForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_MAKE, "boiler-repair")).thenReturn(true);
+
+        String view = controller.boilerMakePage(session, model);
+
+        assertEquals("boiler-repair-quote/boiler-make", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-type"));
+        verify(model).addAttribute(eq("boilerMakeOptions"), any());
+    }
+
+    @Test
     void boilerPositionPage_shouldReturnBoilerPositionPage_whenStepAccessible() {
         when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_POSITION))).thenReturn(true);
@@ -199,6 +216,42 @@ class QuotePageControllerTest {
     }
 
     @Test
+    void boilerLocationPage_shouldUseBoilerMakeAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_LOCATION, "boiler-repair")).thenReturn(true);
+
+        String view = controller.boilerLocationPage(session, model);
+
+        assertEquals("boiler-installation-quote/boiler-location", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-make"));
+    }
+
+    @Test
+    void boilerFloorLevelPage_shouldReturnBoilerFloorLevelPage_whenStepAccessible() {
+        when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
+        when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_FLOOR_LEVEL))).thenReturn(true);
+
+        String view = controller.boilerFloorLevelPage(session, model);
+
+        assertEquals("boiler-installation-quote/boiler-floor-level", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-location"));
+    }
+
+    @Test
+    void boilerFloorLevelPage_shouldRedirectToRadiatorCountForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT, "boiler-repair")).thenReturn(true);
+
+        String view = controller.boilerFloorLevelPage(session, model);
+
+        assertEquals("redirect:/boiler-repair-quote/radiator-count", view);
+    }
+
+    @Test
     void bedroomsPage_shouldReturnBedroomsPage_whenStepAccessible() {
         when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.canAccessStep(any(), eq(QuoteStep.BEDROOMS))).thenReturn(true);
@@ -217,7 +270,7 @@ class QuotePageControllerTest {
         String view = controller.boilerConditionPage(session, model);
 
         assertEquals("boiler-installation-quote/boiler-condition", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-location"));
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-floor-level"));
     }
 
     @Test
@@ -229,6 +282,19 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/relocation", view);
         verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-condition"));
+    }
+
+    @Test
+    void radiatorCountPage_shouldUseBoilerLocationAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT, "boiler-repair")).thenReturn(true);
+
+        String view = controller.radiatorCountPage(session, model);
+
+        assertEquals("boiler-installation-quote/radiator-count", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-location"));
     }
 
     @Test
@@ -312,6 +378,19 @@ class QuotePageControllerTest {
     }
 
     @Test
+    void slopedRoofPositionPage_shouldUseFlueLengthAsBackUrl() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.SLOPED_ROOF_POSITION)).thenReturn(true);
+
+        String view = controller.slopedRoofPositionPage(session, model);
+
+        assertEquals("boiler-installation-quote/sloped-roof-position", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/flue-length"));
+    }
+
+    @Test
     void radiatorCountPage_shouldUseFluePropertyDistanceAsBackUrl_forHorizontalFlue() {
         QuoteSessionState state = new QuoteSessionState();
         state.setFlueType(FlueType.HORIZONTAL);
@@ -337,6 +416,22 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/radiator-count", view);
         verify(model).addAttribute(eq("backUrl"), eq("/quote/flue-length"));
+    }
+
+    @Test
+    void radiatorCountPage_shouldUseSlopedRoofPositionAsBackUrl_forSlopedRoofFlue() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFlueType(FlueType.VERTICAL);
+        state.setVerticalFlueType(VerticalFlueType.SLOPED_ROOF);
+        state.setSlopedRoofPosition(SlopedRoofPosition.HIGHEST_TWO_THIRDS);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT)).thenReturn(true);
+
+        String view = controller.radiatorCountPage(session, model);
+
+        assertEquals("boiler-installation-quote/radiator-count", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/sloped-roof-position"));
     }
 
     @Test
@@ -493,6 +588,7 @@ class QuotePageControllerTest {
         );
         BoilerContactRequestDto request = new BoilerContactRequestDto();
         request.setSelectedBoiler("Vaillant ecoTEC Plus 28kW Combi");
+        request.setName("Jane Smith");
         request.setEmail("client@example.com");
         request.setPhone("+44 7700 900123");
         request.setSelectedExtras(java.util.List.of("hive-thermostat-mini"));
@@ -521,6 +617,7 @@ class QuotePageControllerTest {
                 java.util.List.of(selectedExtra),
                 150,
                 "Vaillant ecoTEC Plus 28kW Combi",
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123"
         )).thenReturn(77L);
@@ -540,6 +637,7 @@ class QuotePageControllerTest {
                 java.util.List.of(selectedExtra),
                 150,
                 "Vaillant ecoTEC Plus 28kW Combi",
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123"
         );
@@ -549,6 +647,7 @@ class QuotePageControllerTest {
                 "boiler-installation",
                 "Vaillant ecoTEC Plus 28kW Combi",
                 3150,
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123",
                 300,
@@ -624,12 +723,14 @@ class QuotePageControllerTest {
         state.setBedrooms(Bedrooms.ONE);
         state.setBoilerType(BoilerType.HEAT_ONLY);
         state.setBoilerPosition(BoilerPosition.FLOOR_STANDING);
-        state.setBoilerLocation(BoilerLocation.GROUND_FLOOR);
+        state.setBoilerLocation(BoilerLocation.KITCHEN);
+        state.setBoilerFloorLevel(BoilerFloorLevel.GROUND_FLOOR);
         state.setBoilerCondition(BoilerCondition.OLD_INEFFICIENT);
         state.setRelocation(Relocation.NO);
         state.setFlueType(FlueType.VERTICAL);
         state.setVerticalFlueType(VerticalFlueType.SLOPED_ROOF);
         state.setFlueLength(com.kgboilers.model.boilerinstallation.enums.FlueLength.ZERO_TO_ONE);
+        state.setSlopedRoofPosition(SlopedRoofPosition.HIGHEST_TWO_THIRDS);
         state.setRadiatorCount(RadiatorCount.ZERO_TO_FIVE);
         state.setBathShowerCount(BathShowerCount.ONE);
         return state;
@@ -644,7 +745,8 @@ class QuotePageControllerTest {
         state.setBedrooms(Bedrooms.THREE);
         state.setBoilerType(BoilerType.COMBI);
         state.setBoilerPosition(BoilerPosition.WALL_MOUNTED);
-        state.setBoilerLocation(BoilerLocation.GROUND_FLOOR);
+        state.setBoilerLocation(BoilerLocation.UTILITY_ROOM);
+        state.setBoilerFloorLevel(BoilerFloorLevel.GROUND_FLOOR);
         state.setBoilerCondition(BoilerCondition.NOT_WORKING);
         state.setRelocation(Relocation.YES);
         state.setRelocationDistance(RelocationDistance.TWO_TO_THREE);

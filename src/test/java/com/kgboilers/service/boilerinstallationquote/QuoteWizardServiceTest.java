@@ -4,7 +4,9 @@ import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsExcept
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
+import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
+import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
@@ -19,10 +21,12 @@ import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
+import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class QuoteWizardServiceTest {
@@ -53,6 +57,28 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updateFuel_shouldAllowElectricForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteStep nextStep = service.updateFuel(state, FuelType.ELECTRIC, "boiler-repair");
+
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(FuelType.ELECTRIC, state.getFuel());
+    }
+
+    @Test
+    void updateFuel_shouldAllowElectricForGeneralFlow() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteStep nextStep = service.updateFuel(state, FuelType.ELECTRIC);
+
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(FuelType.ELECTRIC, state.getFuel());
+    }
+
+    @Test
     void updateOwnership_shouldSetOwnershipAndReturnNextStep() {
         QuoteSessionState state = new QuoteSessionState();
 
@@ -73,6 +99,16 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updatePropertyType_shouldSkipBedroomsForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updatePropertyType(state, PropertyType.HOUSE, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_TYPE, nextStep);
+        assertEquals(PropertyType.HOUSE, state.getPropertyType());
+    }
+
+    @Test
     void updateBoilerType_shouldSetBoilerTypeAndReturnNextStep() {
         QuoteSessionState state = new QuoteSessionState();
 
@@ -80,6 +116,36 @@ class QuoteWizardServiceTest {
 
         assertEquals(QuoteStep.BOILER_POSITION, nextStep);
         assertEquals(BoilerType.COMBI, state.getBoilerType());
+    }
+
+    @Test
+    void updateBoilerType_shouldSkipBoilerPositionForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.COMBI, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_MAKE, nextStep);
+        assertEquals(BoilerType.COMBI, state.getBoilerType());
+    }
+
+    @Test
+    void updateBoilerType_shouldSkipBoilerConversionForHeatOnlyBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.HEAT_ONLY, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_MAKE, nextStep);
+        assertEquals(BoilerType.HEAT_ONLY, state.getBoilerType());
+    }
+
+    @Test
+    void updateBoilerMake_shouldReturnBoilerLocationForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerMake(state, BoilerMake.VAILLANT, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_LOCATION, nextStep);
+        assertEquals(BoilerMake.VAILLANT, state.getBoilerMake());
     }
 
     @Test
@@ -96,10 +162,31 @@ class QuoteWizardServiceTest {
     void updateBoilerLocation_shouldSetBoilerLocationAndReturnNextStep() {
         QuoteSessionState state = new QuoteSessionState();
 
-        QuoteStep nextStep = service.updateBoilerLocation(state, BoilerLocation.BASEMENT);
+        QuoteStep nextStep = service.updateBoilerLocation(state, BoilerLocation.KITCHEN);
+
+        assertEquals(QuoteStep.BOILER_FLOOR_LEVEL, nextStep);
+        assertEquals(BoilerLocation.KITCHEN, state.getBoilerLocation());
+    }
+
+    @Test
+    void updateBoilerLocation_shouldSkipBoilerFloorLevelForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerLocation(state, BoilerLocation.KITCHEN, "boiler-repair");
+
+        assertEquals(QuoteStep.RADIATOR_COUNT, nextStep);
+        assertEquals(BoilerLocation.KITCHEN, state.getBoilerLocation());
+        assertNull(state.getBoilerFloorLevel());
+    }
+
+    @Test
+    void updateBoilerFloorLevel_shouldSetBoilerFloorLevelAndReturnNextStep() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerFloorLevel(state, BoilerFloorLevel.BASEMENT);
 
         assertEquals(QuoteStep.BOILER_CONDITION, nextStep);
-        assertEquals(BoilerLocation.BASEMENT, state.getBoilerLocation());
+        assertEquals(BoilerFloorLevel.BASEMENT, state.getBoilerFloorLevel());
     }
 
     @Test
@@ -204,6 +291,30 @@ class QuoteWizardServiceTest {
         assertEquals(QuoteStep.RADIATOR_COUNT, nextStep);
         assertEquals(FlueLength.TWO_TO_THREE, state.getFlueLength());
         assertEquals(QuoteStep.RADIATOR_COUNT, state.getCurrentStep());
+    }
+
+    @Test
+    void updateFlueLength_shouldReturnSlopedRoofPosition_forVerticalSlopedRoof() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFlueType(FlueType.VERTICAL);
+        state.setVerticalFlueType(VerticalFlueType.SLOPED_ROOF);
+
+        QuoteStep nextStep = service.updateFlueLength(state, FlueLength.TWO_TO_THREE);
+
+        assertEquals(QuoteStep.SLOPED_ROOF_POSITION, nextStep);
+        assertEquals(FlueLength.TWO_TO_THREE, state.getFlueLength());
+        assertEquals(QuoteStep.SLOPED_ROOF_POSITION, state.getCurrentStep());
+    }
+
+    @Test
+    void updateSlopedRoofPosition_shouldSetPositionAndReturnRadiatorCount() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateSlopedRoofPosition(state, SlopedRoofPosition.HIGHEST_TWO_THIRDS);
+
+        assertEquals(QuoteStep.RADIATOR_COUNT, nextStep);
+        assertEquals(SlopedRoofPosition.HIGHEST_TWO_THIRDS, state.getSlopedRoofPosition());
+        assertEquals("Upper half of the roof", state.getSlopedRoofPositionSummary());
     }
 
     @Test

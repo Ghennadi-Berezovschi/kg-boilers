@@ -9,7 +9,7 @@ kg:
         radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1000
+        averagePriceGbp: 1750
         image: "/images/boilers/catalog/main-combi.png"
         enabled: true
 
@@ -20,7 +20,7 @@ kg:
         radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1100
+        averagePriceGbp: 1850
         image: "/images/boilers/catalog/main-combi.png"
         enabled: true
 

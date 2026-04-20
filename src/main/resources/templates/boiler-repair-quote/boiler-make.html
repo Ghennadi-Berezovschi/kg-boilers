@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Make</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260420-1948')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>What <span style="color:#ff5a3c;">make</span> is your boiler?</h2>
+        <div class="boiler-make-panel">
+            <label class="boiler-make-search" for="boilerMakeSearch">
+                <span class="boiler-make-search-icon" aria-hidden="true">⌕</span>
+                <input id="boilerMakeSearch"
+                       class="boiler-make-search-input"
+                       type="search"
+                       placeholder="Start typing your manufacturer"
+                       autocomplete="off">
+            </label>
+
+            <div class="boiler-make-list" id="boilerMakeList">
+                <button type="button"
+                        class="boiler-make-option"
+                        th:each="make : ${boilerMakeOptions}"
+                        th:data-value="${make.value}"
+                        th:data-search="${#strings.toLowerCase(make.label)}"
+                        th:style="'--boiler-make-accent:' + ${make.accentColor}">
+                    <span class="boiler-make-visual">
+                        <img th:if="${make.logoPath != null}"
+                             class="boiler-make-logo"
+                             th:src="${make.logoPath}"
+                             th:alt="${make.label + ' logo'}">
+                        <span th:if="${make.logoPath == null}"
+                              class="boiler-make-fallback"
+                              th:text="${make.mark}">A</span>
+                    </span>
+                    <span class="boiler-make-name" th:text="${make.label}">Worcester Bosch</span>
+                </button>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+    const searchInput = document.getElementById("boilerMakeSearch");
+    const makeButtons = Array.from(document.querySelectorAll(".boiler-make-option"));
+
+    searchInput.addEventListener("input", filterBoilerMakes);
+    makeButtons.forEach(button => button.addEventListener("click", () => selectBoilerMake(button.dataset.value, button)));
+
+    function filterBoilerMakes() {
+        const query = searchInput.value.trim().toLowerCase();
+
+        makeButtons.forEach(button => {
+            const haystack = button.dataset.search || "";
+            button.hidden = query && !haystack.includes(query);
+        });
+    }
+
+    async function selectBoilerMake(boilerMake, button) {
+        clearError();
+        setLoading(button, true);
+
+        try {
+            const response = await fetch("/quote/boiler-make", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ boilerMake: boilerMake })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Boiler make error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(button, false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+
+    function setLoading(activeButton, isLoading) {
+        makeButtons.forEach(button => {
+            button.disabled = isLoading;
+        });
+
+        if (activeButton) {
+            activeButton.classList.toggle("is-loading", isLoading);
+        }
+    }
+</script>
+
+</body>
+</html>

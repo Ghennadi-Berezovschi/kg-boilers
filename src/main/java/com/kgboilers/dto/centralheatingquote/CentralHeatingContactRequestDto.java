@@ -8,6 +8,9 @@ import lombok.Data;
 @Data
 public class CentralHeatingContactRequestDto {
 
+    @NotBlank(message = "Please enter your name.")
+    private String name;
+
     @NotBlank(message = "Please enter your email address.")
     @Email(message = "Please enter a valid email address.")
     private String email;

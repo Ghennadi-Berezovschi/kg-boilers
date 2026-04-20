@@ -2,6 +2,7 @@ package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferProperties;
 import com.kgboilers.config.properties.ContactProperties;
+import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
@@ -38,6 +39,8 @@ class QuoteLeadEmailServiceTest {
 
         ContactProperties contactProperties = new ContactProperties();
         contactProperties.setEmail("office@kgboilers.co.uk");
+        CompanyProperties companyProperties = new CompanyProperties();
+        companyProperties.setName("K&G Boiler Installation and Repair");
         QuoteOfferProperties quoteOfferProperties = new QuoteOfferProperties();
         quoteOfferProperties.setIncludedItems(List.of(
                 "Boiler installation",
@@ -46,7 +49,7 @@ class QuoteLeadEmailServiceTest {
         ));
 
         when(mailSenderProvider.getIfAvailable()).thenReturn(mailSender);
-        quoteLeadEmailService = new QuoteLeadEmailService(mailSenderProvider, contactProperties, quoteOfferProperties);
+        quoteLeadEmailService = new QuoteLeadEmailService(mailSenderProvider, contactProperties, quoteOfferProperties, companyProperties);
     }
 
     @Test
@@ -66,6 +69,7 @@ class QuoteLeadEmailServiceTest {
                 "boiler-installation",
                 "Vaillant ecoTEC Plus 28kW Combi",
                 2050,
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123",
                 300,
@@ -86,6 +90,7 @@ class QuoteLeadEmailServiceTest {
         SimpleMailMessage businessMessage = messages.get(1);
 
         assertEquals("client@example.com", clientMessage.getTo()[0]);
+        assertTrue(clientMessage.getText().contains("Hello Jane Smith,"));
         assertTrue(clientMessage.getText().contains("Your fixed price including installation:"));
         assertTrue(clientMessage.getText().contains("Boiler installation"));
         assertTrue(clientMessage.getText().contains("Programmable Room Thermostat"));
@@ -97,6 +102,7 @@ class QuoteLeadEmailServiceTest {
         assertFalse(clientMessage.getText().contains("Email: client@example.com"));
 
         assertEquals("office@kgboilers.co.uk", businessMessage.getTo()[0]);
+        assertTrue(businessMessage.getText().contains("Name: Jane Smith"));
         assertTrue(businessMessage.getText().contains("Client answers:"));
         assertTrue(businessMessage.getText().contains("Relocation price: £300"));
         assertTrue(businessMessage.getText().contains("Flue length price: £250"));
@@ -113,6 +119,7 @@ class QuoteLeadEmailServiceTest {
                 "boiler-installation",
                 "Boiler",
                 1000,
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123",
                 0,

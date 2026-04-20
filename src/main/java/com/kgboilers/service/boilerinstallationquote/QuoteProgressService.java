@@ -4,6 +4,7 @@ import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
+import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
 import com.kgboilers.model.boilerinstallationquote.QuoteProgressStageView;
 import com.kgboilers.model.boilerinstallationquote.QuoteProgressView;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
@@ -15,6 +16,8 @@ import java.util.List;
 @Service
 public class QuoteProgressService {
 
+    private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
+
     private static final List<String> STAGE_LABELS = List.of(
             "1.Your home",
             "2.Options",
@@ -23,7 +26,14 @@ public class QuoteProgressService {
     );
 
     public QuoteProgressView buildProgress(QuoteSessionState state, QuoteStep currentStep, boolean bookingComplete) {
-        List<QuoteStep> flow = buildVisibleFlow(state, currentStep);
+        return buildProgress(state, currentStep, bookingComplete, null);
+    }
+
+    public QuoteProgressView buildProgress(QuoteSessionState state,
+                                           QuoteStep currentStep,
+                                           boolean bookingComplete,
+                                           String service) {
+        List<QuoteStep> flow = buildVisibleFlow(state, currentStep, service);
         int totalSteps = Math.max(1, flow.size() - 1);
         int currentIndex = Math.max(0, flow.indexOf(currentStep));
         int currentStepNumber = Math.min(totalSteps, currentIndex);
@@ -42,45 +52,83 @@ public class QuoteProgressService {
         );
     }
 
-    private List<QuoteStep> buildVisibleFlow(QuoteSessionState state, QuoteStep currentStep) {
+    private List<QuoteStep> buildVisibleFlow(QuoteSessionState state, QuoteStep currentStep, String service) {
+        boolean skipRepairDetails = shouldSkipRepairDetails(service);
         List<QuoteStep> flow = new ArrayList<>();
         flow.add(QuoteStep.START);
         flow.add(QuoteStep.FUEL_TYPE);
         flow.add(QuoteStep.PROPERTY_OWNERSHIP);
         flow.add(QuoteStep.PROPERTY_TYPE);
-        flow.add(QuoteStep.BEDROOMS);
+        if (!shouldSkipBedrooms(service)) {
+            flow.add(QuoteStep.BEDROOMS);
+        }
         flow.add(QuoteStep.BOILER_TYPE);
+        if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            flow.add(QuoteStep.BOILER_MAKE);
+        }
 
-        if (shouldIncludeBoilerConversion(state, currentStep)) {
+        if (shouldIncludeBoilerConversion(state, currentStep, service)) {
             flow.add(QuoteStep.BOILER_CONVERSION);
         }
 
-        flow.add(QuoteStep.BOILER_POSITION);
+        if (!shouldSkipBoilerPosition(service)) {
+            flow.add(QuoteStep.BOILER_POSITION);
+        }
         flow.add(QuoteStep.BOILER_LOCATION);
-        flow.add(QuoteStep.BOILER_CONDITION);
-        flow.add(QuoteStep.RELOCATION);
-
-        if (shouldIncludeRelocationDistance(state, currentStep)) {
-            flow.add(QuoteStep.RELOCATION_DISTANCE);
+        if (!skipRepairDetails) {
+            flow.add(QuoteStep.BOILER_FLOOR_LEVEL);
         }
 
-        flow.add(QuoteStep.FLUE_TYPE);
-        flow.add(QuoteStep.FLUE_LENGTH);
+        if (!skipRepairDetails) {
+            flow.add(QuoteStep.BOILER_CONDITION);
+            flow.add(QuoteStep.RELOCATION);
 
-        if (shouldIncludeHorizontalFlueSteps(state, currentStep)) {
-            flow.add(QuoteStep.FLUE_POSITION);
-            flow.add(QuoteStep.FLUE_CLEARANCE);
-            flow.add(QuoteStep.FLUE_PROPERTY_DISTANCE);
+            if (shouldIncludeRelocationDistance(state, currentStep)) {
+                flow.add(QuoteStep.RELOCATION_DISTANCE);
+            }
+
+            flow.add(QuoteStep.FLUE_TYPE);
+            flow.add(QuoteStep.FLUE_LENGTH);
+
+            if (shouldIncludeSlopedRoofPosition(state, currentStep)) {
+                flow.add(QuoteStep.SLOPED_ROOF_POSITION);
+            }
+
+            if (shouldIncludeHorizontalFlueSteps(state, currentStep)) {
+                flow.add(QuoteStep.FLUE_POSITION);
+                flow.add(QuoteStep.FLUE_CLEARANCE);
+                flow.add(QuoteStep.FLUE_PROPERTY_DISTANCE);
+            }
         }
 
         flow.add(QuoteStep.RADIATOR_COUNT);
-        flow.add(QuoteStep.BATH_SHOWER_COUNT);
+
+        if (!skipRepairDetails) {
+            flow.add(QuoteStep.BATH_SHOWER_COUNT);
+        }
+
         flow.add(QuoteStep.SUMMARY);
         flow.add(QuoteStep.CONTACT);
         return flow;
     }
 
-    private boolean shouldIncludeBoilerConversion(QuoteSessionState state, QuoteStep currentStep) {
+    private boolean shouldSkipBedrooms(String service) {
+        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldSkipBoilerPosition(String service) {
+        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldSkipRepairDetails(String service) {
+        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldIncludeBoilerConversion(QuoteSessionState state, QuoteStep currentStep, String service) {
+        if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            return false;
+        }
+
         return currentStep == QuoteStep.BOILER_CONVERSION
                 || (state != null && state.getBoilerType() == BoilerType.HEAT_ONLY);
     }
@@ -97,6 +145,13 @@ public class QuoteProgressService {
                 || (state != null && state.getFlueType() == FlueType.HORIZONTAL);
     }
 
+    private boolean shouldIncludeSlopedRoofPosition(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.SLOPED_ROOF_POSITION
+                || (state != null
+                && state.getFlueType() == FlueType.VERTICAL
+                && state.getVerticalFlueType() == VerticalFlueType.SLOPED_ROOF);
+    }
+
     private int resolveCurrentStage(QuoteStep currentStep, boolean bookingComplete) {
         if (bookingComplete) {
             return 4;
@@ -111,6 +166,7 @@ public class QuoteProgressService {
                  RELOCATION_DISTANCE,
                  FLUE_TYPE,
                  FLUE_LENGTH,
+                 SLOPED_ROOF_POSITION,
                  FLUE_POSITION,
                  FLUE_CLEARANCE,
                  FLUE_PROPERTY_DISTANCE,

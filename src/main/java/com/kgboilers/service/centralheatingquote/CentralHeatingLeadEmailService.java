@@ -1,6 +1,7 @@
 package com.kgboilers.service.centralheatingquote;
 
 import com.kgboilers.config.properties.ContactProperties;
+import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.centralheatingquote.CentralHeatingInstallationItem;
 import com.kgboilers.model.centralheatingquote.CentralHeatingQuoteSessionState;
 import lombok.extern.slf4j.Slf4j;
@@ -16,15 +17,19 @@ public class CentralHeatingLeadEmailService {
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
+    private final CompanyProperties companyProperties;
 
     public CentralHeatingLeadEmailService(ObjectProvider<JavaMailSender> mailSenderProvider,
-                                          ContactProperties contactProperties) {
+                                          ContactProperties contactProperties,
+                                          CompanyProperties companyProperties) {
         this.mailSenderProvider = mailSenderProvider;
         this.contactProperties = contactProperties;
+        this.companyProperties = companyProperties;
     }
 
     public void sendLeadEmails(CentralHeatingQuoteSessionState state,
                                String serviceType,
+                               String clientName,
                                String clientEmail,
                                String clientPhone) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
@@ -36,8 +41,8 @@ public class CentralHeatingLeadEmailService {
         sendSafely(
                 mailSender,
                 clientEmail,
-                "Your K&G central heating request",
-                buildClientEmailBody(state)
+                "Your " + companyProperties.getName() + " central heating request",
+                buildClientEmailBody(state, clientName)
         );
 
         if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
@@ -45,7 +50,7 @@ public class CentralHeatingLeadEmailService {
                     mailSender,
                     contactProperties.getEmail(),
                     "New central heating lead",
-                    buildBusinessEmailBody(state, serviceType, clientEmail, clientPhone)
+                    buildBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone)
             );
         }
     }
@@ -65,9 +70,12 @@ public class CentralHeatingLeadEmailService {
         }
     }
 
-    private String buildClientEmailBody(CentralHeatingQuoteSessionState state) {
+    private String buildClientEmailBody(CentralHeatingQuoteSessionState state,
+                                        String clientName) {
         return """
-                Thank you for contacting K&G Boilers.
+                Hello %s,
+
+                Thank you for contacting %s.
 
                 We received your central heating request with the following details:
 
@@ -85,6 +93,8 @@ public class CentralHeatingLeadEmailService {
 
                 We will contact you shortly.
                 """.formatted(
+                safe(clientName),
+                companyProperties.getName(),
                 buildRadiatorIssuesSection(state),
                 defaultLine(state.getTrvInstallationQuantitySummary(), "- Not requested"),
                 buildInstallationItemsSection(state),
@@ -94,6 +104,7 @@ public class CentralHeatingLeadEmailService {
 
     private String buildBusinessEmailBody(CentralHeatingQuoteSessionState state,
                                           String serviceType,
+                                          String clientName,
                                           String clientEmail,
                                           String clientPhone) {
         return """
@@ -106,6 +117,7 @@ public class CentralHeatingLeadEmailService {
                 %s
 
                 Client contact:
+                Name: %s
                 Email: %s
                 Phone: %s
 
@@ -127,6 +139,7 @@ public class CentralHeatingLeadEmailService {
                 %s
                 """.formatted(
                 safe(serviceType),
+                safe(clientName),
                 clientEmail,
                 clientPhone,
                 safe(state.getPostcode()),

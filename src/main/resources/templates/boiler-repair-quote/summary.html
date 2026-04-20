@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Repair Summary</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260419-1238')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>Your boiler repair summary</h2>
+        <p class="section-subtitle">
+            Check your details below and leave your contact information. We’ll send this repair request to you and to our team.
+        </p>
+
+        <div class="summary-offer-layout central-heating-summary-layout">
+            <div class="summary-offer-main">
+                <section class="summary-panel">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Repair details</h3>
+                            <p class="summary-empty-copy">
+                                This is the information selected for your boiler repair request.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="central-heating-summary-stack">
+                        <div class="summary-item">
+                            <span class="summary-label">Postcode</span>
+                            <span class="summary-value" th:text="${postcodeValue}">E16 4JJ</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fuel</span>
+                            <span class="summary-value" th:text="${fuelValue}">Gas</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Ownership</span>
+                            <span class="summary-value" th:text="${ownershipValue}">Homeowner</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Property</span>
+                            <span class="summary-value" th:text="${propertyTypeValue}">House</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Boiler type</span>
+                            <span class="summary-value" th:text="${boilerTypeValue}">Combi</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Boiler make</span>
+                            <span class="summary-value" th:text="${boilerMakeValue}">Vaillant</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Boiler location</span>
+                            <span class="summary-value" th:text="${boilerLocationValue}">Kitchen</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Radiators</span>
+                            <span class="summary-value" th:text="${radiatorCountValue}">6-9 radiators</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="summary-offer-sidebar">
+                <div class="summary-breakdown-card summary-boxt-sidebar">
+                    <span class="summary-breakdown-eyebrow">Boiler repair request</span>
+                    <h3 class="summary-panel-title">Leave your details</h3>
+
+                    <div class="summary-success-banner" th:if="${contactSuccess}">
+                        Thanks, we received your request. We will contact you soon.
+                    </div>
+
+                    <div class="contact-form-panel-body" th:if="${!contactSuccess}">
+                        <div class="summary-selected-boiler has-selection">
+                            <span class="summary-selected-label">Service</span>
+                            <strong th:text="${requestTitle}">Boiler Repair</strong>
+                        </div>
+
+                        <p class="central-heating-contact-note">
+                            We’ll use your name, email and phone number to contact you about this boiler repair request and send a copy to your inbox.
+                        </p>
+
+                        <form th:action="@{/quote/repair-contact}"
+                              th:object="${contactRequest}"
+                              method="post"
+                              class="summary-contact-form">
+
+                            <div class="summary-contact-fields">
+                                <label class="summary-contact-field">
+                                    <span>Name</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="text"
+                                           th:field="*{name}"
+                                           placeholder="Your name">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('name')}"
+                                          th:errors="*{name}">
+                                        Please enter your name.
+                                    </span>
+                                </label>
+
+                                <label class="summary-contact-field">
+                                    <span>Email</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="email"
+                                           th:field="*{email}"
+                                           placeholder="name@example.com">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('email')}"
+                                          th:errors="*{email}">
+                                        Please enter a valid email address.
+                                    </span>
+                                </label>
+
+                                <label class="summary-contact-field">
+                                    <span>Phone</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="tel"
+                                           th:field="*{phone}"
+                                           placeholder="+44 7700 900123">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('phone')}"
+                                          th:errors="*{phone}">
+                                        Please enter a valid phone number.
+                                    </span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-phone summary-contact-submit">
+                                Send my details
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+</body>
+</html>

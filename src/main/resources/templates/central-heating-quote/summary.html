@@ -165,7 +165,7 @@
                         </div>
 
                         <p class="central-heating-contact-note">
-                            We’ll use your email and phone number to contact you about this request and send a copy to your inbox.
+                            We’ll use your name, email and phone number to contact you about this request and send a copy to your inbox.
                         </p>
 
                         <form th:action="@{/central-heating-quote/contact}"
@@ -174,6 +174,19 @@
                               class="summary-contact-form">
 
                             <div class="summary-contact-fields">
+                                <label class="summary-contact-field">
+                                    <span>Name</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="text"
+                                           th:field="*{name}"
+                                           placeholder="Your name">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('name')}"
+                                          th:errors="*{name}">
+                                        Please enter your name.
+                                    </span>
+                                </label>
+
                                 <label class="summary-contact-field">
                                     <span>Email</span>
                                     <input class="quote-input summary-contact-input"

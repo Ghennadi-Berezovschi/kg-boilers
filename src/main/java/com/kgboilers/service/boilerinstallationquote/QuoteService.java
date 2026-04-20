@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -39,15 +40,20 @@ public class QuoteService {
     public QuoteStep startQuote(String postcode, String service) {
 
         String normalizedPostcode = normalizePostcode(postcode);
-        String engineerPostcode = getEngineerPostcode();
         String normalizedService = normalizeService(service);
+        List<String> engineerPostcodes = getEngineerPostcodes(normalizedService);
 
         log.info("Starting quote distance validation");
 
         Coordinates clientCoords = postcodeService.getCoordinates(normalizedPostcode);
-        Coordinates engineerCoords = postcodeService.getCoordinates(engineerPostcode);
-
-        double distance = distanceService.calculateMiles(clientCoords, engineerCoords);
+        double distance = engineerPostcodes.stream()
+                .map(postcodeValue -> postcodeService.getCoordinates(postcodeValue))
+                .mapToDouble(engineerCoords -> distanceService.calculateMiles(clientCoords, engineerCoords))
+                .min()
+                .orElseThrow(() -> new ExternalServiceException(
+                        "Server configuration error",
+                        new RuntimeException("Missing engineer postcode")
+                ));
 
         log.info("Calculated distance: {} miles", distance);
 
@@ -70,18 +76,42 @@ public class QuoteService {
         return postcode.trim().toUpperCase();
     }
 
-    private String getEngineerPostcode() {
-        String postcode = locationProperties.getPostcode();
-
-        if (!StringUtils.hasText(postcode)) {
-            log.error("Company postcode is not configured");
-            throw new ExternalServiceException(
-                    "Server configuration error",
-                    new RuntimeException("Missing engineer postcode")
-            );
+    private List<String> getEngineerPostcodes(String service) {
+        Map<String, List<String>> servicePostcodes = locationProperties.getServicePostcodes();
+        if (servicePostcodes != null) {
+            List<String> configuredServicePostcodes = servicePostcodes.get(service);
+            if (configuredServicePostcodes != null) {
+                List<String> normalizedServicePostcodes = configuredServicePostcodes.stream()
+                        .filter(StringUtils::hasText)
+                        .map(value -> value.trim().toUpperCase())
+                        .toList();
+                if (!normalizedServicePostcodes.isEmpty()) {
+                    return normalizedServicePostcodes;
+                }
+            }
         }
 
-        return postcode.trim().toUpperCase();
+        List<String> configuredPostcodes = locationProperties.getPostcodes();
+        if (configuredPostcodes != null) {
+            List<String> normalizedPostcodes = configuredPostcodes.stream()
+                    .filter(StringUtils::hasText)
+                    .map(value -> value.trim().toUpperCase())
+                    .toList();
+            if (!normalizedPostcodes.isEmpty()) {
+                return normalizedPostcodes;
+            }
+        }
+
+        String postcode = locationProperties.getPostcode();
+        if (StringUtils.hasText(postcode)) {
+            return List.of(postcode.trim().toUpperCase());
+        }
+
+        log.error("Company postcode is not configured");
+        throw new ExternalServiceException(
+                "Server configuration error",
+                new RuntimeException("Missing engineer postcode")
+        );
     }
 
     private void validateDistance(double distance, String service) {

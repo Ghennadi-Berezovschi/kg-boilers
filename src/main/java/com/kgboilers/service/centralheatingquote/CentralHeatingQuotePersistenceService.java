@@ -31,10 +31,11 @@ public class CentralHeatingQuotePersistenceService {
     public Long saveLead(Long savedQuoteId,
                          String serviceType,
                          CentralHeatingQuoteSessionState state,
+                         String clientName,
                          String email,
                          String phone) {
         Long quoteId = saveOrUpdate(savedQuoteId, serviceType, state);
-        saveContactDetails(quoteId, email, phone);
+        saveContactDetails(quoteId, clientName, email, phone);
         return quoteId;
     }
 
@@ -105,6 +106,7 @@ public class CentralHeatingQuotePersistenceService {
     }
 
     public void saveContactDetails(Long quoteId,
+                                   String clientName,
                                    String email,
                                    String phone) {
         if (quoteId == null) {
@@ -114,12 +116,14 @@ public class CentralHeatingQuotePersistenceService {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", quoteId)
                 .addValue("leadLabel", LEAD_LABEL)
+                .addValue("clientName", clientName)
                 .addValue("clientEmail", email)
                 .addValue("clientPhone", phone);
 
         jdbcTemplate.update("""
                 UPDATE quotes
                 SET selected_boiler = :leadLabel,
+                    client_name = :clientName,
                     client_email = :clientEmail,
                     client_phone = :clientPhone,
                     status = 'NEW_LEAD',

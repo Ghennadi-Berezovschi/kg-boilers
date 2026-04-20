@@ -6,7 +6,7 @@
 
     <title>Boiler Location</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260420-1120')}">
 </head>
 <body>
 
@@ -21,63 +21,72 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            Where is your <span style="color:#ff5a3c;">boiler located</span>?
+            Where is your <span style="color:#ff5a3c;">boiler</span> located?
         </h2>
         <p class="section-subtitle">
-            Please choose the floor where the boiler is installed.
+            Choose the room or area where the boiler is installed.
         </p>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectLocation('basement')">
-                <div class="fuel-icon">🏠</div>
-                <h3 class="fuel-title">Basement</h3>
+            <article class="card fuel-card" onclick="selectLocation('utility-room')">
+                <div class="fuel-icon">🧺</div>
+                <h3 class="fuel-title">Utility room</h3>
                 <div class="fuel-desc">
-                    Boiler is installed in the basement.
+                    Boiler is installed in a utility room.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectLocation('ground-floor')">
-                <div class="fuel-icon">🚪</div>
-                <h3 class="fuel-title">Ground Floor</h3>
+            <article class="card fuel-card" onclick="selectLocation('kitchen')">
+                <div class="fuel-icon">🍳</div>
+                <h3 class="fuel-title">Kitchen</h3>
                 <div class="fuel-desc">
-                    Boiler is located on the ground floor.
+                    Boiler is installed in the kitchen.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectLocation('first-floor')">
+            <article class="card fuel-card" onclick="selectLocation('garage')">
+                <div class="fuel-icon">🚗</div>
+                <h3 class="fuel-title">Garage</h3>
+                <div class="fuel-desc">
+                    Boiler is installed in the garage.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectLocation('airing-cupboard')">
+                <div class="fuel-icon">🗄️</div>
+                <h3 class="fuel-title">Airing cupboard</h3>
+                <div class="fuel-desc">
+                    Boiler is inside an airing cupboard.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectLocation('bedroom')">
                 <div class="fuel-icon">🛏️</div>
-                <h3 class="fuel-title">First Floor</h3>
+                <h3 class="fuel-title">Bedroom</h3>
                 <div class="fuel-desc">
-                    Boiler is on the first floor.
+                    Boiler is installed in a bedroom.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectLocation('loft')">
+            <article class="card fuel-card" onclick="selectLocation('loft-attic')">
                 <div class="fuel-icon">🏠</div>
-                <h3 class="fuel-title">Loft</h3>
+                <h3 class="fuel-title">Loft or attic</h3>
                 <div class="fuel-desc">
-                    Boiler is installed in the loft.
+                    Boiler is installed in the loft or attic.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectLocation('garage-outside')">
-                <div class="fuel-icon">🚗🌦️</div>
-                <h3 class="fuel-title">Garage / Outside</h3>
+            <article class="card fuel-card" onclick="selectLocation('somewhere-else')">
+                <div class="fuel-icon">❓</div>
+                <h3 class="fuel-title">Somewhere else</h3>
                 <div class="fuel-desc">
-                    Boiler is installed in the garage or outside the property.
-                </div>
-                <div class="fuel-select">Select</div>
-            </article>
-
-            <article class="card fuel-card" onclick="selectLocation('second-plus')">
-                <div class="fuel-icon">🏢</div>
-                <h3 class="fuel-title">Second Floor or Above</h3>
-                <div class="fuel-desc">
-                    Boiler is on second floor or higher.
+                    Boiler is installed in another location.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>

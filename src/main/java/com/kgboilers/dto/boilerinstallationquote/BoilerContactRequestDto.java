@@ -14,6 +14,9 @@ public class BoilerContactRequestDto {
     @NotBlank(message = "Please choose a boiler first.")
     private String selectedBoiler;
 
+    @NotBlank(message = "Please enter your name.")
+    private String name;
+
     @NotBlank(message = "Please enter your email address.")
     @Email(message = "Please enter a valid email address.")
     private String email;

@@ -3,7 +3,9 @@ package com.kgboilers.model.boilerinstallationquote;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
+import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
+import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
@@ -19,6 +21,7 @@ import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
+import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
 import lombok.Data;
 
@@ -42,9 +45,11 @@ public class QuoteSessionState implements Serializable {
     private Bedrooms bedrooms;
 
     private BoilerType boilerType;
+    private BoilerMake boilerMake;
     private HeatOnlyConversion heatOnlyConversion;
     private BoilerPosition boilerPosition;
     private BoilerLocation boilerLocation;
+    private BoilerFloorLevel boilerFloorLevel;
     private BoilerCondition boilerCondition;
 
     private Relocation relocation;
@@ -52,6 +57,7 @@ public class QuoteSessionState implements Serializable {
     private FlueType flueType;
     private VerticalFlueType verticalFlueType;
     private FlueLength flueLength;
+    private SlopedRoofPosition slopedRoofPosition;
     private FluePosition fluePosition;
     private FlueClearance flueClearance;
     private FluePropertyDistance fluePropertyDistance;
@@ -88,6 +94,10 @@ public class QuoteSessionState implements Serializable {
         return boilerType != null;
     }
 
+    public boolean hasBoilerMake() {
+        return boilerMake != null;
+    }
+
     public boolean hasHeatOnlyConversion() {
         return heatOnlyConversion != null;
     }
@@ -98,6 +108,10 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasBoilerLocation() {
         return boilerLocation != null;
+    }
+
+    public boolean hasBoilerFloorLevel() {
+        return boilerFloorLevel != null;
     }
 
     public boolean hasBoilerCondition() {
@@ -130,6 +144,10 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasFlueLength() {
         return flueLength != null;
+    }
+
+    public boolean hasSlopedRoofPosition() {
+        return slopedRoofPosition != null;
     }
 
     public boolean hasFluePosition() {
@@ -174,6 +192,14 @@ public class QuoteSessionState implements Serializable {
         }
 
         return flueLength.getValue() + " metres";
+    }
+
+    public String getSlopedRoofPositionSummary() {
+        if (slopedRoofPosition == null) {
+            return "";
+        }
+
+        return slopedRoofPosition.getDisplayName();
     }
 
     public String getFluePositionSummary() {
@@ -247,11 +273,13 @@ public class QuoteSessionState implements Serializable {
                 && hasBoilerType()
                 && hasBoilerPosition()
                 && hasBoilerLocation()
+                && hasBoilerFloorLevel()
                 && hasBoilerCondition()
                 && hasRelocation()
                 && (relocation == Relocation.NO || hasRelocationDistance())
                 && hasCompleteFlueSelection()
                 && hasFlueLength()
+                && (verticalFlueType != VerticalFlueType.SLOPED_ROOF || hasSlopedRoofPosition())
                 && (flueType != FlueType.HORIZONTAL || hasFluePosition())
                 && hasBathShowerCount()
                 && hasRadiatorCount()

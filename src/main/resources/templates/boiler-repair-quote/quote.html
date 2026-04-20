@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Repair Quote</title>
+    <meta name="description" content="Get a boiler repair quote in London.">
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260419-1205')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+        <h2>Get a quote for Boiler Repair</h2>
+
+        <div class="card quote-card">
+            <div class="quote-form-row">
+                <input
+                        type="text"
+                        id="postcode"
+                        class="quote-input"
+                        placeholder="Enter your postcode"
+                        autocomplete="postal-code"
+                        aria-label="Postcode"
+                >
+
+                <button
+                        type="button"
+                        id="checkBtn"
+                        class="card-cta"
+                >
+                    Continue →
+                </button>
+            </div>
+
+            <p id="result" class="quote-result" aria-live="polite"></p>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const postcodeInput = document.getElementById("postcode");
+    const checkButton = document.getElementById("checkBtn");
+    const resultElement = document.getElementById("result");
+
+    checkButton.addEventListener("click", submitPostcode);
+
+    postcodeInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            submitPostcode();
+        }
+    });
+
+    postcodeInput.addEventListener("input", clearError);
+
+    async function submitPostcode() {
+        const postcode = postcodeInput.value.trim();
+
+        clearError();
+
+        if (!postcode) {
+            showError("Please enter your postcode");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch("/boiler-repair-quote/start", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ postcode })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Boiler repair quote start error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const errorCode = data?.errorCode;
+        const message = data?.message;
+
+        switch (errorCode) {
+            case "INVALID_POSTCODE":
+            case "INVALID_INPUT":
+                showError(message || "Please enter a valid postcode");
+                break;
+            case "OUT_OF_AREA":
+                showError(message || "Sorry, we currently cover boiler repair quotes within 15 miles.");
+                break;
+            case "SERVICE_UNAVAILABLE":
+                showError(message || "Service temporarily unavailable. Please try again.");
+                break;
+            case "SESSION_EXPIRED":
+                showError(message || "Please start your quote again");
+                break;
+            default:
+                showError(message || "Something went wrong. Please try again.");
+        }
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+        postcodeInput.classList.add("input-error");
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+        postcodeInput.classList.remove("input-error");
+    }
+
+    function setLoading(isLoading) {
+        checkButton.disabled = isLoading;
+        checkButton.textContent = isLoading ? "Checking..." : "Continue →";
+    }
+</script>
+
+</body>
+</html>

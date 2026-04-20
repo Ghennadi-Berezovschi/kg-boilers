@@ -319,6 +319,7 @@ public class CentralHeatingQuotePageController {
                 sessionService.getSavedQuoteId(session),
                 "central-heating",
                 state,
+                contactRequest.getName(),
                 contactRequest.getEmail(),
                 contactRequest.getPhone()
         );
@@ -327,6 +328,7 @@ public class CentralHeatingQuotePageController {
         leadEmailService.sendLeadEmails(
                 state,
                 "central-heating",
+                contactRequest.getName(),
                 contactRequest.getEmail(),
                 contactRequest.getPhone()
         );

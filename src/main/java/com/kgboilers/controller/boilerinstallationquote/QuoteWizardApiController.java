@@ -39,9 +39,10 @@ public class QuoteWizardApiController {
     @PostMapping("/start")
     public ResponseEntity<QuoteResponseDto> startQuote(@RequestBody @Valid QuoteRequestPostcodeDto request,
                                                        HttpSession session) {
+        String service = getSelectedService(session);
 
         String postcode = request.getPostcode().trim().toUpperCase();
-        quoteService.startQuote(postcode, getSelectedService(session));
+        quoteService.startQuote(postcode, service);
 
         sessionService.clearState(session);
         QuoteSessionState state = sessionService.getOrCreateState(session);
@@ -50,7 +51,7 @@ public class QuoteWizardApiController {
 
         log.info("Quote started");
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     private String getSelectedService(HttpSession session) {
@@ -62,19 +63,104 @@ public class QuoteWizardApiController {
         return "boiler-installation";
     }
 
+    private boolean canAccessStep(QuoteSessionState state, QuoteStep step, String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.canAccessStep(state, step, service);
+        }
+
+        return wizardService.canAccessStep(state, step);
+    }
+
+    private QuoteStep updatePropertyType(QuoteSessionState state,
+                                         PropertyTypeRequestDto request,
+                                         String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updatePropertyType(state, request.getPropertyType(), service);
+        }
+
+        return wizardService.updatePropertyType(state, request.getPropertyType());
+    }
+
+    private QuoteStep updateBoilerType(QuoteSessionState state,
+                                       BoilerTypeRequestDto request,
+                                       String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updateBoilerType(state, request.getBoilerType(), service);
+        }
+
+        return wizardService.updateBoilerType(state, request.getBoilerType());
+    }
+
+    private QuoteStep updateBoilerConversion(QuoteSessionState state,
+                                             BoilerConversionRequestDto request,
+                                             String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updateBoilerConversion(state, request.getConversion(), service);
+        }
+
+        return wizardService.updateBoilerConversion(state, request.getConversion());
+    }
+
+    private QuoteStep updateBoilerMake(QuoteSessionState state,
+                                       BoilerMakeRequestDto request,
+                                       String service) {
+        return wizardService.updateBoilerMake(state, request.getBoilerMake(), service);
+    }
+
+    private QuoteStep updateBoilerFloorLevel(QuoteSessionState state,
+                                             BoilerFloorLevelRequestDto request,
+                                             String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updateBoilerFloorLevel(state, request.getFloorLevel(), service);
+        }
+
+        return wizardService.updateBoilerFloorLevel(state, request.getFloorLevel());
+    }
+
+    private QuoteStep updateBoilerLocation(QuoteSessionState state,
+                                           BoilerLocationRequestDto request,
+                                           String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updateBoilerLocation(state, request.getLocation(), service);
+        }
+
+        return wizardService.updateBoilerLocation(state, request.getLocation());
+    }
+
+    private QuoteStep updateRadiatorCount(QuoteSessionState state,
+                                          RadiatorCountRequestDto request,
+                                          String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updateRadiatorCount(state, request.getRadiatorCount(), service);
+        }
+
+        return wizardService.updateRadiatorCount(state, request.getRadiatorCount());
+    }
+
+    private QuoteStep updateFuel(QuoteSessionState state,
+                                 FuelRequestDto request,
+                                 String service) {
+        if ("boiler-repair".equals(service)) {
+            return wizardService.updateFuel(state, request.getFuel(), service);
+        }
+
+        return wizardService.updateFuel(state, request.getFuel());
+    }
+
     @PostMapping("/fuel")
     public ResponseEntity<QuoteResponseDto> setFuel(@RequestBody @Valid FuelRequestDto request,
                                                     HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.FUEL_TYPE)) {
+        if (!canAccessStep(state, QuoteStep.FUEL_TYPE, service)) {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updateFuel(state, request.getFuel());
+        QuoteStep nextStep = updateFuel(state, request, service);
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/property-ownership")
@@ -82,14 +168,15 @@ public class QuoteWizardApiController {
                                                          HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP)) {
+        if (!canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, service)) {
             return sessionExpired();
         }
 
         QuoteStep nextStep = wizardService.updateOwnership(state, request.getOwnership());
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/property-type")
@@ -97,14 +184,15 @@ public class QuoteWizardApiController {
                                                             HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.PROPERTY_TYPE)) {
+        if (!canAccessStep(state, QuoteStep.PROPERTY_TYPE, service)) {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updatePropertyType(state, request.getPropertyType());
+        QuoteStep nextStep = updatePropertyType(state, request, service);
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/bedrooms")
@@ -112,14 +200,15 @@ public class QuoteWizardApiController {
                                                         HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BEDROOMS)) {
+        if (!canAccessStep(state, QuoteStep.BEDROOMS, service)) {
             return sessionExpired();
         }
 
         QuoteStep nextStep = wizardService.updateBedrooms(state, request.getBedrooms());
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/boiler-type")
@@ -127,14 +216,15 @@ public class QuoteWizardApiController {
                                                           HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BOILER_TYPE)) {
+        if (!canAccessStep(state, QuoteStep.BOILER_TYPE, service)) {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updateBoilerType(state, request.getBoilerType());
+        QuoteStep nextStep = updateBoilerType(state, request, service);
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/boiler-conversion")
@@ -142,14 +232,31 @@ public class QuoteWizardApiController {
                                                                 HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BOILER_CONVERSION)) {
+        if (!canAccessStep(state, QuoteStep.BOILER_CONVERSION, service)) {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updateBoilerConversion(state, request.getConversion());
+        QuoteStep nextStep = updateBoilerConversion(state, request, service);
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/boiler-make")
+    public ResponseEntity<QuoteResponseDto> setBoilerMake(@RequestBody @Valid BoilerMakeRequestDto request,
+                                                          HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.BOILER_MAKE, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateBoilerMake(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
     }
 
     @PostMapping("/boiler-position")
@@ -157,14 +264,15 @@ public class QuoteWizardApiController {
                                                               HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BOILER_POSITION)) {
+        if (!canAccessStep(state, QuoteStep.BOILER_POSITION, service)) {
             return sessionExpired();
         }
 
         QuoteStep nextStep = wizardService.updateBoilerPosition(state, request.getBoilerPosition());
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/boiler-location")
@@ -172,14 +280,31 @@ public class QuoteWizardApiController {
                                                               HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BOILER_LOCATION)) {
+        if (!canAccessStep(state, QuoteStep.BOILER_LOCATION, service)) {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updateBoilerLocation(state, request.getLocation());
+        QuoteStep nextStep = updateBoilerLocation(state, request, service);
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/boiler-floor-level")
+    public ResponseEntity<QuoteResponseDto> setBoilerFloorLevel(@RequestBody @Valid BoilerFloorLevelRequestDto request,
+                                                                HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateBoilerFloorLevel(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
     }
 
     @PostMapping("/boiler-condition")
@@ -187,14 +312,15 @@ public class QuoteWizardApiController {
                                                                HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BOILER_CONDITION)) {
+        if (!canAccessStep(state, QuoteStep.BOILER_CONDITION, service)) {
             return sessionExpired();
         }
 
         QuoteStep nextStep = wizardService.updateBoilerCondition(state, request.getBoilerCondition());
         sessionService.saveState(session, state);
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/relocation")
@@ -202,8 +328,9 @@ public class QuoteWizardApiController {
                                                           HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.RELOCATION)) {
+        if (!canAccessStep(state, QuoteStep.RELOCATION, service)) {
             return sessionExpired();
         }
 
@@ -211,7 +338,7 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/relocation-distance")
@@ -219,8 +346,9 @@ public class QuoteWizardApiController {
                                                                   HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.RELOCATION_DISTANCE)) {
+        if (!canAccessStep(state, QuoteStep.RELOCATION_DISTANCE, service)) {
             return sessionExpired();
         }
 
@@ -231,7 +359,7 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/flue-type")
@@ -239,8 +367,9 @@ public class QuoteWizardApiController {
                                                         HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.FLUE_TYPE)) {
+        if (!canAccessStep(state, QuoteStep.FLUE_TYPE, service)) {
             return sessionExpired();
         }
 
@@ -252,7 +381,7 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/flue-length")
@@ -260,8 +389,9 @@ public class QuoteWizardApiController {
                                                           HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.FLUE_LENGTH)) {
+        if (!canAccessStep(state, QuoteStep.FLUE_LENGTH, service)) {
             return sessionExpired();
         }
 
@@ -269,7 +399,25 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/sloped-roof-position")
+    public ResponseEntity<QuoteResponseDto> setSlopedRoofPosition(@RequestBody @Valid SlopedRoofPositionRequestDto request,
+                                                                  HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.SLOPED_ROOF_POSITION, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updateSlopedRoofPosition(state, request.getRoofPosition());
+
+        sessionService.saveState(session, state);
+
+        return success(nextStep, service);
     }
 
     @PostMapping("/flue-position")
@@ -277,8 +425,9 @@ public class QuoteWizardApiController {
                                                             HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.FLUE_POSITION)) {
+        if (!canAccessStep(state, QuoteStep.FLUE_POSITION, service)) {
             return sessionExpired();
         }
 
@@ -286,7 +435,7 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/flue-clearance")
@@ -294,8 +443,9 @@ public class QuoteWizardApiController {
                                                              HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.FLUE_CLEARANCE)) {
+        if (!canAccessStep(state, QuoteStep.FLUE_CLEARANCE, service)) {
             return sessionExpired();
         }
 
@@ -303,7 +453,7 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/flue-property-distance")
@@ -311,8 +461,9 @@ public class QuoteWizardApiController {
                                                                     HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.FLUE_PROPERTY_DISTANCE)) {
+        if (!canAccessStep(state, QuoteStep.FLUE_PROPERTY_DISTANCE, service)) {
             return sessionExpired();
         }
 
@@ -323,7 +474,7 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/radiator-count")
@@ -331,16 +482,17 @@ public class QuoteWizardApiController {
                                                              HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT)) {
+        if (!canAccessStep(state, QuoteStep.RADIATOR_COUNT, service)) {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updateRadiatorCount(state, request.getRadiatorCount());
+        QuoteStep nextStep = updateRadiatorCount(state, request, service);
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     @PostMapping("/bath-shower-count")
@@ -348,8 +500,9 @@ public class QuoteWizardApiController {
                                                                HttpSession session) {
 
         QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
 
-        if (!wizardService.canAccessStep(state, QuoteStep.BATH_SHOWER_COUNT)) {
+        if (!canAccessStep(state, QuoteStep.BATH_SHOWER_COUNT, service)) {
             return sessionExpired();
         }
 
@@ -357,10 +510,14 @@ public class QuoteWizardApiController {
 
         sessionService.saveState(session, state);
 
-        return responseFactory.success(nextStep);
+        return success(nextStep, service);
     }
 
     private ResponseEntity<QuoteResponseDto> sessionExpired() {
         return responseFactory.badRequest("SESSION_EXPIRED", "Please start your quote again");
+    }
+
+    private ResponseEntity<QuoteResponseDto> success(QuoteStep nextStep, String service) {
+        return responseFactory.success(nextStep, service);
     }
 }

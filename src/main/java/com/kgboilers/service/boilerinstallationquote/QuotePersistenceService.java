@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -159,6 +160,7 @@ public class QuotePersistenceService {
                          List<QuoteOptionalExtra> selectedOptionalExtras,
                          int optionalExtrasPriceGbp,
                          String selectedBoiler,
+                         String clientName,
                          String email,
                          String phone) {
         Long quoteId = saveOrUpdate(
@@ -174,12 +176,37 @@ public class QuotePersistenceService {
                 optionalExtrasPriceGbp
         );
 
-        saveContactDetails(quoteId, selectedBoiler, email, phone);
+        saveContactDetails(quoteId, selectedBoiler, clientName, email, phone);
+        return quoteId;
+    }
+
+    @Transactional
+    public Long saveRepairLead(Long savedQuoteId,
+                               String serviceType,
+                               QuoteSessionState state,
+                               String clientName,
+                               String email,
+                               String phone) {
+        Long quoteId = saveOrUpdate(
+                savedQuoteId,
+                serviceType,
+                state,
+                null,
+                0,
+                0,
+                0,
+                0,
+                Collections.emptyList(),
+                0
+        );
+
+        saveContactDetails(quoteId, "Boiler Repair Request", clientName, email, phone);
         return quoteId;
     }
 
     public void saveContactDetails(Long quoteId,
                                    String selectedBoiler,
+                                   String clientName,
                                    String email,
                                    String phone) {
         if (quoteId == null) {
@@ -189,12 +216,14 @@ public class QuotePersistenceService {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", quoteId)
                 .addValue("selectedBoiler", selectedBoiler)
+                .addValue("clientName", clientName)
                 .addValue("clientEmail", email)
                 .addValue("clientPhone", phone);
 
         jdbcTemplate.update("""
                 UPDATE quotes
                 SET selected_boiler = :selectedBoiler,
+                    client_name = :clientName,
                     client_email = :clientEmail,
                     client_phone = :clientPhone,
                     status = 'NEW_LEAD',
@@ -230,6 +259,7 @@ public class QuotePersistenceService {
                 .addValue("boilerType", enumName(state.getBoilerType()))
                 .addValue("boilerPosition", enumName(state.getBoilerPosition()))
                 .addValue("boilerLocation", enumName(state.getBoilerLocation()))
+                .addValue("boilerFloorLevel", enumName(state.getBoilerFloorLevel()))
                 .addValue("boilerCondition", enumName(state.getBoilerCondition()))
                 .addValue("relocation", enumName(state.getRelocation()))
                 .addValue("relocationDistance", enumName(state.getRelocationDistance()))
@@ -280,14 +310,17 @@ public class QuotePersistenceService {
         answers.put("propertyType", enumName(state.getPropertyType()));
         answers.put("bedrooms", enumName(state.getBedrooms()));
         answers.put("boilerType", enumName(state.getBoilerType()));
+        answers.put("boilerMake", enumName(state.getBoilerMake()));
         answers.put("boilerPosition", enumName(state.getBoilerPosition()));
         answers.put("boilerLocation", enumName(state.getBoilerLocation()));
+        answers.put("boilerFloorLevel", enumName(state.getBoilerFloorLevel()));
         answers.put("boilerCondition", enumName(state.getBoilerCondition()));
         answers.put("relocation", enumName(state.getRelocation()));
         answers.put("relocationDistance", state.getRelocationDistanceSummary());
         answers.put("flueType", state.getFlueSummary());
         answers.put("verticalFlueType", enumName(state.getVerticalFlueType()));
         answers.put("flueLength", state.getFlueLengthSummary());
+        answers.put("slopedRoofPosition", state.getSlopedRoofPositionSummary());
         answers.put("fluePosition", state.getFluePositionSummary());
         answers.put("flueClearance", state.getFlueClearanceSummary());
         answers.put("fluePropertyDistance", state.getFluePropertyDistanceSummary());

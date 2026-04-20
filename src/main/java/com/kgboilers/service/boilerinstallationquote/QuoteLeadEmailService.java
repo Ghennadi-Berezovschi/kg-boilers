@@ -2,6 +2,7 @@ package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferProperties;
 import com.kgboilers.config.properties.ContactProperties;
+import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import lombok.extern.slf4j.Slf4j;
@@ -20,19 +21,23 @@ public class QuoteLeadEmailService {
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
     private final QuoteOfferProperties quoteOfferProperties;
+    private final CompanyProperties companyProperties;
 
     public QuoteLeadEmailService(ObjectProvider<JavaMailSender> mailSenderProvider,
                                  ContactProperties contactProperties,
-                                 QuoteOfferProperties quoteOfferProperties) {
+                                 QuoteOfferProperties quoteOfferProperties,
+                                 CompanyProperties companyProperties) {
         this.mailSenderProvider = mailSenderProvider;
         this.contactProperties = contactProperties;
         this.quoteOfferProperties = quoteOfferProperties;
+        this.companyProperties = companyProperties;
     }
 
     public void sendLeadEmails(QuoteSessionState state,
                                String serviceType,
                                String selectedBoiler,
                                int totalPriceGbp,
+                               String clientName,
                                String clientEmail,
                                String clientPhone,
                                int relocationPriceGbp,
@@ -49,8 +54,9 @@ public class QuoteLeadEmailService {
 
         sendSafely(mailSender,
                 clientEmail,
-                "Your K&G Boilers quote request",
-                buildClientEmailBody(selectedBoiler,
+                "Your " + companyProperties.getName() + " quote request",
+                buildClientEmailBody(clientName,
+                        selectedBoiler,
                         totalPriceGbp,
                         relocationPriceGbp,
                         flueLengthPriceGbp,
@@ -67,6 +73,7 @@ public class QuoteLeadEmailService {
                             serviceType,
                             selectedBoiler,
                             totalPriceGbp,
+                            clientName,
                             clientEmail,
                             clientPhone,
                             relocationPriceGbp,
@@ -75,6 +82,30 @@ public class QuoteLeadEmailService {
                             flueClearancePriceGbp,
                             selectedOptionalExtras,
                             optionalExtrasPriceGbp));
+        }
+    }
+
+    public void sendRepairLeadEmails(QuoteSessionState state,
+                                     String serviceType,
+                                     String clientName,
+                                     String clientEmail,
+                                     String clientPhone) {
+        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
+        if (mailSender == null) {
+            log.warn("Boiler repair lead email was skipped because JavaMailSender is not configured");
+            return;
+        }
+
+        sendSafely(mailSender,
+                clientEmail,
+                "Your " + companyProperties.getName() + " boiler repair request",
+                buildRepairClientEmailBody(state, clientName));
+
+        if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+            sendSafely(mailSender,
+                    contactProperties.getEmail(),
+                    "New boiler repair lead",
+                    buildRepairBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone));
         }
     }
 
@@ -93,7 +124,100 @@ public class QuoteLeadEmailService {
         }
     }
 
-    private String buildClientEmailBody(String selectedBoiler,
+    private String buildRepairClientEmailBody(QuoteSessionState state,
+                                              String clientName) {
+        return """
+                Hello %s,
+
+                Thank you for contacting %s.
+
+                We received your boiler repair request with the following details:
+
+                Postcode:
+                %s
+
+                Fuel:
+                %s
+
+                Ownership:
+                %s
+
+                Property:
+                %s
+
+                Boiler type:
+                %s
+
+                Boiler make:
+                %s
+
+                Boiler location:
+                %s
+
+                Radiators:
+                %s
+
+                We will contact you shortly.
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                stateSafe(state.getPostcode()),
+                formatRepairValue(state.getFuel()),
+                formatRepairValue(state.getOwnership()),
+                formatRepairValue(state.getPropertyType()),
+                formatRepairValue(state.getBoilerType()),
+                formatRepairValue(state.getBoilerMake()),
+                formatRepairValue(state.getBoilerLocation()),
+                defaultLine(state.getRadiatorCountSummary(), "-")
+        );
+    }
+
+    private String buildRepairBusinessEmailBody(QuoteSessionState state,
+                                                String serviceType,
+                                                String clientName,
+                                                String clientEmail,
+                                                String clientPhone) {
+        return """
+                New boiler repair lead received.
+
+                Status:
+                NEW_LEAD
+
+                Service:
+                %s
+
+                Client contact:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Client answers:
+                Postcode: %s
+                Fuel: %s
+                Ownership: %s
+                Property: %s
+                Boiler type: %s
+                Boiler make: %s
+                Boiler location: %s
+                Radiators: %s
+                """.formatted(
+                stateSafe(serviceType),
+                stateSafe(clientName),
+                clientEmail,
+                clientPhone,
+                stateSafe(state.getPostcode()),
+                formatRepairValue(state.getFuel()),
+                formatRepairValue(state.getOwnership()),
+                formatRepairValue(state.getPropertyType()),
+                formatRepairValue(state.getBoilerType()),
+                formatRepairValue(state.getBoilerMake()),
+                formatRepairValue(state.getBoilerLocation()),
+                defaultLine(state.getRadiatorCountSummary(), "-")
+        );
+    }
+
+    private String buildClientEmailBody(String clientName,
+                                        String selectedBoiler,
                                         int totalPriceGbp,
                                         int relocationPriceGbp,
                                         int flueLengthPriceGbp,
@@ -102,7 +226,9 @@ public class QuoteLeadEmailService {
                                         List<QuoteOptionalExtra> selectedOptionalExtras,
                                         int optionalExtrasPriceGbp) {
         return """
-                Thank you for choosing K&G Boilers.
+                Hello %s,
+
+                Thank you for choosing %s.
 
                 Your fixed price including installation:
                 %s
@@ -124,6 +250,8 @@ public class QuoteLeadEmailService {
 
                 We will contact you shortly.
                 """.formatted(
+                clientName,
+                companyProperties.getName(),
                 selectedBoiler,
                 totalPriceGbp,
                 buildIncludedItemsSection(),
@@ -137,6 +265,7 @@ public class QuoteLeadEmailService {
                                           String serviceType,
                                           String selectedBoiler,
                                           int totalPriceGbp,
+                                          String clientName,
                                           String clientEmail,
                                           String clientPhone,
                                           int relocationPriceGbp,
@@ -161,6 +290,7 @@ public class QuoteLeadEmailService {
                 £%d
 
                 Client contact:
+                Name: %s
                 Email: %s
                 Phone: %s
 
@@ -173,12 +303,14 @@ public class QuoteLeadEmailService {
                 Boiler type: %s
                 Boiler position: %s
                 Boiler location: %s
+                Boiler floor: %s
                 Boiler condition: %s
                 Relocation: %s
                 Relocation distance: %s
                 Relocation price: £%d
                 Flue type: %s
                 Flue length: %s
+                Roof position: %s
                 Flue length price: £%d
                 Flue position: %s
                 Flue position price: £%d
@@ -193,6 +325,7 @@ public class QuoteLeadEmailService {
                 stateSafe(serviceType),
                 selectedBoiler,
                 totalPriceGbp,
+                stateSafe(clientName),
                 clientEmail,
                 clientPhone,
                 stateSafe(state.getPostcode()),
@@ -203,12 +336,14 @@ public class QuoteLeadEmailService {
                 stateSafe(state.getBoilerType()),
                 stateSafe(state.getBoilerPosition()),
                 stateSafe(state.getBoilerLocation()),
+                stateSafe(state.getBoilerFloorLevel()),
                 stateSafe(state.getBoilerCondition()),
                 stateSafe(state.getRelocation()),
                 state.getRelocationDistanceSummary(),
                 relocationPriceGbp,
                 state.getFlueSummary(),
                 state.getFlueLengthSummary(),
+                state.getSlopedRoofPositionSummary(),
                 flueLengthPriceGbp,
                 state.getFluePositionSummary(),
                 fluePositionPriceGbp,
@@ -294,6 +429,54 @@ public class QuoteLeadEmailService {
                 .append(": £")
                 .append(priceGbp)
                 .append("\n");
+    }
+
+    private String defaultLine(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private String formatRepairValue(Enum<?> value) {
+        if (value == null) {
+            return "-";
+        }
+
+        try {
+            Object raw = value.getClass().getMethod("getValue").invoke(value);
+            if (raw instanceof String stringValue && !stringValue.isBlank()) {
+                return humanizeValue(stringValue);
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Fall back to enum name below.
+        }
+
+        return humanizeValue(value.name());
+    }
+
+    private String humanizeValue(String rawValue) {
+        if (rawValue == null || rawValue.isBlank()) {
+            return "-";
+        }
+
+        String normalized = rawValue.replace('_', '-').trim().toLowerCase();
+        String[] parts = normalized.split("-");
+        StringBuilder result = new StringBuilder();
+
+        for (String part : parts) {
+            if (part.isBlank()) {
+                continue;
+            }
+
+            if (result.length() > 0) {
+                result.append(' ');
+            }
+
+            result.append(Character.toUpperCase(part.charAt(0)));
+            if (part.length() > 1) {
+                result.append(part.substring(1));
+            }
+        }
+
+        return result.toString();
     }
 
     private String stateSafe(Object value) {

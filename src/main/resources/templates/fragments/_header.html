@@ -17,10 +17,10 @@
             <!-- Brand -->
             <a class="brand"
                th:href="@{/}"
-               aria-label="K&G Boiler Installation and Repair home">
+               th:attr="aria-label=${company.name + ' home'}">
 
                 <span class="brand-title">
-                    K&amp;G Boiler Installation and Repair
+                    <span th:text="${company.name}">K&amp;G Boiler Installation and Repair</span>
                 </span>
 
                 <span class="brand-subtitle">

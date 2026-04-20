@@ -8,11 +8,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class QuoteResponseFactory {
 
+    private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
+
     public ResponseEntity<QuoteResponseDto> success(QuoteStep nextStep) {
+        return success(nextStep, null);
+    }
+
+    public ResponseEntity<QuoteResponseDto> success(QuoteStep nextStep, String service) {
         return ResponseEntity.ok(
                 QuoteResponseDto.builder()
                         .success(true)
-                        .nextStep(nextStep.getPath())
+                        .nextStep(resolveNextStepPath(nextStep, service))
                         .build()
         );
     }
@@ -36,5 +42,17 @@ public class QuoteResponseFactory {
                                 .message(message)
                                 .build()
                 );
+    }
+
+    private String resolveNextStepPath(QuoteStep nextStep, String service) {
+        if (!BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            return nextStep.getPath();
+        }
+
+        if (nextStep == QuoteStep.START) {
+            return "/boiler-repair-quote";
+        }
+
+        return nextStep.getPath().replaceFirst("^/quote", "/boiler-repair-quote");
     }
 }

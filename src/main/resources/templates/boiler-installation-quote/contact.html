@@ -22,7 +22,7 @@
 
         <h2>Choose your boiler and leave your details</h2>
         <p class="section-subtitle">
-            We’ll use your email and phone number to contact you about the selected boiler.
+            We’ll use your name, email and phone number to contact you about the selected boiler.
         </p>
 
         <div class="contact-page-grid">
@@ -93,6 +93,19 @@
                         </p>
 
                         <div class="summary-contact-fields">
+                            <label class="summary-contact-field">
+                                <span>Name</span>
+                                <input class="quote-input summary-contact-input"
+                                       type="text"
+                                       th:field="*{name}"
+                                       placeholder="Your name">
+                                <span class="summary-field-error"
+                                      th:if="${#fields.hasErrors('name')}"
+                                      th:errors="*{name}">
+                                    Please enter your name.
+                                </span>
+                            </label>
+
                             <label class="summary-contact-field">
                                 <span>Email</span>
                                 <input class="quote-input summary-contact-input"

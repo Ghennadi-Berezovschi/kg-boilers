@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
+import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
@@ -101,6 +102,7 @@ class QuotePersistenceServiceTest {
         assertEquals("HOMEOWNER", params.getValue("ownership"));
         assertEquals("boiler-installation", params.getValue("serviceType"));
         assertEquals("COMBI", params.getValue("boilerType"));
+        assertEquals("UTILITY_ROOM", params.getValue("boilerLocation"));
         assertEquals("UNDER_STRUCTURE", params.getValue("fluePosition"));
         assertEquals("Vaillant ecoTEC Plus 28kW Combi", params.getValue("recommendedBoiler"));
         assertEquals(2900, params.getValue("installationPriceGbp"));
@@ -109,6 +111,7 @@ class QuotePersistenceServiceTest {
         String snapshotJson = (String) params.getValue("clientAnswersJson");
         assertTrue(snapshotJson.contains("\"serviceType\":\"boiler-installation\""));
         assertTrue(snapshotJson.contains("\"postcode\":\"E16 4JJ\""));
+        assertTrue(snapshotJson.contains("\"boilerLocation\":\"UTILITY_ROOM\""));
         assertTrue(snapshotJson.contains("\"flueLengthPriceGbp\":250"));
         assertTrue(snapshotJson.contains("\"optionalExtrasPriceGbp\":150"));
         assertTrue(snapshotJson.contains("\"installationPriceGbp\":2900"));
@@ -156,6 +159,7 @@ class QuotePersistenceServiceTest {
         quotePersistenceService.saveContactDetails(
                 44L,
                 "Main Eco Compact 30kW Combi",
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123"
         );
@@ -170,6 +174,7 @@ class QuotePersistenceServiceTest {
         MapSqlParameterSource params = paramsCaptor.getValue();
         assertEquals(44L, params.getValue("id"));
         assertEquals("Main Eco Compact 30kW Combi", params.getValue("selectedBoiler"));
+        assertEquals("Jane Smith", params.getValue("clientName"));
         assertEquals("client@example.com", params.getValue("clientEmail"));
         assertEquals("+44 7700 900123", params.getValue("clientPhone"));
     }
@@ -206,6 +211,7 @@ class QuotePersistenceServiceTest {
                 List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)),
                 150,
                 "Vaillant ecoTEC Plus 28kW Combi",
+                "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123"
         );
@@ -218,7 +224,7 @@ class QuotePersistenceServiceTest {
     @Test
     void saveContactDetails_shouldRejectMissingQuoteId() {
         assertThrows(IllegalArgumentException.class,
-                () -> quotePersistenceService.saveContactDetails(null, "Boiler", "client@example.com", "+44 7700 900123"));
+                () -> quotePersistenceService.saveContactDetails(null, "Boiler", "Jane Smith", "client@example.com", "+44 7700 900123"));
     }
 
     private QuoteSessionState completeState() {
@@ -230,7 +236,8 @@ class QuotePersistenceServiceTest {
         state.setBedrooms(Bedrooms.TWO);
         state.setBoilerType(BoilerType.COMBI);
         state.setBoilerPosition(BoilerPosition.WALL_MOUNTED);
-        state.setBoilerLocation(BoilerLocation.BASEMENT);
+        state.setBoilerLocation(BoilerLocation.UTILITY_ROOM);
+        state.setBoilerFloorLevel(BoilerFloorLevel.BASEMENT);
         state.setBoilerCondition(BoilerCondition.NOT_WORKING);
         state.setRelocation(Relocation.YES);
         state.setRelocationDistance(RelocationDistance.TWO_TO_THREE);

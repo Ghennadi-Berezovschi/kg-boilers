@@ -14,11 +14,15 @@ public enum QuoteStep {
 
     BOILER_TYPE("/quote/boiler-type"),
 
+    BOILER_MAKE("/quote/boiler-make"),
+
     BOILER_CONVERSION("/quote/boiler-conversion"),
 
     BOILER_POSITION("/quote/boiler-position"),
 
     BOILER_LOCATION("/quote/boiler-location"),
+
+    BOILER_FLOOR_LEVEL("/quote/boiler-floor-level"),
 
     BOILER_CONDITION("/quote/boiler-condition"),
 
@@ -29,6 +33,8 @@ public enum QuoteStep {
     FLUE_TYPE("/quote/flue-type"),
 
     FLUE_LENGTH("/quote/flue-length"),
+
+    SLOPED_ROOF_POSITION("/quote/sloped-roof-position"),
 
     FLUE_POSITION("/quote/flue-position"),
 
@@ -68,13 +74,17 @@ public enum QuoteStep {
 
             case BOILER_TYPE -> BEDROOMS;
 
+            case BOILER_MAKE -> BOILER_TYPE;
+
             case BOILER_CONVERSION -> BOILER_TYPE;
 
             case BOILER_POSITION -> BOILER_CONVERSION;
 
             case BOILER_LOCATION -> BOILER_POSITION;
 
-            case BOILER_CONDITION -> BOILER_LOCATION;
+            case BOILER_FLOOR_LEVEL -> BOILER_LOCATION;
+
+            case BOILER_CONDITION -> BOILER_FLOOR_LEVEL;
 
             case RELOCATION -> BOILER_CONDITION;
 
@@ -83,6 +93,8 @@ public enum QuoteStep {
             case FLUE_TYPE -> RELOCATION;
 
             case FLUE_LENGTH -> FLUE_TYPE;
+
+            case SLOPED_ROOF_POSITION -> FLUE_LENGTH;
 
             case FLUE_POSITION -> FLUE_LENGTH;
 

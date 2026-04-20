@@ -68,6 +68,9 @@ logging:
 
 kg:
 
+  company:
+    name: "K&G Boiler Installation and Repair"
+
   contact:
     email: "heatingandplumbingdirect@gmail.com"
     phone: "+447709023018"
@@ -76,9 +79,16 @@ kg:
 
   location:
     postcode: "E16 4JJ"
+    postcodes:
+      - "E16 4JJ"
     max-distance-miles: 70
     service-max-distance-miles:
       central-heating: 15
+      boiler-repair: 15
+    service-postcodes:
+      boiler-repair:
+        - "E16 4JJ"
+        - "E4 8BJ"
 
   http:
     client:
@@ -90,19 +100,19 @@ kg:
   pricing:
     relocation:
       zero-to-one: 0
-      two-to-three: 300
-      four-to-five: 400
-      six-to-seven: 500
-      seven-plus: 700
+      two-to-three: 450
+      four-to-five: 550
+      six-to-seven: 650
+      seven-plus: 1000
     flue-length:
       zero-to-one: 0
-      two-to-three: 250
+      two-to-three: 300
       four-to-five: 500
       six-to-seven: 700
       seven-plus: 900
     flue-clearance:
       thirty-cm-or-more: 0
-      less-than-thirty-cm: 150
+      less-than-thirty-cm: 100
       unsure: 0
     flue-position:
       under-structure: 50
