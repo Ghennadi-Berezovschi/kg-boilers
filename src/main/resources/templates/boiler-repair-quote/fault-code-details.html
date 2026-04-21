@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Repair Fault Code Details</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260421-1352')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            <span style="color:#ff5a3c;">Provide</span> the fault code or describe the signal shown.
+        </h2>
+
+        <div class="card" style="max-width:720px; margin:0 auto; padding:28px;">
+            <label for="faultCodeDetails"
+                   style="display:block; margin-bottom:10px; font-weight:700; color:var(--blue-main);">
+                Fault code or signal
+            </label>
+
+            <textarea id="faultCodeDetails"
+                      class="quote-input"
+                      rows="5"
+                      maxlength="500"
+                      th:text="${faultCodeDetails}"
+                      placeholder="For example: E133, F22, flashing red light, low pressure message"
+                      style="width:100%; min-height:140px; padding:16px; resize:vertical;"></textarea>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:16px;">
+                <span style="font-size:14px; color:#6E7784;">A short code or a quick description is enough.</span>
+                <button type="button" id="faultCodeDetailsBtn" class="card-cta">Continue →</button>
+            </div>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+    const detailsField = document.getElementById("faultCodeDetails");
+    const continueButton = document.getElementById("faultCodeDetailsBtn");
+
+    detailsField.addEventListener("input", clearError);
+    continueButton.addEventListener("click", submitFaultCodeDetails);
+
+    async function submitFaultCodeDetails() {
+        clearError();
+
+        const faultCodeDetails = detailsField.value.trim();
+
+        if (!faultCodeDetails) {
+            showError("Please provide the fault code or describe the signal shown");
+            detailsField.focus();
+            return;
+        }
+
+        if (faultCodeDetails.length > 500) {
+            showError("Please keep the fault code description under 500 characters");
+            detailsField.focus();
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch("/quote/fault-code-details", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ faultCodeDetails: faultCodeDetails })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Fault code details error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+
+    function setLoading(isLoading) {
+        continueButton.disabled = isLoading;
+        continueButton.textContent = isLoading ? "Saving..." : "Continue →";
+    }
+</script>
+
+</body>
+</html>

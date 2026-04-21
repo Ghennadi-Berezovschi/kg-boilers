@@ -6,7 +6,7 @@
 
     <title>Boiler Repair Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260419-1238')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260421-2005')}">
 </head>
 <body>
 
@@ -20,64 +20,90 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2>Your boiler repair summary</h2>
-        <p class="section-subtitle">
-            Check your details below and leave your contact information. We’ll send this repair request to you and to our team.
+        <h2>Choose your repair option</h2>
+        <p class="section-subtitle boiler-repair-summary-copy">
+            Based on your answers, here are the most suitable next steps for your boiler.
         </p>
 
-        <div class="summary-offer-layout central-heating-summary-layout">
+        <div class="summary-offer-layout central-heating-summary-layout boiler-repair-summary-layout">
             <div class="summary-offer-main">
-                <section class="summary-panel">
-                    <div class="summary-recommendation-head">
-                        <div>
-                            <h3 class="summary-panel-title">Repair details</h3>
-                            <p class="summary-empty-copy">
-                                This is the information selected for your boiler repair request.
+                <h3 class="boiler-repair-summary-section-title">Recommended options</h3>
+
+                <section class="summary-panel boiler-repair-choice-panel">
+                    <div class="boiler-repair-options">
+                        <article class="boiler-repair-option-card boiler-repair-option-card-primary">
+                            <span class="boiler-repair-option-eyebrow">Repair visit</span>
+                            <h4 class="boiler-repair-option-title">Repair your boiler</h4>
+                            <p class="boiler-repair-option-copy boiler-repair-option-copy-primary">
+                                We’ll arrange a diagnostic visit for your home and help you move quickly to the right repair solution.
                             </p>
-                        </div>
+                            <div class="boiler-repair-visit-price">£<span th:text="${boilerRepair.visitPriceGbp}">79</span></div>
+                            <div class="boiler-repair-visit-vat">including VAT</div>
+                            <button type="button"
+                                    class="summary-boxt-btn summary-boxt-btn-primary boiler-repair-toggle-button boiler-repair-option-button"
+                                    data-toggle-target="repair-visit-included"
+                                    aria-expanded="false"
+                                    aria-controls="repair-visit-included">
+                                What's included
+                            </button>
+                            <span class="boiler-repair-option-link boiler-repair-option-link-placeholder" aria-hidden="true">&nbsp;</span>
+                        </article>
+
+                        <article class="boiler-repair-option-card boiler-repair-option-card-accent">
+                            <span class="boiler-repair-option-eyebrow">Installation option</span>
+                            <h4 class="boiler-repair-option-title">Install new boiler</h4>
+                            <p class="boiler-repair-option-copy">
+                                If repair is not the best long-term option, we can also help you move to a new boiler quote.
+                            </p>
+                            <div class="boiler-repair-option-price boiler-repair-option-price-soft">Replacement quote available</div>
+                            <a th:href="@{/quote}" class="summary-boxt-btn summary-boxt-btn-primary boiler-repair-option-button">Get replacement quote</a>
+                            <span class="boiler-repair-option-link">For older or uneconomical boilers</span>
+                        </article>
                     </div>
 
-                    <div class="central-heating-summary-stack">
-                        <div class="summary-item">
-                            <span class="summary-label">Postcode</span>
-                            <span class="summary-value" th:text="${postcodeValue}">E16 4JJ</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Fuel</span>
-                            <span class="summary-value" th:text="${fuelValue}">Gas</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Ownership</span>
-                            <span class="summary-value" th:text="${ownershipValue}">Homeowner</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Property</span>
-                            <span class="summary-value" th:text="${propertyTypeValue}">House</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Boiler type</span>
-                            <span class="summary-value" th:text="${boilerTypeValue}">Combi</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Boiler make</span>
-                            <span class="summary-value" th:text="${boilerMakeValue}">Vaillant</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Boiler location</span>
-                            <span class="summary-value" th:text="${boilerLocationValue}">Kitchen</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Radiators</span>
-                            <span class="summary-value" th:text="${radiatorCountValue}">6-9 radiators</span>
-                        </div>
-                    </div>
+                    <section class="boiler-repair-reassurance" id="repair-visit-included" hidden>
+                        <h4 class="boiler-repair-reassurance-title">What's included in my repair visit?</h4>
+                        <p class="boiler-repair-reassurance-copy">
+                            For £<span th:text="${boilerRepair.visitPriceGbp}">79</span>, one of our experienced Gas Safe engineers will attend your home, inspect the boiler and identify what is causing the issue with your heating or hot water.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            If the fault can be resolved on the spot and no replacement parts are needed, we will complete that repair within your £<span th:text="${boilerRepair.visitPriceGbp}">79</span> visit at no extra labour charge. A large number of straightforward boiler faults fall into this category.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            If the job needs replacement parts or additional work, we will explain the issue clearly and provide a fixed repair quote before anything extra goes ahead. Where parts are available locally, we will always aim to complete the work as quickly as possible.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            All completed work is checked against our internal standards, and you will know exactly what has been done before the job is signed off.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            Some boiler problems are minor and may be easy to resolve yourself, so it is always worth checking our boiler repair guidance and videos before booking if you are unsure.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            If you'd like any more information on our repair visits, contact us on
+                            <a th:href="'mailto:' + ${contact.email}" th:text="${contact.email}">heatingandplumbingdirect@gmail.com</a>,
+                            or give us a ring on
+                            <a th:href="'tel:' + ${contact.phone}" th:text="${contact.phoneDisplay}">+44 7709 023018</a>,
+                            or message us on
+                            <a th:href="${contact.whatsapp}">WhatsApp</a>.
+                        </p>
+                    </section>
                 </section>
             </div>
 
             <aside class="summary-offer-sidebar">
-                <div class="summary-breakdown-card summary-boxt-sidebar">
-                    <span class="summary-breakdown-eyebrow">Boiler repair request</span>
-                    <h3 class="summary-panel-title">Leave your details</h3>
+                <div class="summary-breakdown-card summary-boxt-sidebar boiler-repair-side-panel">
+                    <span class="summary-breakdown-eyebrow">Fixed repair visit quote</span>
+                    <h3 class="summary-panel-title boiler-repair-side-title">Your fixed price inspection:</h3>
+
+                    <div class="summary-sidebar-model">Boiler repair visit</div>
+                    <div class="boiler-repair-side-price">£<span th:text="${boilerRepair.visitPriceGbp}">79</span></div>
+
+                    <p class="boiler-repair-side-copy">
+                        We'll use the answers you've already provided to prepare your boiler repair request.
+                        Your detailed repair information will be reviewed by our team after you send your contact details.
+                    </p>
+
+                    <h3 class="summary-panel-title boiler-repair-contact-title">Leave your details</h3>
 
                     <div class="summary-success-banner" th:if="${contactSuccess}">
                         Thanks, we received your request. We will contact you soon.
@@ -96,7 +122,8 @@
                         <form th:action="@{/quote/repair-contact}"
                               th:object="${contactRequest}"
                               method="post"
-                              class="summary-contact-form">
+                              class="summary-contact-form"
+                              id="repair-contact-form">
 
                             <div class="summary-contact-fields">
                                 <label class="summary-contact-field">
@@ -151,6 +178,31 @@
 </main>
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-toggle-target]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const targetId = button.getAttribute('data-toggle-target');
+                const target = document.getElementById(targetId);
+
+                if (!target) {
+                    return;
+                }
+
+                const willOpen = target.hasAttribute('hidden');
+                if (willOpen) {
+                    target.removeAttribute('hidden');
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    target.setAttribute('hidden', '');
+                }
+
+                button.setAttribute('aria-expanded', String(willOpen));
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

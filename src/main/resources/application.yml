@@ -69,7 +69,10 @@ logging:
 kg:
 
   company:
-    name: "K&G Boiler Installation and Repair"
+    name: "K&G Boiler Services"
+
+  boiler-repair:
+    visit-price-gbp: 79
 
   contact:
     email: "heatingandplumbingdirect@gmail.com"

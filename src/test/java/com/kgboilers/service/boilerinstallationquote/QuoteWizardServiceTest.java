@@ -4,20 +4,26 @@ import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsExcept
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
+import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
 import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
+import com.kgboilers.model.boilerinstallation.enums.BoilerPressureStatus;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
+import com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus;
 import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
 import com.kgboilers.model.boilerinstallation.enums.FluePropertyDistance;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
+import com.kgboilers.model.boilerinstallation.enums.MagneticFilterStatus;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
+import com.kgboilers.model.boilerinstallation.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
+import com.kgboilers.model.boilerinstallation.enums.RepairProblem;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
@@ -139,13 +145,25 @@ class QuoteWizardServiceTest {
     }
 
     @Test
-    void updateBoilerMake_shouldReturnBoilerLocationForBoilerRepair() {
+    void updateBoilerMake_shouldReturnBoilerAgeForBoilerRepair() {
         QuoteSessionState state = new QuoteSessionState();
 
         QuoteStep nextStep = service.updateBoilerMake(state, BoilerMake.VAILLANT, "boiler-repair");
 
-        assertEquals(QuoteStep.BOILER_LOCATION, nextStep);
+        assertEquals(QuoteStep.BOILER_AGE, nextStep);
         assertEquals(BoilerMake.VAILLANT, state.getBoilerMake());
+    }
+
+    @Test
+    void updateBoilerAge_shouldReturnBoilerLocationForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerAge(state, BoilerAge.TWO_TO_FIVE_YEARS, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_LOCATION, nextStep);
+        assertEquals(BoilerAge.TWO_TO_FIVE_YEARS, state.getBoilerAge());
+        assertEquals("2-5 years", state.getBoilerAgeSummary());
+        assertEquals(QuoteStep.BOILER_LOCATION, state.getCurrentStep());
     }
 
     @Test
@@ -364,6 +382,101 @@ class QuoteWizardServiceTest {
         assertEquals(RadiatorCount.TEN_TO_THIRTEEN, state.getRadiatorCount());
         assertEquals("10-13 radiators", state.getRadiatorCountSummary());
         assertEquals(QuoteStep.BATH_SHOWER_COUNT, state.getCurrentStep());
+    }
+
+    @Test
+    void updateRadiatorCount_shouldReturnPowerFlush_forBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateRadiatorCount(state, RadiatorCount.SIX_TO_NINE, "boiler-repair");
+
+        assertEquals(QuoteStep.POWER_FLUSH, nextStep);
+        assertEquals(RadiatorCount.SIX_TO_NINE, state.getRadiatorCount());
+        assertEquals(QuoteStep.POWER_FLUSH, state.getCurrentStep());
+    }
+
+    @Test
+    void updatePowerFlush_shouldReturnRepairProblem_forBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updatePowerFlush(state, PowerFlushStatus.YES_DONE, "boiler-repair");
+
+        assertEquals(QuoteStep.MAGNETIC_FILTER, nextStep);
+        assertEquals(PowerFlushStatus.YES_DONE, state.getPowerFlushStatus());
+        assertEquals("Yes, it was done", state.getPowerFlushSummary());
+        assertEquals(QuoteStep.MAGNETIC_FILTER, state.getCurrentStep());
+    }
+
+    @Test
+    void updateMagneticFilter_shouldReturnRepairProblem_forBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateMagneticFilter(state, MagneticFilterStatus.YES_HAS, "boiler-repair");
+
+        assertEquals(QuoteStep.REPAIR_PROBLEM, nextStep);
+        assertEquals(MagneticFilterStatus.YES_HAS, state.getMagneticFilterStatus());
+        assertEquals("Yes, it has one", state.getMagneticFilterSummary());
+        assertEquals(QuoteStep.REPAIR_PROBLEM, state.getCurrentStep());
+    }
+
+    @Test
+    void updateRepairProblem_shouldSetProblemAndReturnBoilerPressure() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateRepairProblem(state, RepairProblem.HEATING_AND_HOT_WATER, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_PRESSURE, nextStep);
+        assertEquals(RepairProblem.HEATING_AND_HOT_WATER, state.getRepairProblem());
+        assertEquals("Heating & hot water", state.getRepairProblemSummary());
+        assertEquals(QuoteStep.BOILER_PRESSURE, state.getCurrentStep());
+    }
+
+    @Test
+    void updateBoilerPressure_shouldReturnFaultCodeStepForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerPressure(state, BoilerPressureStatus.YES_DROPPED_OR_DROPPING, "boiler-repair");
+
+        assertEquals(QuoteStep.FAULT_CODE_DISPLAY, nextStep);
+        assertEquals(BoilerPressureStatus.YES_DROPPED_OR_DROPPING, state.getBoilerPressureStatus());
+        assertEquals("Yes, it has dropped or is dropping", state.getBoilerPressureSummary());
+        assertEquals(QuoteStep.FAULT_CODE_DISPLAY, state.getCurrentStep());
+    }
+
+    @Test
+    void updateFaultCodeDisplay_shouldReturnSummaryForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateFaultCodeDisplay(state, FaultCodeDisplayStatus.YES_SHOWING, "boiler-repair");
+
+        assertEquals(QuoteStep.FAULT_CODE_DETAILS, nextStep);
+        assertEquals(FaultCodeDisplayStatus.YES_SHOWING, state.getFaultCodeDisplayStatus());
+        assertEquals("Yes, there is a fault code, message or signal", state.getFaultCodeDisplaySummary());
+        assertEquals(QuoteStep.FAULT_CODE_DETAILS, state.getCurrentStep());
+    }
+
+    @Test
+    void updateFaultCodeDisplay_shouldReturnSummaryForBoilerRepair_whenNothingIsShowing() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateFaultCodeDisplay(state, FaultCodeDisplayStatus.NO_NOT_SHOWING, "boiler-repair");
+
+        assertEquals(QuoteStep.SUMMARY, nextStep);
+        assertEquals(FaultCodeDisplayStatus.NO_NOT_SHOWING, state.getFaultCodeDisplayStatus());
+        assertEquals(QuoteStep.SUMMARY, state.getCurrentStep());
+        assertEquals("", state.getFaultCodeDetailsSummary());
+    }
+
+    @Test
+    void updateFaultCodeDetails_shouldReturnSummaryForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFaultCodeDisplayStatus(FaultCodeDisplayStatus.YES_SHOWING);
+
+        QuoteStep nextStep = service.updateFaultCodeDetails(state, "F22 low pressure warning", "boiler-repair");
+
+        assertEquals(QuoteStep.SUMMARY, nextStep);
+        assertEquals("F22 low pressure warning", state.getFaultCodeDetailsSummary());
+        assertEquals(QuoteStep.SUMMARY, state.getCurrentStep());
     }
 
     @Test

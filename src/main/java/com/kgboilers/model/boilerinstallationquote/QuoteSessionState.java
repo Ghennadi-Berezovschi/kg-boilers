@@ -2,12 +2,15 @@ package com.kgboilers.model.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
+import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
+import com.kgboilers.model.boilerinstallation.enums.BoilerPressureStatus;
 import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
+import com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
@@ -15,9 +18,12 @@ import com.kgboilers.model.boilerinstallation.enums.FluePropertyDistance;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
+import com.kgboilers.model.boilerinstallation.enums.MagneticFilterStatus;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
+import com.kgboilers.model.boilerinstallation.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
+import com.kgboilers.model.boilerinstallation.enums.RepairProblem;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
@@ -46,6 +52,7 @@ public class QuoteSessionState implements Serializable {
 
     private BoilerType boilerType;
     private BoilerMake boilerMake;
+    private BoilerAge boilerAge;
     private HeatOnlyConversion heatOnlyConversion;
     private BoilerPosition boilerPosition;
     private BoilerLocation boilerLocation;
@@ -62,6 +69,12 @@ public class QuoteSessionState implements Serializable {
     private FlueClearance flueClearance;
     private FluePropertyDistance fluePropertyDistance;
     private RadiatorCount radiatorCount;
+    private PowerFlushStatus powerFlushStatus;
+    private MagneticFilterStatus magneticFilterStatus;
+    private RepairProblem repairProblem;
+    private BoilerPressureStatus boilerPressureStatus;
+    private FaultCodeDisplayStatus faultCodeDisplayStatus;
+    private String faultCodeDetails;
     private BathShowerCount bathShowerCount;
 
     private QuoteStep currentStep = QuoteStep.START;
@@ -96,6 +109,10 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasBoilerMake() {
         return boilerMake != null;
+    }
+
+    public boolean hasBoilerAge() {
+        return boilerAge != null;
     }
 
     public boolean hasHeatOnlyConversion() {
@@ -168,6 +185,34 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasBathShowerCount() {
         return bathShowerCount != null;
+    }
+
+    public boolean hasPowerFlushStatus() {
+        return powerFlushStatus != null;
+    }
+
+    public boolean hasMagneticFilterStatus() {
+        return magneticFilterStatus != null;
+    }
+
+    public boolean hasRepairProblem() {
+        return repairProblem != null;
+    }
+
+    public boolean hasBoilerPressureStatus() {
+        return boilerPressureStatus != null;
+    }
+
+    public boolean hasFaultCodeDisplayStatus() {
+        return faultCodeDisplayStatus != null;
+    }
+
+    public boolean requiresFaultCodeDetails() {
+        return faultCodeDisplayStatus == FaultCodeDisplayStatus.YES_SHOWING;
+    }
+
+    public boolean hasFaultCodeDetails() {
+        return faultCodeDetails != null && !faultCodeDetails.isBlank();
     }
 
     public String getFlueSummary() {
@@ -250,6 +295,62 @@ public class QuoteSessionState implements Serializable {
         }
 
         return radiatorCount.getValue() + " radiators";
+    }
+
+    public String getPowerFlushSummary() {
+        if (powerFlushStatus == null) {
+            return "";
+        }
+
+        return powerFlushStatus.getLabel();
+    }
+
+    public String getMagneticFilterSummary() {
+        if (magneticFilterStatus == null) {
+            return "";
+        }
+
+        return magneticFilterStatus.getLabel();
+    }
+
+    public String getRepairProblemSummary() {
+        if (repairProblem == null) {
+            return "";
+        }
+
+        return repairProblem.getDisplayName();
+    }
+
+    public String getBoilerAgeSummary() {
+        if (boilerAge == null) {
+            return "";
+        }
+
+        return boilerAge.getLabel();
+    }
+
+    public String getBoilerPressureSummary() {
+        if (boilerPressureStatus == null) {
+            return "";
+        }
+
+        return boilerPressureStatus.getLabel();
+    }
+
+    public String getFaultCodeDisplaySummary() {
+        if (faultCodeDisplayStatus == null) {
+            return "";
+        }
+
+        return faultCodeDisplayStatus.getLabel();
+    }
+
+    public String getFaultCodeDetailsSummary() {
+        if (!hasFaultCodeDetails()) {
+            return "";
+        }
+
+        return faultCodeDetails.trim();
     }
 
     public String getBathShowerCountSummary() {

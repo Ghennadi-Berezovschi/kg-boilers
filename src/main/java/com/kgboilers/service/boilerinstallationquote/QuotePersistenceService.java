@@ -311,8 +311,15 @@ public class QuotePersistenceService {
         answers.put("bedrooms", enumName(state.getBedrooms()));
         answers.put("boilerType", enumName(state.getBoilerType()));
         answers.put("boilerMake", enumName(state.getBoilerMake()));
+        answers.put("boilerAge", state.getBoilerAgeSummary());
         answers.put("boilerPosition", enumName(state.getBoilerPosition()));
         answers.put("boilerLocation", enumName(state.getBoilerLocation()));
+        answers.put("powerFlushStatus", state.getPowerFlushSummary());
+        answers.put("magneticFilterStatus", state.getMagneticFilterSummary());
+        answers.put("repairProblem", state.getRepairProblemSummary());
+        answers.put("boilerPressureStatus", state.getBoilerPressureSummary());
+        answers.put("faultCodeDisplayStatus", state.getFaultCodeDisplaySummary());
+        answers.put("faultCodeDetails", state.getFaultCodeDetailsSummary());
         answers.put("boilerFloorLevel", enumName(state.getBoilerFloorLevel()));
         answers.put("boilerCondition", enumName(state.getBoilerCondition()));
         answers.put("relocation", enumName(state.getRelocation()));

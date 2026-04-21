@@ -9,8 +9,10 @@ import com.kgboilers.model.centralheatingquote.enums.RadiatorConvectorType;
 import com.kgboilers.model.centralheatingquote.enums.RadiatorIssueType;
 import com.kgboilers.service.centralheatingquote.CentralHeatingLeadEmailService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuotePersistenceService;
+import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteProgressService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteSessionService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteWizardService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
@@ -30,15 +32,32 @@ public class CentralHeatingQuotePageController {
     private final CentralHeatingQuoteWizardService wizardService;
     private final CentralHeatingQuotePersistenceService quotePersistenceService;
     private final CentralHeatingLeadEmailService leadEmailService;
+    private final CentralHeatingQuoteProgressService quoteProgressService;
 
     public CentralHeatingQuotePageController(CentralHeatingQuoteSessionService sessionService,
                                              CentralHeatingQuoteWizardService wizardService,
                                              CentralHeatingQuotePersistenceService quotePersistenceService,
-                                             CentralHeatingLeadEmailService leadEmailService) {
+                                             CentralHeatingLeadEmailService leadEmailService,
+                                             CentralHeatingQuoteProgressService quoteProgressService) {
         this.sessionService = sessionService;
         this.wizardService = wizardService;
         this.quotePersistenceService = quotePersistenceService;
         this.leadEmailService = leadEmailService;
+        this.quoteProgressService = quoteProgressService;
+    }
+
+    @ModelAttribute
+    public void populateQuoteProgress(HttpSession session,
+                                      HttpServletRequest request,
+                                      Model model) {
+        CentralHeatingQuoteStep currentStep = resolveCurrentStep(request.getRequestURI());
+        if (currentStep == null) {
+            return;
+        }
+
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+        boolean bookingComplete = Boolean.TRUE.equals(model.asMap().get("contactSuccess"));
+        model.addAttribute("quoteProgress", quoteProgressService.buildProgress(state, currentStep, bookingComplete));
     }
 
     @GetMapping
@@ -353,5 +372,15 @@ public class CentralHeatingQuotePageController {
         model.addAttribute("hasValveQuantities", state.hasTrvInstallationQuantity());
         model.addAttribute("hasInstallationItems", state.hasInstallationItems());
         model.addAttribute("hasOtherRadiatorIssue", state.getOtherRadiatorIssueDetails() != null && !state.getOtherRadiatorIssueDetails().isBlank());
+    }
+
+    private CentralHeatingQuoteStep resolveCurrentStep(String requestUri) {
+        for (CentralHeatingQuoteStep step : CentralHeatingQuoteStep.values()) {
+            if (step.getPath().equals(requestUri)) {
+                return step;
+            }
+        }
+
+        return null;
     }
 }

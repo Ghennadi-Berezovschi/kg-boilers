@@ -65,6 +65,7 @@ public class QuoteProgressService {
         flow.add(QuoteStep.BOILER_TYPE);
         if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
             flow.add(QuoteStep.BOILER_MAKE);
+            flow.add(QuoteStep.BOILER_AGE);
         }
 
         if (shouldIncludeBoilerConversion(state, currentStep, service)) {
@@ -102,6 +103,17 @@ public class QuoteProgressService {
         }
 
         flow.add(QuoteStep.RADIATOR_COUNT);
+
+        if (skipRepairDetails) {
+            flow.add(QuoteStep.POWER_FLUSH);
+            flow.add(QuoteStep.MAGNETIC_FILTER);
+            flow.add(QuoteStep.REPAIR_PROBLEM);
+            flow.add(QuoteStep.BOILER_PRESSURE);
+            flow.add(QuoteStep.FAULT_CODE_DISPLAY);
+            if (shouldIncludeFaultCodeDetails(state, currentStep)) {
+                flow.add(QuoteStep.FAULT_CODE_DETAILS);
+            }
+        }
 
         if (!skipRepairDetails) {
             flow.add(QuoteStep.BATH_SHOWER_COUNT);
@@ -152,6 +164,11 @@ public class QuoteProgressService {
                 && state.getVerticalFlueType() == VerticalFlueType.SLOPED_ROOF);
     }
 
+    private boolean shouldIncludeFaultCodeDetails(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.FAULT_CODE_DETAILS
+                || (state != null && state.requiresFaultCodeDetails());
+    }
+
     private int resolveCurrentStage(QuoteStep currentStep, boolean bookingComplete) {
         if (bookingComplete) {
             return 4;
@@ -171,6 +188,12 @@ public class QuoteProgressService {
                  FLUE_CLEARANCE,
                  FLUE_PROPERTY_DISTANCE,
                  RADIATOR_COUNT,
+                 POWER_FLUSH,
+                 MAGNETIC_FILTER,
+                 REPAIR_PROBLEM,
+                 BOILER_PRESSURE,
+                 FAULT_CODE_DISPLAY,
+                 FAULT_CODE_DETAILS,
                  BATH_SHOWER_COUNT,
                  SUMMARY -> 2;
             default -> 1;

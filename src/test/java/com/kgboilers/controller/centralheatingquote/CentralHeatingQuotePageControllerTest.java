@@ -8,6 +8,7 @@ import com.kgboilers.model.centralheatingquote.enums.RadiatorIssueType;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
 import com.kgboilers.service.centralheatingquote.CentralHeatingLeadEmailService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuotePersistenceService;
+import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteProgressService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteSessionService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteWizardService;
 import jakarta.servlet.http.HttpSession;
@@ -28,6 +29,7 @@ class CentralHeatingQuotePageControllerTest {
     private CentralHeatingQuoteWizardService wizardService;
     private CentralHeatingQuotePersistenceService quotePersistenceService;
     private CentralHeatingLeadEmailService leadEmailService;
+    private CentralHeatingQuoteProgressService quoteProgressService;
     private HttpSession session;
     private Model model;
     private CentralHeatingQuotePageController controller;
@@ -38,10 +40,17 @@ class CentralHeatingQuotePageControllerTest {
         wizardService = mock(CentralHeatingQuoteWizardService.class);
         quotePersistenceService = mock(CentralHeatingQuotePersistenceService.class);
         leadEmailService = mock(CentralHeatingLeadEmailService.class);
+        quoteProgressService = mock(CentralHeatingQuoteProgressService.class);
         session = mock(HttpSession.class);
         model = mock(Model.class);
 
-        controller = new CentralHeatingQuotePageController(sessionService, wizardService, quotePersistenceService, leadEmailService);
+        controller = new CentralHeatingQuotePageController(
+                sessionService,
+                wizardService,
+                quotePersistenceService,
+                leadEmailService,
+                quoteProgressService
+        );
     }
 
     @Test

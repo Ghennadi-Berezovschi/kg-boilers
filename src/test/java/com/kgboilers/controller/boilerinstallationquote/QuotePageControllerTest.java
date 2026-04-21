@@ -194,6 +194,20 @@ class QuotePageControllerTest {
     }
 
     @Test
+    void boilerAgePage_shouldReturnBoilerAgePageForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_AGE, "boiler-repair")).thenReturn(true);
+
+        String view = controller.boilerAgePage(session, model);
+
+        assertEquals("boiler-repair-quote/boiler-age", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-make"));
+        verify(model).addAttribute(eq("boilerAgeOptions"), any());
+    }
+
+    @Test
     void boilerPositionPage_shouldReturnBoilerPositionPage_whenStepAccessible() {
         when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_POSITION))).thenReturn(true);
@@ -225,7 +239,7 @@ class QuotePageControllerTest {
         String view = controller.boilerLocationPage(session, model);
 
         assertEquals("boiler-installation-quote/boiler-location", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-make"));
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-age"));
     }
 
     @Test
@@ -295,6 +309,86 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/radiator-count", view);
         verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-location"));
+    }
+
+    @Test
+    void repairProblemPage_shouldUseMagneticFilterAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.REPAIR_PROBLEM, "boiler-repair")).thenReturn(true);
+
+        String view = controller.repairProblemPage(session, model);
+
+        assertEquals("boiler-repair-quote/repair-problem", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/magnetic-filter"));
+    }
+
+    @Test
+    void boilerPressurePage_shouldUseRepairProblemAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_PRESSURE, "boiler-repair")).thenReturn(true);
+
+        String view = controller.boilerPressurePage(session, model);
+
+        assertEquals("boiler-repair-quote/boiler-pressure", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/repair-problem"));
+    }
+
+    @Test
+    void faultCodePage_shouldUseBoilerPressureAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.FAULT_CODE_DISPLAY, "boiler-repair")).thenReturn(true);
+
+        String view = controller.faultCodePage(session, model);
+
+        assertEquals("boiler-repair-quote/fault-code", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-pressure"));
+    }
+
+    @Test
+    void faultCodeDetailsPage_shouldUseFaultCodeAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFaultCodeDisplayStatus(com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus.YES_SHOWING);
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.FAULT_CODE_DETAILS, "boiler-repair")).thenReturn(true);
+
+        String view = controller.faultCodeDetailsPage(session, model);
+
+        assertEquals("boiler-repair-quote/fault-code-details", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/fault-code"));
+        verify(model).addAttribute(eq("faultCodeDetails"), eq(""));
+    }
+
+    @Test
+    void powerFlushPage_shouldUseRadiatorCountAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.POWER_FLUSH, "boiler-repair")).thenReturn(true);
+
+        String view = controller.powerFlushPage(session, model);
+
+        assertEquals("boiler-repair-quote/power-flush", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/radiator-count"));
+    }
+
+    @Test
+    void magneticFilterPage_shouldUsePowerFlushAsBackUrlForBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(session.getAttribute("service")).thenReturn("boiler-repair");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.MAGNETIC_FILTER, "boiler-repair")).thenReturn(true);
+
+        String view = controller.magneticFilterPage(session, model);
+
+        assertEquals("boiler-repair-quote/magnetic-filter", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/power-flush"));
     }
 
     @Test

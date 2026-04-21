@@ -6,6 +6,7 @@ import com.kgboilers.dto.boilerrepairquote.BoilerRepairContactRequestDto;
 import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
+import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
@@ -191,6 +192,20 @@ public class QuotePageController {
         return "boiler-repair-quote/boiler-make";
     }
 
+    @GetMapping("/boiler-age")
+    public String boilerAgePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.BOILER_AGE, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_MAKE, service));
+        model.addAttribute("boilerAgeOptions", BoilerAge.values());
+        return "boiler-repair-quote/boiler-age";
+    }
+
     @GetMapping("/boiler-conversion")
     public String boilerConversionPage(HttpSession session, Model model) {
         QuoteSessionState state = sessionService.getState(session);
@@ -237,7 +252,7 @@ public class QuotePageController {
 
         String backUrl = pathForService(QuoteStep.BOILER_LOCATION.previous(), service);
         if ("boiler-repair".equals(service)) {
-            backUrl = pathForService(QuoteStep.BOILER_MAKE, service);
+            backUrl = pathForService(QuoteStep.BOILER_AGE, service);
         }
         model.addAttribute("backUrl", backUrl);
         return "boiler-installation-quote/boiler-location";
@@ -409,6 +424,85 @@ public class QuotePageController {
 
         model.addAttribute("backUrl", backUrl);
         return "boiler-installation-quote/radiator-count";
+    }
+
+    @GetMapping("/power-flush")
+    public String powerFlushPage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.POWER_FLUSH, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.RADIATOR_COUNT, service));
+        return "boiler-repair-quote/power-flush";
+    }
+
+    @GetMapping("/magnetic-filter")
+    public String magneticFilterPage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.MAGNETIC_FILTER, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.POWER_FLUSH, service));
+        return "boiler-repair-quote/magnetic-filter";
+    }
+
+    @GetMapping("/repair-problem")
+    public String repairProblemPage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.REPAIR_PROBLEM, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.MAGNETIC_FILTER, service));
+        return "boiler-repair-quote/repair-problem";
+    }
+
+    @GetMapping("/boiler-pressure")
+    public String boilerPressurePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.BOILER_PRESSURE, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.REPAIR_PROBLEM, service));
+        return "boiler-repair-quote/boiler-pressure";
+    }
+
+    @GetMapping("/fault-code")
+    public String faultCodePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.FAULT_CODE_DISPLAY, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_PRESSURE, service));
+        return "boiler-repair-quote/fault-code";
+    }
+
+    @GetMapping("/fault-code-details")
+    public String faultCodeDetailsPage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.FAULT_CODE_DETAILS, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.FAULT_CODE_DISPLAY, service));
+        model.addAttribute("faultCodeDetails", state != null ? state.getFaultCodeDetailsSummary() : "");
+        return "boiler-repair-quote/fault-code-details";
     }
 
     @GetMapping("/bath-shower-count")
@@ -603,7 +697,10 @@ public class QuotePageController {
 
     private void populateBoilerRepairSummaryModel(Model model, QuoteSessionState state) {
         model.addAttribute("state", state);
-        model.addAttribute("backUrl", pathForService(QuoteStep.RADIATOR_COUNT, "boiler-repair"));
+        QuoteStep backStep = state != null && state.requiresFaultCodeDetails()
+                ? QuoteStep.FAULT_CODE_DETAILS
+                : QuoteStep.FAULT_CODE_DISPLAY;
+        model.addAttribute("backUrl", pathForService(backStep, "boiler-repair"));
         model.addAttribute("requestTitle", "Boiler Repair");
         model.addAttribute("postcodeValue", defaultLine(state != null ? state.getPostcode() : null));
         model.addAttribute("fuelValue", formatSelection(state != null ? state.getFuel() : null));
@@ -611,8 +708,15 @@ public class QuotePageController {
         model.addAttribute("propertyTypeValue", formatSelection(state != null ? state.getPropertyType() : null));
         model.addAttribute("boilerTypeValue", formatSelection(state != null ? state.getBoilerType() : null));
         model.addAttribute("boilerMakeValue", formatSelection(state != null ? state.getBoilerMake() : null));
+        model.addAttribute("boilerAgeValue", defaultLine(state != null ? state.getBoilerAgeSummary() : null));
         model.addAttribute("boilerLocationValue", formatSelection(state != null ? state.getBoilerLocation() : null));
         model.addAttribute("radiatorCountValue", defaultLine(state != null ? state.getRadiatorCountSummary() : null));
+        model.addAttribute("powerFlushValue", defaultLine(state != null ? state.getPowerFlushSummary() : null));
+        model.addAttribute("magneticFilterValue", defaultLine(state != null ? state.getMagneticFilterSummary() : null));
+        model.addAttribute("repairProblemValue", defaultLine(state != null ? state.getRepairProblemSummary() : null));
+        model.addAttribute("boilerPressureValue", defaultLine(state != null ? state.getBoilerPressureSummary() : null));
+        model.addAttribute("faultCodeValue", defaultLine(state != null ? state.getFaultCodeDisplaySummary() : null));
+        model.addAttribute("faultCodeDetailsValue", defaultLine(state != null ? state.getFaultCodeDetailsSummary() : null));
     }
 
     private void populateSummaryModel(Model model, QuoteSessionState state, SummaryViewData summaryViewData) {
@@ -704,6 +808,8 @@ public class QuotePageController {
             case "/boiler-repair-quote/boiler-type" -> QuoteStep.BOILER_TYPE;
             case "/quote/boiler-make" -> QuoteStep.BOILER_MAKE;
             case "/boiler-repair-quote/boiler-make" -> QuoteStep.BOILER_MAKE;
+            case "/quote/boiler-age" -> QuoteStep.BOILER_AGE;
+            case "/boiler-repair-quote/boiler-age" -> QuoteStep.BOILER_AGE;
             case "/quote/boiler-conversion" -> QuoteStep.BOILER_CONVERSION;
             case "/quote/boiler-position" -> QuoteStep.BOILER_POSITION;
             case "/quote/boiler-location" -> QuoteStep.BOILER_LOCATION;
@@ -720,6 +826,18 @@ public class QuotePageController {
             case "/quote/flue-property-distance" -> QuoteStep.FLUE_PROPERTY_DISTANCE;
             case "/quote/radiator-count" -> QuoteStep.RADIATOR_COUNT;
             case "/boiler-repair-quote/radiator-count" -> QuoteStep.RADIATOR_COUNT;
+            case "/quote/power-flush" -> QuoteStep.POWER_FLUSH;
+            case "/boiler-repair-quote/power-flush" -> QuoteStep.POWER_FLUSH;
+            case "/quote/magnetic-filter" -> QuoteStep.MAGNETIC_FILTER;
+            case "/boiler-repair-quote/magnetic-filter" -> QuoteStep.MAGNETIC_FILTER;
+            case "/quote/repair-problem" -> QuoteStep.REPAIR_PROBLEM;
+            case "/boiler-repair-quote/repair-problem" -> QuoteStep.REPAIR_PROBLEM;
+            case "/quote/boiler-pressure" -> QuoteStep.BOILER_PRESSURE;
+            case "/boiler-repair-quote/boiler-pressure" -> QuoteStep.BOILER_PRESSURE;
+            case "/quote/fault-code" -> QuoteStep.FAULT_CODE_DISPLAY;
+            case "/boiler-repair-quote/fault-code" -> QuoteStep.FAULT_CODE_DISPLAY;
+            case "/quote/fault-code-details" -> QuoteStep.FAULT_CODE_DETAILS;
+            case "/boiler-repair-quote/fault-code-details" -> QuoteStep.FAULT_CODE_DETAILS;
             case "/quote/bath-shower-count" -> QuoteStep.BATH_SHOWER_COUNT;
             case "/quote/summary" -> QuoteStep.SUMMARY;
             case "/boiler-repair-quote/summary" -> QuoteStep.SUMMARY;

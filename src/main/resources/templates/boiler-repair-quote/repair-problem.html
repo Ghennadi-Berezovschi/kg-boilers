@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Repair Problem</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260421-0914')}">
+    <style>
+        .repair-problem-grid {
+            margin: 30px auto 0;
+            max-width: 820px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .repair-problem-grid > .repair-problem-card {
+            flex: 0 0 260px;
+            width: 260px;
+            max-width: 260px;
+            min-height: 320px;
+        }
+
+        @media (max-width: 640px) {
+            .repair-problem-grid {
+                max-width: 260px;
+            }
+
+            .repair-problem-grid > .repair-problem-card {
+                flex-basis: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            What is <span style="color:#ff5a3c;">not working</span> in your home?
+        </h2>
+
+        <div class="repair-problem-grid">
+            <article class="card fuel-card repair-problem-card" onclick="selectRepairProblem('heating')">
+                <img class="repair-problem-art"
+                     th:src="@{/images/repair-problems/heating.svg}"
+                     src="/images/repair-problems/heating.svg"
+                     alt="Heating icon">
+                <h3 class="fuel-title">Heating</h3>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card repair-problem-card" onclick="selectRepairProblem('hot-water')">
+                <img class="repair-problem-art"
+                     th:src="@{/images/repair-problems/hot-water.svg}"
+                     src="/images/repair-problems/hot-water.svg"
+                     alt="Hot water icon">
+                <h3 class="fuel-title">Hot water</h3>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card repair-problem-card" onclick="selectRepairProblem('heating-and-hot-water')">
+                <img class="repair-problem-art repair-problem-art-wide"
+                     th:src="@{/images/repair-problems/heating-and-hot-water.svg}"
+                     src="/images/repair-problems/heating-and-hot-water.svg"
+                     alt="Heating and hot water icon">
+                <h3 class="fuel-title">Heating &amp; hot water</h3>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card repair-problem-card repair-problem-card-centered" onclick="selectRepairProblem('something-else')">
+                <img class="repair-problem-art repair-problem-art-question"
+                     th:src="@{/images/repair-problems/something-else.svg(v='20260421-1325')}"
+                     src="/images/repair-problems/something-else.svg?v=20260421-1325"
+                     alt="Something else icon">
+                <h3 class="fuel-title">Something else</h3>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+
+    async function selectRepairProblem(repairProblem) {
+        clearError();
+
+        try {
+            const response = await fetch("/quote/repair-problem", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ repairProblem: repairProblem })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep.trim();
+        } catch (error) {
+            console.error("Repair problem error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

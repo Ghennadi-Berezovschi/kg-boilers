@@ -107,6 +107,12 @@ public class QuoteWizardApiController {
         return wizardService.updateBoilerMake(state, request.getBoilerMake(), service);
     }
 
+    private QuoteStep updateBoilerAge(QuoteSessionState state,
+                                      BoilerAgeRequestDto request,
+                                      String service) {
+        return wizardService.updateBoilerAge(state, request.getBoilerAge(), service);
+    }
+
     private QuoteStep updateBoilerFloorLevel(QuoteSessionState state,
                                              BoilerFloorLevelRequestDto request,
                                              String service) {
@@ -135,6 +141,42 @@ public class QuoteWizardApiController {
         }
 
         return wizardService.updateRadiatorCount(state, request.getRadiatorCount());
+    }
+
+    private QuoteStep updateRepairProblem(QuoteSessionState state,
+                                          RepairProblemRequestDto request,
+                                          String service) {
+        return wizardService.updateRepairProblem(state, request.getRepairProblem(), service);
+    }
+
+    private QuoteStep updatePowerFlush(QuoteSessionState state,
+                                       PowerFlushRequestDto request,
+                                       String service) {
+        return wizardService.updatePowerFlush(state, request.getPowerFlushStatus(), service);
+    }
+
+    private QuoteStep updateMagneticFilter(QuoteSessionState state,
+                                           MagneticFilterRequestDto request,
+                                           String service) {
+        return wizardService.updateMagneticFilter(state, request.getMagneticFilterStatus(), service);
+    }
+
+    private QuoteStep updateBoilerPressure(QuoteSessionState state,
+                                           BoilerPressureRequestDto request,
+                                           String service) {
+        return wizardService.updateBoilerPressure(state, request.getBoilerPressureStatus(), service);
+    }
+
+    private QuoteStep updateFaultCodeDisplay(QuoteSessionState state,
+                                             FaultCodeDisplayRequestDto request,
+                                             String service) {
+        return wizardService.updateFaultCodeDisplay(state, request.getFaultCodeDisplayStatus(), service);
+    }
+
+    private QuoteStep updateFaultCodeDetails(QuoteSessionState state,
+                                             FaultCodeDetailsRequestDto request,
+                                             String service) {
+        return wizardService.updateFaultCodeDetails(state, request.getFaultCodeDetails(), service);
     }
 
     private QuoteStep updateFuel(QuoteSessionState state,
@@ -259,6 +301,22 @@ public class QuoteWizardApiController {
         return success(nextStep, service);
     }
 
+    @PostMapping("/boiler-age")
+    public ResponseEntity<QuoteResponseDto> setBoilerAge(@RequestBody @Valid BoilerAgeRequestDto request,
+                                                         HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.BOILER_AGE, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateBoilerAge(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
     @PostMapping("/boiler-position")
     public ResponseEntity<QuoteResponseDto> setBoilerPosition(@RequestBody @Valid BoilerPositionRequestDto request,
                                                               HttpSession session) {
@@ -303,6 +361,86 @@ public class QuoteWizardApiController {
         }
 
         QuoteStep nextStep = updateBoilerFloorLevel(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/power-flush")
+    public ResponseEntity<QuoteResponseDto> setPowerFlush(@RequestBody @Valid PowerFlushRequestDto request,
+                                                          HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.POWER_FLUSH, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updatePowerFlush(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/magnetic-filter")
+    public ResponseEntity<QuoteResponseDto> setMagneticFilter(@RequestBody @Valid MagneticFilterRequestDto request,
+                                                              HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.MAGNETIC_FILTER, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateMagneticFilter(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/boiler-pressure")
+    public ResponseEntity<QuoteResponseDto> setBoilerPressure(@RequestBody @Valid BoilerPressureRequestDto request,
+                                                              HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.BOILER_PRESSURE, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateBoilerPressure(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/fault-code")
+    public ResponseEntity<QuoteResponseDto> setFaultCodeDisplay(@RequestBody @Valid FaultCodeDisplayRequestDto request,
+                                                                HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.FAULT_CODE_DISPLAY, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateFaultCodeDisplay(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/fault-code-details")
+    public ResponseEntity<QuoteResponseDto> setFaultCodeDetails(@RequestBody @Valid FaultCodeDetailsRequestDto request,
+                                                                HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.FAULT_CODE_DETAILS, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateFaultCodeDetails(state, request, service);
         sessionService.saveState(session, state);
         return success(nextStep, service);
     }
@@ -489,6 +627,24 @@ public class QuoteWizardApiController {
         }
 
         QuoteStep nextStep = updateRadiatorCount(state, request, service);
+
+        sessionService.saveState(session, state);
+
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/repair-problem")
+    public ResponseEntity<QuoteResponseDto> setRepairProblem(@RequestBody @Valid RepairProblemRequestDto request,
+                                                             HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.REPAIR_PROBLEM, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = updateRepairProblem(state, request, service);
 
         sessionService.saveState(session, state);
 

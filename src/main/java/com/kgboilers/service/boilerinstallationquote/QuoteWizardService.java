@@ -3,9 +3,16 @@ package com.kgboilers.service.boilerinstallationquote;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerFloorLevelException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerLocationException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerAgeException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerMakeException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerPressureException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedFaultCodeDetailsException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedFuelException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedFaultCodeDisplayException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedMagneticFilterException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedOwnershipException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedPowerFlushException;
+import com.kgboilers.exception.boilerinstallationquote.UnsupportedRepairProblemException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedPropertyTypeException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedSlopedRoofPositionException;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
@@ -62,6 +69,9 @@ public class QuoteWizardService {
             case BOILER_MAKE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && state.hasBoilerType();
 
+            case BOILER_AGE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
+                    && state.hasBoilerMake();
+
             case BOILER_CONVERSION -> !BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && state.hasBoilerType()
                     && state.getBoilerType() == BoilerType.HEAT_ONLY;
@@ -73,7 +83,7 @@ public class QuoteWizardService {
             case BOILER_LOCATION -> {
                 if (skipBoilerPosition) {
                     if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
-                        yield state.hasBoilerMake();
+                        yield state.hasBoilerAge();
                     }
 
                     yield state.hasBoilerType()
@@ -119,10 +129,30 @@ public class QuoteWizardService {
                     && (state.getFlueType() != FlueType.HORIZONTAL
                     || (state.hasFluePosition() && state.hasFlueClearance() && state.hasFluePropertyDistance()));
 
+            case POWER_FLUSH -> skipRepairDetails && state.hasRadiatorCount();
+
+            case MAGNETIC_FILTER -> skipRepairDetails && state.hasPowerFlushStatus();
+
+            case REPAIR_PROBLEM -> skipRepairDetails && state.hasMagneticFilterStatus();
+
+            case BOILER_PRESSURE -> skipRepairDetails && state.hasRepairProblem();
+
+            case FAULT_CODE_DISPLAY -> skipRepairDetails && state.hasBoilerPressureStatus();
+
+            case FAULT_CODE_DETAILS -> skipRepairDetails
+                    && state.hasBoilerPressureStatus()
+                    && state.requiresFaultCodeDetails();
+
             case BATH_SHOWER_COUNT -> !skipRepairDetails && state.hasRadiatorCount();
 
             case SUMMARY -> skipRepairDetails
                     ? state.hasRadiatorCount()
+                    && state.hasPowerFlushStatus()
+                    && state.hasMagneticFilterStatus()
+                    && state.hasRepairProblem()
+                    && state.hasBoilerPressureStatus()
+                    && state.hasFaultCodeDisplayStatus()
+                    && (!state.requiresFaultCodeDetails() || state.hasFaultCodeDetails())
                     : state.hasRelocation()
                     && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
                     && state.hasCompleteFlueSelection()
@@ -220,10 +250,18 @@ public class QuoteWizardService {
 
         state.setBoilerType(selectedBoilerType);
         state.setBoilerMake(null);
+        state.setBoilerAge(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
 
         if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
             state.setHeatOnlyConversion(null);
             state.setBoilerPosition(null);
+            state.setRadiatorCount(null);
             state.setCurrentStep(QuoteStep.BOILER_MAKE);
             return QuoteStep.BOILER_MAKE;
         }
@@ -249,14 +287,47 @@ public class QuoteWizardService {
         }
 
         state.setBoilerMake(selectedBoilerMake);
+        state.setBoilerAge(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
 
         if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
-            state.setCurrentStep(QuoteStep.BOILER_LOCATION);
-            return QuoteStep.BOILER_LOCATION;
+            state.setBoilerLocation(null);
+            state.setRadiatorCount(null);
+            state.setCurrentStep(QuoteStep.BOILER_AGE);
+            return QuoteStep.BOILER_AGE;
         }
 
         state.setCurrentStep(QuoteStep.BOILER_POSITION);
         return QuoteStep.BOILER_POSITION;
+    }
+
+    public QuoteStep updateBoilerAge(QuoteSessionState state,
+                                     BoilerAge boilerAge,
+                                     String service) {
+        if (!BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            throw new UnsupportedBoilerAgeException("Boiler age is only supported for boiler repair");
+        }
+
+        if (boilerAge == null) {
+            throw new UnsupportedBoilerAgeException("Boiler age is required");
+        }
+
+        state.setBoilerAge(boilerAge);
+        state.setBoilerLocation(null);
+        state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
+        state.setCurrentStep(QuoteStep.BOILER_LOCATION);
+        return QuoteStep.BOILER_LOCATION;
     }
 
     public QuoteStep updateBoilerConversion(QuoteSessionState state, HeatOnlyConversion conversion) {
@@ -306,6 +377,13 @@ public class QuoteWizardService {
         state.setBoilerLocation(selectedLocation);
         if (shouldSkipRepairDetails(service)) {
             state.setBoilerFloorLevel(null);
+            state.setRadiatorCount(null);
+            state.setPowerFlushStatus(null);
+            state.setMagneticFilterStatus(null);
+            state.setRepairProblem(null);
+            state.setBoilerPressureStatus(null);
+            state.setFaultCodeDisplayStatus(null);
+            state.setFaultCodeDetails(null);
             state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
             return QuoteStep.RADIATOR_COUNT;
         }
@@ -368,7 +446,13 @@ public class QuoteWizardService {
         state.setFlueClearance(null);
         state.setFluePropertyDistance(null);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
 
         if (relocation == Relocation.YES) {
             state.setCurrentStep(QuoteStep.RELOCATION_DISTANCE);
@@ -393,7 +477,13 @@ public class QuoteWizardService {
         state.setFlueClearance(null);
         state.setFluePropertyDistance(null);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
         state.setCurrentStep(QuoteStep.FLUE_TYPE);
         return QuoteStep.FLUE_TYPE;
     }
@@ -411,9 +501,16 @@ public class QuoteWizardService {
                     && (shouldSkipBedrooms(service) || state.hasBedrooms())
                     && state.hasBoilerType()
                     && state.hasBoilerMake()
+                    && state.hasBoilerAge()
                     && (shouldSkipBoilerPosition(service) || state.hasBoilerPosition())
                     && state.hasBoilerLocation()
-                    && state.hasRadiatorCount();
+                    && state.hasRadiatorCount()
+                    && state.hasPowerFlushStatus()
+                    && state.hasMagneticFilterStatus()
+                    && state.hasRepairProblem()
+                    && state.hasBoilerPressureStatus()
+                    && state.hasFaultCodeDisplayStatus()
+                    && (!state.requiresFaultCodeDetails() || state.hasFaultCodeDetails());
         }
 
         return state.hasPostcode()
@@ -472,7 +569,13 @@ public class QuoteWizardService {
         state.setFlueClearance(null);
         state.setFluePropertyDistance(null);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
         state.setCurrentStep(QuoteStep.FLUE_LENGTH);
         return QuoteStep.FLUE_LENGTH;
     }
@@ -488,7 +591,13 @@ public class QuoteWizardService {
         state.setFlueClearance(null);
         state.setFluePropertyDistance(null);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
 
         if (state.getFlueType() == FlueType.HORIZONTAL) {
             state.setCurrentStep(QuoteStep.FLUE_POSITION);
@@ -511,7 +620,13 @@ public class QuoteWizardService {
 
         state.setSlopedRoofPosition(slopedRoofPosition);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
         state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
         return QuoteStep.RADIATOR_COUNT;
     }
@@ -525,7 +640,13 @@ public class QuoteWizardService {
         state.setFlueClearance(null);
         state.setFluePropertyDistance(null);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
 
         if (state.getFlueType() == FlueType.HORIZONTAL) {
             state.setCurrentStep(QuoteStep.FLUE_CLEARANCE);
@@ -544,7 +665,13 @@ public class QuoteWizardService {
         state.setFlueClearance(flueClearance);
         state.setFluePropertyDistance(null);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
         state.setCurrentStep(QuoteStep.FLUE_PROPERTY_DISTANCE);
         return QuoteStep.FLUE_PROPERTY_DISTANCE;
     }
@@ -557,7 +684,12 @@ public class QuoteWizardService {
 
         state.setFluePropertyDistance(fluePropertyDistance);
         state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
         state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
         return QuoteStep.RADIATOR_COUNT;
     }
@@ -574,11 +706,17 @@ public class QuoteWizardService {
         }
 
         state.setRadiatorCount(radiatorCount);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
         state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
 
         if (shouldSkipRepairDetails(service)) {
-            state.setCurrentStep(QuoteStep.SUMMARY);
-            return QuoteStep.SUMMARY;
+            state.setCurrentStep(QuoteStep.POWER_FLUSH);
+            return QuoteStep.POWER_FLUSH;
         }
 
         state.setCurrentStep(QuoteStep.BATH_SHOWER_COUNT);
@@ -591,6 +729,132 @@ public class QuoteWizardService {
         }
 
         state.setBathShowerCount(bathShowerCount);
+        state.setCurrentStep(QuoteStep.SUMMARY);
+        return QuoteStep.SUMMARY;
+    }
+
+    public QuoteStep updatePowerFlush(QuoteSessionState state,
+                                      PowerFlushStatus powerFlushStatus,
+                                      String service) {
+        if (!shouldSkipRepairDetails(service)) {
+            throw new UnsupportedPowerFlushException("Power flush is only supported for boiler repair");
+        }
+
+        if (powerFlushStatus == null) {
+            throw new UnsupportedPowerFlushException("Power flush answer is required");
+        }
+
+        state.setPowerFlushStatus(powerFlushStatus);
+        state.setMagneticFilterStatus(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
+        state.setCurrentStep(QuoteStep.MAGNETIC_FILTER);
+        return QuoteStep.MAGNETIC_FILTER;
+    }
+
+    public QuoteStep updateMagneticFilter(QuoteSessionState state,
+                                          MagneticFilterStatus magneticFilterStatus,
+                                          String service) {
+        if (!shouldSkipRepairDetails(service)) {
+            throw new UnsupportedMagneticFilterException("Magnetic filter is only supported for boiler repair");
+        }
+
+        if (magneticFilterStatus == null) {
+            throw new UnsupportedMagneticFilterException("Magnetic filter answer is required");
+        }
+
+        state.setMagneticFilterStatus(magneticFilterStatus);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
+        state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
+        return QuoteStep.REPAIR_PROBLEM;
+    }
+
+    public QuoteStep updateRepairProblem(QuoteSessionState state,
+                                         RepairProblem repairProblem,
+                                         String service) {
+        if (!shouldSkipRepairDetails(service)) {
+            throw new UnsupportedRepairProblemException("Repair problem is only supported for boiler repair");
+        }
+
+        if (repairProblem == null) {
+            throw new UnsupportedRepairProblemException("Please choose what is not working");
+        }
+
+        state.setRepairProblem(repairProblem);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
+        state.setCurrentStep(QuoteStep.BOILER_PRESSURE);
+        return QuoteStep.BOILER_PRESSURE;
+    }
+
+    public QuoteStep updateBoilerPressure(QuoteSessionState state,
+                                          BoilerPressureStatus boilerPressureStatus,
+                                          String service) {
+        if (!shouldSkipRepairDetails(service)) {
+            throw new UnsupportedBoilerPressureException("Boiler pressure is only supported for boiler repair");
+        }
+
+        if (boilerPressureStatus == null) {
+            throw new UnsupportedBoilerPressureException("Boiler pressure answer is required");
+        }
+
+        state.setBoilerPressureStatus(boilerPressureStatus);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
+        state.setCurrentStep(QuoteStep.FAULT_CODE_DISPLAY);
+        return QuoteStep.FAULT_CODE_DISPLAY;
+    }
+
+    public QuoteStep updateFaultCodeDisplay(QuoteSessionState state,
+                                            FaultCodeDisplayStatus faultCodeDisplayStatus,
+                                            String service) {
+        if (!shouldSkipRepairDetails(service)) {
+            throw new UnsupportedFaultCodeDisplayException("Fault code question is only supported for boiler repair");
+        }
+
+        if (faultCodeDisplayStatus == null) {
+            throw new UnsupportedFaultCodeDisplayException("Fault code answer is required");
+        }
+
+        state.setFaultCodeDisplayStatus(faultCodeDisplayStatus);
+        state.setFaultCodeDetails(null);
+
+        if (faultCodeDisplayStatus == FaultCodeDisplayStatus.YES_SHOWING) {
+            state.setCurrentStep(QuoteStep.FAULT_CODE_DETAILS);
+            return QuoteStep.FAULT_CODE_DETAILS;
+        }
+
+        state.setCurrentStep(QuoteStep.SUMMARY);
+        return QuoteStep.SUMMARY;
+    }
+
+    public QuoteStep updateFaultCodeDetails(QuoteSessionState state,
+                                            String faultCodeDetails,
+                                            String service) {
+        if (!shouldSkipRepairDetails(service)) {
+            throw new UnsupportedFaultCodeDetailsException("Fault code details are only supported for boiler repair");
+        }
+
+        if (state.getFaultCodeDisplayStatus() != FaultCodeDisplayStatus.YES_SHOWING) {
+            throw new UnsupportedFaultCodeDetailsException("Fault code details are only required when a fault code is showing");
+        }
+
+        if (faultCodeDetails == null || faultCodeDetails.isBlank()) {
+            throw new UnsupportedFaultCodeDetailsException("Please provide the fault code or describe the signal shown");
+        }
+
+        String normalizedDetails = faultCodeDetails.trim();
+        if (normalizedDetails.length() > 500) {
+            throw new UnsupportedFaultCodeDetailsException("Please keep the fault code description under 500 characters");
+        }
+
+        state.setFaultCodeDetails(normalizedDetails);
         state.setCurrentStep(QuoteStep.SUMMARY);
         return QuoteStep.SUMMARY;
     }

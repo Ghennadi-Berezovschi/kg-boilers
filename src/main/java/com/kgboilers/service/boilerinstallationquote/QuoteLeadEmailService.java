@@ -131,44 +131,14 @@ public class QuoteLeadEmailService {
 
                 Thank you for contacting %s.
 
-                We received your boiler repair request with the following details:
+                We received your boiler repair request successfully.
 
-                Postcode:
-                %s
-
-                Fuel:
-                %s
-
-                Ownership:
-                %s
-
-                Property:
-                %s
-
-                Boiler type:
-                %s
-
-                Boiler make:
-                %s
-
-                Boiler location:
-                %s
-
-                Radiators:
-                %s
+                Our team will review the repair information you submitted and use your contact details to prepare the next step for your home.
 
                 We will contact you shortly.
                 """.formatted(
                 clientName,
-                companyProperties.getName(),
-                stateSafe(state.getPostcode()),
-                formatRepairValue(state.getFuel()),
-                formatRepairValue(state.getOwnership()),
-                formatRepairValue(state.getPropertyType()),
-                formatRepairValue(state.getBoilerType()),
-                formatRepairValue(state.getBoilerMake()),
-                formatRepairValue(state.getBoilerLocation()),
-                defaultLine(state.getRadiatorCountSummary(), "-")
+                companyProperties.getName()
         );
     }
 
@@ -198,8 +168,15 @@ public class QuoteLeadEmailService {
                 Property: %s
                 Boiler type: %s
                 Boiler make: %s
+                Boiler age: %s
                 Boiler location: %s
                 Radiators: %s
+                Power flushed in last 5 years: %s
+                Magnetic filter: %s
+                Not working: %s
+                Boiler pressure: %s
+                Fault code / message / signal: %s
+                Fault code details: %s
                 """.formatted(
                 stateSafe(serviceType),
                 stateSafe(clientName),
@@ -211,8 +188,15 @@ public class QuoteLeadEmailService {
                 formatRepairValue(state.getPropertyType()),
                 formatRepairValue(state.getBoilerType()),
                 formatRepairValue(state.getBoilerMake()),
+                defaultLine(state.getBoilerAgeSummary(), "-"),
                 formatRepairValue(state.getBoilerLocation()),
-                defaultLine(state.getRadiatorCountSummary(), "-")
+                defaultLine(state.getRadiatorCountSummary(), "-"),
+                defaultLine(state.getPowerFlushSummary(), "-"),
+                defaultLine(state.getMagneticFilterSummary(), "-"),
+                defaultLine(state.getRepairProblemSummary(), "-"),
+                defaultLine(state.getBoilerPressureSummary(), "-"),
+                defaultLine(state.getFaultCodeDisplaySummary(), "-"),
+                defaultLine(state.getFaultCodeDetailsSummary(), "-")
         );
     }
 

@@ -40,7 +40,7 @@ class QuoteLeadEmailServiceTest {
         ContactProperties contactProperties = new ContactProperties();
         contactProperties.setEmail("office@kgboilers.co.uk");
         CompanyProperties companyProperties = new CompanyProperties();
-        companyProperties.setName("K&G Boiler Installation and Repair");
+        companyProperties.setName("K&G Boiler Services");
         QuoteOfferProperties quoteOfferProperties = new QuoteOfferProperties();
         quoteOfferProperties.setIncludedItems(List.of(
                 "Boiler installation",

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Boiler Age</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260421-1228')}">
+    <style>
+        .boiler-age-grid {
+            margin: 28px auto 0;
+            max-width: 1140px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .boiler-age-card {
+            flex: 0 0 240px;
+            width: 240px;
+            min-height: 360px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 26px 20px;
+            border: 1px solid #d7e0ee;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .boiler-age-card:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        .boiler-age-headline {
+            min-height: 118px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--blue-main);
+            line-height: 0.95;
+        }
+
+        .boiler-age-prefix {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+        }
+
+        .boiler-age-value {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .boiler-age-value.is-text {
+            font-size: 44px;
+        }
+
+        .boiler-age-value.is-unknown {
+            color: #ff5a3c;
+        }
+
+        .boiler-age-label {
+            margin-top: 42px;
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--blue-main);
+        }
+
+        .boiler-age-card-unknown {
+            margin-top: -6px;
+        }
+
+        .boiler-age-card.is-loading {
+            border-color: #ff6a4a;
+            box-shadow: 0 0 0 2px rgba(255, 106, 74, 0.12);
+        }
+
+        @media (max-width: 720px) {
+            .boiler-age-grid {
+                max-width: 240px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            Roughly how <span style="color:#ff5a3c;">old</span> is your boiler?
+        </h2>
+
+        <div class="boiler-age-grid">
+            <button type="button"
+                    th:each="age : ${boilerAgeOptions}"
+                    th:class="'card fuel-card boiler-age-card' + (${age.name() == 'DO_NOT_KNOW'} ? ' boiler-age-card-unknown' : '')"
+                    th:data-value="${age.value}">
+                <div class="boiler-age-headline">
+                    <span th:if="${age.headlinePrefix != null}" class="boiler-age-prefix" th:text="${age.headlinePrefix}">UP TO</span>
+                    <span class="boiler-age-value"
+                          th:classappend="${age.name() == 'DO_NOT_KNOW'} ? ' is-text is-unknown' : ''"
+                          th:text="${age.headlineValue}">2</span>
+                </div>
+                <div class="boiler-age-label" th:text="${age.label}">Up to 2 years</div>
+            </button>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+    const resultElement = document.getElementById("result");
+    const boilerAgeButtons = Array.from(document.querySelectorAll(".boiler-age-card"));
+
+    boilerAgeButtons.forEach(button => {
+        button.addEventListener("click", () => selectBoilerAge(button.dataset.value, button));
+    });
+
+    async function selectBoilerAge(boilerAge, button) {
+        clearError();
+        setLoading(button, true);
+
+        try {
+            const response = await fetch("/quote/boiler-age", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ boilerAge: boilerAge })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Boiler age error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(button, false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+
+    function setLoading(activeButton, isLoading) {
+        boilerAgeButtons.forEach(button => {
+            button.disabled = isLoading;
+            button.classList.toggle("is-loading", isLoading && button === activeButton);
+        });
+    }
+</script>
+
+</body>
+</html>

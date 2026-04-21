@@ -91,6 +91,12 @@ public class GlobalExceptionHandler {
         return badRequest("UNSUPPORTED_BOILER_MAKE", "Unsupported boiler make");
     }
 
+    @ExceptionHandler(UnsupportedBoilerAgeException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerAge(UnsupportedBoilerAgeException ex) {
+        log.warn("Unsupported boiler age submitted");
+        return badRequest("UNSUPPORTED_BOILER_AGE", ex.getMessage());
+    }
+
     @ExceptionHandler(UnsupportedPowerFlushException.class)
     public ResponseEntity<QuoteResponseDto> handleUnsupportedPowerFlush(UnsupportedPowerFlushException ex) {
         log.warn("Unsupported power flush answer submitted");
@@ -103,6 +109,24 @@ public class GlobalExceptionHandler {
         return badRequest("UNSUPPORTED_MAGNETIC_FILTER", "Unsupported magnetic filter answer");
     }
 
+    @ExceptionHandler(UnsupportedBoilerPressureException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedBoilerPressure(UnsupportedBoilerPressureException ex) {
+        log.warn("Unsupported boiler pressure answer submitted");
+        return badRequest("UNSUPPORTED_BOILER_PRESSURE", ex.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedFaultCodeDisplayException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedFaultCodeDisplay(UnsupportedFaultCodeDisplayException ex) {
+        log.warn("Unsupported fault code answer submitted");
+        return badRequest("UNSUPPORTED_FAULT_CODE", ex.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedFaultCodeDetailsException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedFaultCodeDetails(UnsupportedFaultCodeDetailsException ex) {
+        log.warn("Unsupported fault code details submitted");
+        return badRequest("UNSUPPORTED_FAULT_CODE_DETAILS", ex.getMessage());
+    }
+
     @ExceptionHandler(UnsupportedTrvValveException.class)
     public ResponseEntity<QuoteResponseDto> handleUnsupportedTrvValve(UnsupportedTrvValveException ex) {
         log.warn("Unsupported TRV valve answer submitted");
@@ -113,6 +137,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<QuoteResponseDto> handleUnsupportedRadiatorIssue(UnsupportedRadiatorIssueException ex) {
         log.warn("Unsupported radiator issue submitted");
         return badRequest("UNSUPPORTED_RADIATOR_ISSUE", ex.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedRepairProblemException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnsupportedRepairProblem(UnsupportedRepairProblemException ex) {
+        log.warn("Unsupported repair problem submitted");
+        return badRequest("UNSUPPORTED_REPAIR_PROBLEM", ex.getMessage());
     }
 
     @ExceptionHandler(UnsupportedRadiatorSpecificationException.class)

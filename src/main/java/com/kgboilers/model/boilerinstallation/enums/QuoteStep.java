@@ -16,6 +16,8 @@ public enum QuoteStep {
 
     BOILER_MAKE("/quote/boiler-make"),
 
+    BOILER_AGE("/quote/boiler-age"),
+
     BOILER_CONVERSION("/quote/boiler-conversion"),
 
     BOILER_POSITION("/quote/boiler-position"),
@@ -43,6 +45,18 @@ public enum QuoteStep {
     FLUE_PROPERTY_DISTANCE("/quote/flue-property-distance"),
 
     RADIATOR_COUNT("/quote/radiator-count"),
+
+    POWER_FLUSH("/quote/power-flush"),
+
+    MAGNETIC_FILTER("/quote/magnetic-filter"),
+
+    REPAIR_PROBLEM("/quote/repair-problem"),
+
+    BOILER_PRESSURE("/quote/boiler-pressure"),
+
+    FAULT_CODE_DISPLAY("/quote/fault-code"),
+
+    FAULT_CODE_DETAILS("/quote/fault-code-details"),
 
     BATH_SHOWER_COUNT("/quote/bath-shower-count"),
 
@@ -76,6 +90,8 @@ public enum QuoteStep {
 
             case BOILER_MAKE -> BOILER_TYPE;
 
+            case BOILER_AGE -> BOILER_MAKE;
+
             case BOILER_CONVERSION -> BOILER_TYPE;
 
             case BOILER_POSITION -> BOILER_CONVERSION;
@@ -103,6 +119,18 @@ public enum QuoteStep {
             case FLUE_PROPERTY_DISTANCE -> FLUE_CLEARANCE;
 
             case RADIATOR_COUNT -> FLUE_PROPERTY_DISTANCE;
+
+            case POWER_FLUSH -> RADIATOR_COUNT;
+
+            case MAGNETIC_FILTER -> POWER_FLUSH;
+
+            case REPAIR_PROBLEM -> MAGNETIC_FILTER;
+
+            case BOILER_PRESSURE -> REPAIR_PROBLEM;
+
+            case FAULT_CODE_DISPLAY -> BOILER_PRESSURE;
+
+            case FAULT_CODE_DETAILS -> FAULT_CODE_DISPLAY;
 
             case BATH_SHOWER_COUNT -> RADIATOR_COUNT;
 
