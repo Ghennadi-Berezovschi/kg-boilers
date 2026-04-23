@@ -1,8 +1,8 @@
-package com.kgboilers.model.boilerinstallation.enums;
+package com.kgboilers.model.boilerrepair.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedRepairProblemException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedRepairProblemException;
 import lombok.Getter;
 
 @Getter

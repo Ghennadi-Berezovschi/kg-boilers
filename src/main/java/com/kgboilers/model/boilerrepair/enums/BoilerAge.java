@@ -1,8 +1,8 @@
-package com.kgboilers.model.boilerinstallation.enums;
+package com.kgboilers.model.boilerrepair.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerAgeException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedBoilerAgeException;
 
 public enum BoilerAge {
 

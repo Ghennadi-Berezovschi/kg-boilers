@@ -1,8 +1,8 @@
-package com.kgboilers.model.boilerinstallation.enums;
+package com.kgboilers.model.boilerrepair.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedFaultCodeDisplayException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDisplayException;
 
 public enum FaultCodeDisplayStatus {
 

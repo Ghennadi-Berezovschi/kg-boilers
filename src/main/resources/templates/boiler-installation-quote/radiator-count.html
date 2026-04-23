@@ -65,14 +65,15 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
 
     async function selectRadiatorCount(radiatorCount) {
         clearError();
 
         try {
-            const response = await fetch("/quote/radiator-count", {
+            const response = await fetch(`${quoteApiBasePath}/radiator-count`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

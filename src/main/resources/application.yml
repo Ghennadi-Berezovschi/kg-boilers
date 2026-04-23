@@ -69,7 +69,7 @@ logging:
 kg:
 
   company:
-    name: "K&G Boiler Services"
+    name: "Pro Boiler Services London"
 
   boiler-repair:
     visit-price-gbp: 79
@@ -135,7 +135,7 @@ kg:
       - "Sentinel Water Treatment"
       - "Electrical work"
       - "Boiler Aftercare: 10 years warranty (on-site parts & labour)"
-      - "BOXT to register the warranty & Building Control Certificate"
+      - "To register the warranty & Building Control Certificate"
       - "Chemical Flush"
       - "Fused Spur"
       - "Boiler Fittings Pack"
@@ -145,7 +145,8 @@ kg:
         description: "Save up to £174 a year on energy bills with intelligent heating control from the Hive Thermostat Mini."
         price-gbp: 150
 
-      - id: "esi-smart-thermostat"
-        title: "ESi Smart Thermostat with Wi-Fi Hub"
-        description: "Control your heating from your phone with a smart thermostat and Wi-Fi hub."
-        price-gbp: 79
+      - id: "chemical-power-flush"
+        title: "Chemical Power Flush"
+        description: "Clean your heating system with a chemical power flush to help improve circulation, protect your boiler and support long-term efficiency."
+        price-gbp: 195
+        image: "/images/central-heating/power-flush-combined.jpg"

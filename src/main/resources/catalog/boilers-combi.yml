@@ -11,6 +11,9 @@ kg:
         bathroomsMax: 1
         averagePriceGbp: 1750
         image: "/images/boilers/catalog/main-combi.png"
+        dimensions: "W 390mm x D 280mm x H 700mm"
+        hotWaterFlowRate: "10.2 litres/min"
+        warrantyYears: 5
         enabled: true
 
       - brand: "Main"
@@ -22,48 +25,91 @@ kg:
         bathroomsMax: 2
         averagePriceGbp: 1850
         image: "/images/boilers/catalog/main-combi.png"
+        dimensions: "W 390mm x D 280mm x H 700mm"
+        hotWaterFlowRate: "12.3 litres/min"
+        warrantyYears: 5
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 25kW Combi"
+        model: "ecoFIT Pure 825 25kw Combi"
         powerKw: 25
         radiatorsMin: 1
         radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1750
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        averagePriceGbp: 2499
+        image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
+        dimensions: "W 390mm x D 295mm x H 702mm"
+        hotWaterFlowRate: "10.4 litres/min"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 828 28kW Combi"
-        powerKw: 28
+        model: "ecoFIT Pure 830 30kW Combi"
+        powerKw: 30
         radiatorsMin: 6
-        radiatorsMax: 12
+        radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 2000
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        averagePriceGbp: 2399
+        image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
+        dimensions: "W 390mm x D 295mm x H 702mm"
+        hotWaterFlowRate: "12.2 litres/min"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 32kW Combi"
-        powerKw: 32
+        model: "ecoFIT Pure 835 35kW Combi"
+        powerKw: 35
         radiatorsMin: 10
         radiatorsMax: 16
         bathroomsMin: 2
         bathroomsMax: 2
-        averagePriceGbp: 2200
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        averagePriceGbp: 2699
+        image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
+        dimensions: "W 390mm x D 295mm x H 702mm"
+        hotWaterFlowRate: "14.1 litres/min"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 36kW Combi"
+        model: "ecoTEC Plus 836 36kW Combi"
         powerKw: 36
         radiatorsMin: 10
         radiatorsMax: 18
         bathroomsMin: 2
-        bathroomsMax: 3
-        averagePriceGbp: 2400
+        bathroomsMax: 2
+        averagePriceGbp: 3199
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 338mm x H 720mm"
+        hotWaterFlowRate: "14.6 litres/min"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 840 40kW Combi"
+        powerKw: 40
+        radiatorsMin: 12
+        radiatorsMax: 20
+        bathroomsMin: 2
+        bathroomsMax: 3
+        averagePriceGbp: 3499
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 386mm x H 720mm"
+        hotWaterFlowRate: "16.3 litres/min"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Worcester Bosch"
+        model: "Greenstar 8000+ 45kW Combi"
+        powerKw: 45
+        radiatorsMin: 12
+        radiatorsMax: 20
+        bathroomsMin: 2
+        bathroomsMax: 3
+        averagePriceGbp: 3799
+        image: "/images/boilers/catalog/worcester-bosch-8000-plus.png"
+        dimensions: "W 440mm x D 365mm x H 780mm"
+        hotWaterFlowRate: "18.2 litres/min"
+        warrantyYears: 12
         enabled: true

@@ -1,6 +1,6 @@
-package com.kgboilers.dto.boilerinstallationquote;
+package com.kgboilers.dto.boilerrepairquote;
 
-import com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus;
+import com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

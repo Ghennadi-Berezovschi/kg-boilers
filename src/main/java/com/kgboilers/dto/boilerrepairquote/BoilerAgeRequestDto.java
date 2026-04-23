@@ -1,6 +1,6 @@
-package com.kgboilers.dto.boilerinstallationquote;
+package com.kgboilers.dto.boilerrepairquote;
 
-import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
+import com.kgboilers.model.boilerrepair.enums.BoilerAge;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

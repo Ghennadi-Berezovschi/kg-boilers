@@ -2,12 +2,9 @@ package com.kgboilers.controller.boilerinstallationquote;
 
 import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferProperties;
 import com.kgboilers.dto.boilerinstallationquote.BoilerContactRequestDto;
-import com.kgboilers.dto.boilerrepairquote.BoilerRepairContactRequestDto;
 import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
-import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
-import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
@@ -35,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +77,12 @@ public class QuotePageController {
         this.quoteLeadEmailService = quoteLeadEmailService;
         this.quoteOfferProperties = quoteOfferProperties;
         this.quoteProgressService = quoteProgressService;
+    }
+
+    @ModelAttribute
+    public void populateServiceContext(HttpSession session, Model model) {
+        model.addAttribute("service", getSelectedService(session));
+        model.addAttribute("quoteApiBasePath", "/quote");
     }
 
     @ModelAttribute
@@ -171,39 +175,8 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        String backUrl = "boiler-repair".equals(service)
-                ? pathForService(QuoteStep.PROPERTY_TYPE, service)
-                : pathForService(QuoteStep.BOILER_TYPE.previous(), service);
-        model.addAttribute("backUrl", backUrl);
+        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_TYPE.previous(), service));
         return "boiler-installation-quote/boiler-type";
-    }
-
-    @GetMapping("/boiler-make")
-    public String boilerMakePage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.BOILER_MAKE, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_TYPE, service));
-        model.addAttribute("boilerMakeOptions", BoilerMake.values());
-        return "boiler-repair-quote/boiler-make";
-    }
-
-    @GetMapping("/boiler-age")
-    public String boilerAgePage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.BOILER_AGE, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_MAKE, service));
-        model.addAttribute("boilerAgeOptions", BoilerAge.values());
-        return "boiler-repair-quote/boiler-age";
     }
 
     @GetMapping("/boiler-conversion")
@@ -230,8 +203,7 @@ public class QuotePageController {
         }
 
         String backUrl = QuoteStep.BOILER_TYPE.getPath();
-        if (!"boiler-repair".equals(service)
-                && state != null
+        if (state != null
                 && state.getBoilerType() == com.kgboilers.model.boilerinstallation.enums.BoilerType.HEAT_ONLY) {
             backUrl = QuoteStep.BOILER_CONVERSION.getPath();
         }
@@ -250,11 +222,7 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        String backUrl = pathForService(QuoteStep.BOILER_LOCATION.previous(), service);
-        if ("boiler-repair".equals(service)) {
-            backUrl = pathForService(QuoteStep.BOILER_AGE, service);
-        }
-        model.addAttribute("backUrl", backUrl);
+        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_LOCATION.previous(), service));
         return "boiler-installation-quote/boiler-location";
     }
 
@@ -262,12 +230,6 @@ public class QuotePageController {
     public String boilerFloorLevelPage(HttpSession session, Model model) {
         QuoteSessionState state = sessionService.getState(session);
         String service = getSelectedService(session);
-
-        if ("boiler-repair".equals(service)) {
-            return canAccessStep(state, QuoteStep.RADIATOR_COUNT, service)
-                    ? "redirect:" + pathForService(QuoteStep.RADIATOR_COUNT, service)
-                    : redirectToStart(service);
-        }
 
         if (!canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL, service)) {
             return "redirect:/quote";
@@ -344,10 +306,28 @@ public class QuotePageController {
             return "redirect:/quote";
         }
 
-        model.addAttribute("backUrl", QuoteStep.FLUE_LENGTH.previous().getPath());
+        String backUrl = QuoteStep.FLUE_TYPE.getPath();
+        if (state != null && state.getFlueType() == FlueType.HORIZONTAL) {
+            backUrl = QuoteStep.FLUE_SHAPE.getPath();
+        }
+
+        model.addAttribute("backUrl", backUrl);
         model.addAttribute("flueLengthPrices", flueLengthPricingService.getPricesByValue());
         model.addAttribute("flueLengthImage", getFlueLengthImage(state));
         return "boiler-installation-quote/flue-length";
+    }
+
+    @GetMapping("/flue-shape")
+    public String flueShapePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.FLUE_SHAPE, service)) {
+            return "redirect:/quote";
+        }
+
+        model.addAttribute("backUrl", QuoteStep.FLUE_TYPE.getPath());
+        return "boiler-installation-quote/flue-shape";
     }
 
     @GetMapping("/sloped-roof-position")
@@ -412,9 +392,7 @@ public class QuotePageController {
         }
 
         String backUrl = QuoteStep.FLUE_LENGTH.getPath();
-        if ("boiler-repair".equals(service)) {
-            backUrl = pathForService(QuoteStep.BOILER_LOCATION, service);
-        } else if (state != null && state.getFlueType() == FlueType.HORIZONTAL) {
+        if (state != null && state.getFlueType() == FlueType.HORIZONTAL) {
             backUrl = QuoteStep.FLUE_PROPERTY_DISTANCE.getPath();
         } else if (state != null
                 && state.getFlueType() == FlueType.VERTICAL
@@ -424,85 +402,6 @@ public class QuotePageController {
 
         model.addAttribute("backUrl", backUrl);
         return "boiler-installation-quote/radiator-count";
-    }
-
-    @GetMapping("/power-flush")
-    public String powerFlushPage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.POWER_FLUSH, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.RADIATOR_COUNT, service));
-        return "boiler-repair-quote/power-flush";
-    }
-
-    @GetMapping("/magnetic-filter")
-    public String magneticFilterPage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.MAGNETIC_FILTER, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.POWER_FLUSH, service));
-        return "boiler-repair-quote/magnetic-filter";
-    }
-
-    @GetMapping("/repair-problem")
-    public String repairProblemPage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.REPAIR_PROBLEM, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.MAGNETIC_FILTER, service));
-        return "boiler-repair-quote/repair-problem";
-    }
-
-    @GetMapping("/boiler-pressure")
-    public String boilerPressurePage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.BOILER_PRESSURE, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.REPAIR_PROBLEM, service));
-        return "boiler-repair-quote/boiler-pressure";
-    }
-
-    @GetMapping("/fault-code")
-    public String faultCodePage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.FAULT_CODE_DISPLAY, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_PRESSURE, service));
-        return "boiler-repair-quote/fault-code";
-    }
-
-    @GetMapping("/fault-code-details")
-    public String faultCodeDetailsPage(HttpSession session, Model model) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !canAccessStep(state, QuoteStep.FAULT_CODE_DETAILS, service)) {
-            return redirectToStart(service);
-        }
-
-        model.addAttribute("backUrl", pathForService(QuoteStep.FAULT_CODE_DISPLAY, service));
-        model.addAttribute("faultCodeDetails", state != null ? state.getFaultCodeDetailsSummary() : "");
-        return "boiler-repair-quote/fault-code-details";
     }
 
     @GetMapping("/bath-shower-count")
@@ -529,62 +428,9 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        if ("boiler-repair".equals(service)) {
-            if (!model.containsAttribute("contactRequest")) {
-                model.addAttribute("contactRequest", new BoilerRepairContactRequestDto());
-            }
-            if (!model.containsAttribute("contactSuccess")) {
-                model.addAttribute("contactSuccess", false);
-            }
-
-            populateBoilerRepairSummaryModel(model, state);
-            return "boiler-repair-quote/summary";
-        }
-
         populateSummaryModel(session, model, state, selectedExtraIds);
 
         return "boiler-installation-quote/summary";
-    }
-
-    @PostMapping("/repair-contact")
-    public String submitRepairContactRequest(@Valid @ModelAttribute("contactRequest") BoilerRepairContactRequestDto contactRequest,
-                                             BindingResult bindingResult,
-                                             HttpSession session,
-                                             Model model,
-                                             RedirectAttributes redirectAttributes) {
-        QuoteSessionState state = sessionService.getState(session);
-        String service = getSelectedService(session);
-
-        if (!"boiler-repair".equals(service) || !isComplete(state, service)) {
-            return redirectToStart(service);
-        }
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("contactSuccess", false);
-            populateBoilerRepairSummaryModel(model, state);
-            return "boiler-repair-quote/summary";
-        }
-
-        Long quoteId = quotePersistenceService.saveRepairLead(
-                sessionService.getSavedQuoteId(session),
-                service,
-                state,
-                contactRequest.getName(),
-                contactRequest.getEmail(),
-                contactRequest.getPhone()
-        );
-        sessionService.saveSavedQuoteId(session, quoteId);
-
-        quoteLeadEmailService.sendRepairLeadEmails(
-                state,
-                service,
-                contactRequest.getName(),
-                contactRequest.getEmail(),
-                contactRequest.getPhone()
-        );
-
-        redirectAttributes.addFlashAttribute("contactSuccess", true);
-        return "redirect:" + pathForService(QuoteStep.SUMMARY, service);
     }
 
     @GetMapping("/contact")
@@ -695,32 +541,7 @@ public class QuotePageController {
         populateSummaryModel(model, state, buildSummaryViewData(session, state, selectedExtraIds));
     }
 
-    private void populateBoilerRepairSummaryModel(Model model, QuoteSessionState state) {
-        model.addAttribute("state", state);
-        QuoteStep backStep = state != null && state.requiresFaultCodeDetails()
-                ? QuoteStep.FAULT_CODE_DETAILS
-                : QuoteStep.FAULT_CODE_DISPLAY;
-        model.addAttribute("backUrl", pathForService(backStep, "boiler-repair"));
-        model.addAttribute("requestTitle", "Boiler Repair");
-        model.addAttribute("postcodeValue", defaultLine(state != null ? state.getPostcode() : null));
-        model.addAttribute("fuelValue", formatSelection(state != null ? state.getFuel() : null));
-        model.addAttribute("ownershipValue", formatSelection(state != null ? state.getOwnership() : null));
-        model.addAttribute("propertyTypeValue", formatSelection(state != null ? state.getPropertyType() : null));
-        model.addAttribute("boilerTypeValue", formatSelection(state != null ? state.getBoilerType() : null));
-        model.addAttribute("boilerMakeValue", formatSelection(state != null ? state.getBoilerMake() : null));
-        model.addAttribute("boilerAgeValue", defaultLine(state != null ? state.getBoilerAgeSummary() : null));
-        model.addAttribute("boilerLocationValue", formatSelection(state != null ? state.getBoilerLocation() : null));
-        model.addAttribute("radiatorCountValue", defaultLine(state != null ? state.getRadiatorCountSummary() : null));
-        model.addAttribute("powerFlushValue", defaultLine(state != null ? state.getPowerFlushSummary() : null));
-        model.addAttribute("magneticFilterValue", defaultLine(state != null ? state.getMagneticFilterSummary() : null));
-        model.addAttribute("repairProblemValue", defaultLine(state != null ? state.getRepairProblemSummary() : null));
-        model.addAttribute("boilerPressureValue", defaultLine(state != null ? state.getBoilerPressureSummary() : null));
-        model.addAttribute("faultCodeValue", defaultLine(state != null ? state.getFaultCodeDisplaySummary() : null));
-        model.addAttribute("faultCodeDetailsValue", defaultLine(state != null ? state.getFaultCodeDetailsSummary() : null));
-    }
-
     private void populateSummaryModel(Model model, QuoteSessionState state, SummaryViewData summaryViewData) {
-        String service = String.valueOf(model.asMap().getOrDefault("service", "boiler-installation"));
         model.addAttribute("state", state);
 
         if (state.getRelocationDistance() != null) {
@@ -737,9 +558,7 @@ public class QuotePageController {
         }
 
         model.addAttribute("boilerRecommendation", summaryViewData.boilerRecommendation());
-        model.addAttribute("backUrl", "boiler-repair".equals(service)
-                ? pathForService(QuoteStep.RADIATOR_COUNT, service)
-                : QuoteStep.SUMMARY.previous().getPath());
+        model.addAttribute("backUrl", QuoteStep.SUMMARY.previous().getPath());
         model.addAttribute("recommendedBoilerFallbackImage", getRecommendedBoilerFallbackImage(summaryViewData.boilerRecommendation()));
         model.addAttribute("recommendedBoilerExtraPriceGbp", summaryViewData.extraPriceGbp());
         model.addAttribute("quoteOptionalExtras", quoteOptionalExtraService.getAllOptionalExtras());
@@ -772,7 +591,7 @@ public class QuotePageController {
         int flueLengthPriceGbp = getFlueLengthPriceGbp(state);
         int fluePositionPriceGbp = getFluePositionPriceGbp(state);
         int flueClearancePriceGbp = getFlueClearancePriceGbp(state);
-        BoilerRecommendationResult boilerRecommendation = boilerRecommendationService.recommend(state);
+        BoilerRecommendationResult boilerRecommendation = sortBoilersForSummary(boilerRecommendationService.recommend(state));
         List<QuoteOptionalExtra> selectedOptionalExtras = quoteOptionalExtraService.resolveSelectedExtras(selectedExtraIds);
         int optionalExtrasPriceGbp = quoteOptionalExtraService.getTotalPriceGbp(selectedOptionalExtras);
         List<String> normalizedSelectedExtraIds = selectedOptionalExtras.stream()
@@ -793,54 +612,57 @@ public class QuotePageController {
         );
     }
 
+    private BoilerRecommendationResult sortBoilersForSummary(BoilerRecommendationResult recommendation) {
+        if (recommendation == null || recommendation.getBoilers() == null || recommendation.getBoilers().size() < 2) {
+            return recommendation;
+        }
+
+        List<com.kgboilers.model.boilerinstallationquote.BoilerModel> sortedBoilers = recommendation.getBoilers().stream()
+                .sorted(Comparator
+                        .comparingInt((com.kgboilers.model.boilerinstallationquote.BoilerModel boiler) -> boiler.getAveragePriceGbp() == null ? Integer.MAX_VALUE : boiler.getAveragePriceGbp())
+                        .thenComparing(com.kgboilers.model.boilerinstallationquote.BoilerModel::getBrand, Comparator.nullsLast(String::compareToIgnoreCase))
+                        .thenComparing(com.kgboilers.model.boilerinstallationquote.BoilerModel::getModel, Comparator.nullsLast(String::compareToIgnoreCase)))
+                .toList();
+
+        if (sortedBoilers.equals(recommendation.getBoilers())) {
+            return recommendation;
+        }
+
+        return new BoilerRecommendationResult(
+                recommendation.getTargetType(),
+                recommendation.getTargetTypeLabel(),
+                recommendation.getRequiredRadiators(),
+                recommendation.getRequiredBathShowerUnits(),
+                recommendation.isExactMatch(),
+                sortedBoilers
+        );
+    }
+
     private QuoteStep resolveCurrentStep(String requestUri) {
         return switch (requestUri) {
             case "/quote" -> QuoteStep.START;
-            case "/boiler-repair-quote" -> QuoteStep.START;
             case "/quote/fuel-type" -> QuoteStep.FUEL_TYPE;
-            case "/boiler-repair-quote/fuel-type" -> QuoteStep.FUEL_TYPE;
             case "/quote/property-ownership" -> QuoteStep.PROPERTY_OWNERSHIP;
-            case "/boiler-repair-quote/property-ownership" -> QuoteStep.PROPERTY_OWNERSHIP;
             case "/quote/property-type" -> QuoteStep.PROPERTY_TYPE;
-            case "/boiler-repair-quote/property-type" -> QuoteStep.PROPERTY_TYPE;
             case "/quote/bedrooms" -> QuoteStep.BEDROOMS;
             case "/quote/boiler-type" -> QuoteStep.BOILER_TYPE;
-            case "/boiler-repair-quote/boiler-type" -> QuoteStep.BOILER_TYPE;
-            case "/quote/boiler-make" -> QuoteStep.BOILER_MAKE;
-            case "/boiler-repair-quote/boiler-make" -> QuoteStep.BOILER_MAKE;
-            case "/quote/boiler-age" -> QuoteStep.BOILER_AGE;
-            case "/boiler-repair-quote/boiler-age" -> QuoteStep.BOILER_AGE;
             case "/quote/boiler-conversion" -> QuoteStep.BOILER_CONVERSION;
             case "/quote/boiler-position" -> QuoteStep.BOILER_POSITION;
             case "/quote/boiler-location" -> QuoteStep.BOILER_LOCATION;
-            case "/boiler-repair-quote/boiler-location" -> QuoteStep.BOILER_LOCATION;
             case "/quote/boiler-floor-level" -> QuoteStep.BOILER_FLOOR_LEVEL;
             case "/quote/boiler-condition" -> QuoteStep.BOILER_CONDITION;
             case "/quote/relocation" -> QuoteStep.RELOCATION;
             case "/quote/relocation-distance" -> QuoteStep.RELOCATION_DISTANCE;
             case "/quote/flue-type" -> QuoteStep.FLUE_TYPE;
+            case "/quote/flue-shape" -> QuoteStep.FLUE_SHAPE;
             case "/quote/flue-length" -> QuoteStep.FLUE_LENGTH;
             case "/quote/sloped-roof-position" -> QuoteStep.SLOPED_ROOF_POSITION;
             case "/quote/flue-position" -> QuoteStep.FLUE_POSITION;
             case "/quote/flue-clearance" -> QuoteStep.FLUE_CLEARANCE;
             case "/quote/flue-property-distance" -> QuoteStep.FLUE_PROPERTY_DISTANCE;
             case "/quote/radiator-count" -> QuoteStep.RADIATOR_COUNT;
-            case "/boiler-repair-quote/radiator-count" -> QuoteStep.RADIATOR_COUNT;
-            case "/quote/power-flush" -> QuoteStep.POWER_FLUSH;
-            case "/boiler-repair-quote/power-flush" -> QuoteStep.POWER_FLUSH;
-            case "/quote/magnetic-filter" -> QuoteStep.MAGNETIC_FILTER;
-            case "/boiler-repair-quote/magnetic-filter" -> QuoteStep.MAGNETIC_FILTER;
-            case "/quote/repair-problem" -> QuoteStep.REPAIR_PROBLEM;
-            case "/boiler-repair-quote/repair-problem" -> QuoteStep.REPAIR_PROBLEM;
-            case "/quote/boiler-pressure" -> QuoteStep.BOILER_PRESSURE;
-            case "/boiler-repair-quote/boiler-pressure" -> QuoteStep.BOILER_PRESSURE;
-            case "/quote/fault-code" -> QuoteStep.FAULT_CODE_DISPLAY;
-            case "/boiler-repair-quote/fault-code" -> QuoteStep.FAULT_CODE_DISPLAY;
-            case "/quote/fault-code-details" -> QuoteStep.FAULT_CODE_DETAILS;
-            case "/boiler-repair-quote/fault-code-details" -> QuoteStep.FAULT_CODE_DETAILS;
             case "/quote/bath-shower-count" -> QuoteStep.BATH_SHOWER_COUNT;
             case "/quote/summary" -> QuoteStep.SUMMARY;
-            case "/boiler-repair-quote/summary" -> QuoteStep.SUMMARY;
             case "/quote/contact" -> QuoteStep.CONTACT;
             default -> null;
         };
@@ -893,15 +715,7 @@ public class QuotePageController {
     }
 
     private String pathForService(QuoteStep step, String service) {
-        if (!"boiler-repair".equals(normalizeService(service))) {
-            return step.getPath();
-        }
-
-        if (step == QuoteStep.START) {
-            return "/boiler-repair-quote";
-        }
-
-        return step.getPath().replaceFirst("^/quote", "/boiler-repair-quote");
+        return step.getPath();
     }
 
     private String redirectToStart(String service) {
@@ -909,18 +723,10 @@ public class QuotePageController {
     }
 
     private boolean canAccessStep(QuoteSessionState state, QuoteStep step, String service) {
-        if ("boiler-repair".equals(service)) {
-            return wizardService.canAccessStep(state, step, service);
-        }
-
         return wizardService.canAccessStep(state, step);
     }
 
     private boolean isComplete(QuoteSessionState state, String service) {
-        if ("boiler-repair".equals(service)) {
-            return wizardService.isComplete(state, service);
-        }
-
         return state != null && state.isComplete();
     }
 
@@ -928,10 +734,6 @@ public class QuotePageController {
                                  QuoteStep currentStep,
                                  boolean bookingComplete,
                                  String service) {
-        if ("boiler-repair".equals(service)) {
-            return quoteProgressService.buildProgress(state, currentStep, bookingComplete, service);
-        }
-
         return quoteProgressService.buildProgress(state, currentStep, bookingComplete);
     }
 
@@ -999,54 +801,6 @@ public class QuotePageController {
         return state != null && state.getFluePosition() != null
                 ? fluePositionPricingService.getPrice(state.getFluePosition())
                 : 0;
-    }
-
-    private String formatSelection(Enum<?> value) {
-        if (value == null) {
-            return "-";
-        }
-
-        try {
-            Object raw = value.getClass().getMethod("getValue").invoke(value);
-            if (raw instanceof String stringValue && !stringValue.isBlank()) {
-                return humanizeValue(stringValue);
-            }
-        } catch (ReflectiveOperationException ignored) {
-            // Fall back to enum name.
-        }
-
-        return humanizeValue(value.name());
-    }
-
-    private String humanizeValue(String rawValue) {
-        if (rawValue == null || rawValue.isBlank()) {
-            return "-";
-        }
-
-        String normalized = rawValue.replace('_', '-').trim().toLowerCase();
-        String[] parts = normalized.split("-");
-        StringBuilder result = new StringBuilder();
-
-        for (String part : parts) {
-            if (part.isBlank()) {
-                continue;
-            }
-
-            if (result.length() > 0) {
-                result.append(' ');
-            }
-
-            result.append(Character.toUpperCase(part.charAt(0)));
-            if (part.length() > 1) {
-                result.append(part.substring(1));
-            }
-        }
-
-        return result.toString();
-    }
-
-    private String defaultLine(String value) {
-        return value == null || value.isBlank() ? "-" : value;
     }
 
     private record SummaryViewData(int relocationPriceGbp,

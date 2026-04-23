@@ -2,15 +2,12 @@ package com.kgboilers.model.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
-import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
-import com.kgboilers.model.boilerinstallation.enums.BoilerPressureStatus;
 import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
-import com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
@@ -18,17 +15,21 @@ import com.kgboilers.model.boilerinstallation.enums.FluePropertyDistance;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
-import com.kgboilers.model.boilerinstallation.enums.MagneticFilterStatus;
+import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
-import com.kgboilers.model.boilerinstallation.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
-import com.kgboilers.model.boilerinstallation.enums.RepairProblem;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
 import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
+import com.kgboilers.model.boilerrepair.enums.BoilerAge;
+import com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus;
+import com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus;
+import com.kgboilers.model.boilerrepair.enums.MagneticFilterStatus;
+import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
+import com.kgboilers.model.boilerrepair.enums.RepairProblem;
 import lombok.Data;
 
 import java.io.Serial;
@@ -63,6 +64,7 @@ public class QuoteSessionState implements Serializable {
     private RelocationDistance relocationDistance;
     private FlueType flueType;
     private VerticalFlueType verticalFlueType;
+    private HorizontalFlueShape horizontalFlueShape;
     private FlueLength flueLength;
     private SlopedRoofPosition slopedRoofPosition;
     private FluePosition fluePosition;
@@ -151,12 +153,20 @@ public class QuoteSessionState implements Serializable {
         return verticalFlueType != null;
     }
 
+    public boolean hasHorizontalFlueShape() {
+        return horizontalFlueShape != null;
+    }
+
     public boolean hasCompleteFlueSelection() {
         if (flueType == null) {
             return false;
         }
 
-        return flueType != FlueType.VERTICAL || verticalFlueType != null;
+        if (flueType == FlueType.VERTICAL) {
+            return verticalFlueType != null;
+        }
+
+        return horizontalFlueShape != null;
     }
 
     public boolean hasFlueLength() {
@@ -221,7 +231,11 @@ public class QuoteSessionState implements Serializable {
         }
 
         if (flueType == FlueType.HORIZONTAL) {
-            return "Horizontal flue";
+            if (horizontalFlueShape == null) {
+                return "Horizontal flue";
+            }
+
+            return "Horizontal flue (" + horizontalFlueShape.getDisplayName() + ")";
         }
 
         if (verticalFlueType == null) {
@@ -237,6 +251,14 @@ public class QuoteSessionState implements Serializable {
         }
 
         return flueLength.getValue() + " metres";
+    }
+
+    public String getHorizontalFlueShapeSummary() {
+        if (horizontalFlueShape == null) {
+            return "";
+        }
+
+        return horizontalFlueShape.getDisplayName();
     }
 
     public String getSlopedRoofPositionSummary() {

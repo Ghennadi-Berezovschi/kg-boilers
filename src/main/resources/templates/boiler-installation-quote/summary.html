@@ -6,7 +6,7 @@
 
     <title>Quote Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260423-1957')}">
     <script th:src="@{/js/summary-options.js(v='20260416-0805')}" defer></script>
 </head>
 <body>
@@ -59,7 +59,7 @@
 
                         <div class="summary-boiler-image-wrap">
                             <img class="summary-boiler-image"
-                                 th:src="${#strings.isEmpty(boiler.image) ? (recommendedBoilerFallbackImage != null ? recommendedBoilerFallbackImage : '/images/boilers/combi.svg') : boiler.image}"
+                                 th:src="${(#strings.isEmpty(boiler.image) ? (recommendedBoilerFallbackImage != null ? recommendedBoilerFallbackImage : '/images/boilers/combi.svg') : boiler.image) + '?v=20260422-1830'}"
                                  th:alt="${boiler.brand + ' ' + boiler.model}">
                         </div>
 
@@ -75,8 +75,18 @@
                             </div>
 
                             <div class="summary-boiler-meta">
-                                <span>Output: <strong th:text="${boiler.powerKw + ' kW'}">24 kW</strong></span>
-                                <span>Fixed installation price for your property requirements</span>
+                                <span th:if="${boiler.dimensions != null}">
+                                    Dimensions: <strong th:text="${boiler.dimensions}">W 390mm x D 295mm x H 702mm</strong>
+                                </span>
+                                <span th:if="${boiler.hotWaterFlowRate != null}">
+                                    Hot water flow: <strong th:text="${boiler.hotWaterFlowRate}">10.4 litres/min</strong>
+                                </span>
+                                <span th:if="${boiler.warrantyYears != null}">
+                                    Warranty: <strong th:text="${boiler.warrantyYears + ' years'}">10 years</strong>
+                                </span>
+                                <span th:if="${boiler.dimensions == null and boiler.hotWaterFlowRate == null and boiler.warrantyYears == null}">
+                                    Output: <strong th:text="${boiler.powerKw + ' kW'}">24 kW</strong>
+                                </span>
                             </div>
 
                             <div class="summary-boiler-actions">
@@ -158,7 +168,7 @@
                         </div>
                     </div>
 
-                    <p class="summary-empty-copy">
+                    <p class="summary-empty-copy summary-sidebar-copy">
                         Choose the boiler you want and we’ll use your selected installation requirements to prepare your final booking.
                     </p>
 

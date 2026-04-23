@@ -15,6 +15,9 @@ public class BoilerModel {
     private Integer bathroomsMax;
     private Integer averagePriceGbp;
     private String image;
+    private String dimensions;
+    private String hotWaterFlowRate;
+    private Integer warrantyYears;
     private boolean enabled;
 
 

@@ -1,18 +1,18 @@
-package com.kgboilers.model.boilerinstallation.enums;
+package com.kgboilers.model.boilerrepair.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum PowerFlushStatus {
+public enum MagneticFilterStatus {
 
-    YES_DONE("yes-done", "Yes, it was done"),
-    NO_NOT_DONE("no-not-done", "No, it was not done"),
+    YES_HAS("yes-has", "Yes, it has one"),
+    NO_DOES_NOT_HAVE("no-does-not-have", "No, it does not have one"),
     DO_NOT_KNOW("do-not-know", "I do not know what it is");
 
     private final String value;
     private final String label;
 
-    PowerFlushStatus(String value, String label) {
+    MagneticFilterStatus(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -32,19 +32,19 @@ public enum PowerFlushStatus {
     }
 
     @JsonCreator
-    public static PowerFlushStatus fromValue(String input) {
+    public static MagneticFilterStatus fromValue(String input) {
         if (input == null) {
-            throw new IllegalArgumentException("Power flush status is null");
+            throw new IllegalArgumentException("Magnetic filter status is null");
         }
 
         String normalized = input.trim().toLowerCase();
 
-        for (PowerFlushStatus status : values()) {
+        for (MagneticFilterStatus status : values()) {
             if (status.value.equals(normalized) || status.name().equalsIgnoreCase(normalized)) {
                 return status;
             }
         }
 
-        throw new IllegalArgumentException("Unsupported power flush status: " + input);
+        throw new IllegalArgumentException("Unsupported magnetic filter status: " + input);
     }
 }

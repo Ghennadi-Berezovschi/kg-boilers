@@ -89,6 +89,9 @@ public class QuoteProgressService {
             }
 
             flow.add(QuoteStep.FLUE_TYPE);
+            if (shouldIncludeHorizontalFlueShape(state, currentStep)) {
+                flow.add(QuoteStep.FLUE_SHAPE);
+            }
             flow.add(QuoteStep.FLUE_LENGTH);
 
             if (shouldIncludeSlopedRoofPosition(state, currentStep)) {
@@ -157,6 +160,11 @@ public class QuoteProgressService {
                 || (state != null && state.getFlueType() == FlueType.HORIZONTAL);
     }
 
+    private boolean shouldIncludeHorizontalFlueShape(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.FLUE_SHAPE
+                || (state != null && state.getFlueType() == FlueType.HORIZONTAL);
+    }
+
     private boolean shouldIncludeSlopedRoofPosition(QuoteSessionState state, QuoteStep currentStep) {
         return currentStep == QuoteStep.SLOPED_ROOF_POSITION
                 || (state != null
@@ -182,6 +190,7 @@ public class QuoteProgressService {
             case RELOCATION,
                  RELOCATION_DISTANCE,
                  FLUE_TYPE,
+                 FLUE_SHAPE,
                  FLUE_LENGTH,
                  SLOPED_ROOF_POSITION,
                  FLUE_POSITION,

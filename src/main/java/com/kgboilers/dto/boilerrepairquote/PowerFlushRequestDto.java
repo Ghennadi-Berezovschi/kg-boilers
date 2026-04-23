@@ -1,6 +1,6 @@
-package com.kgboilers.dto.boilerinstallationquote;
+package com.kgboilers.dto.boilerrepairquote;
 
-import com.kgboilers.model.boilerinstallation.enums.PowerFlushStatus;
+import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

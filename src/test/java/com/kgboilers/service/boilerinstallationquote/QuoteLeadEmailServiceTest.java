@@ -6,6 +6,7 @@ import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
@@ -62,6 +63,7 @@ class QuoteLeadEmailServiceTest {
         state.setRadiatorCount(RadiatorCount.SIX_TO_NINE);
         state.setBathShowerCount(BathShowerCount.TWO);
         state.setFlueType(FlueType.HORIZONTAL);
+        state.setHorizontalFlueShape(HorizontalFlueShape.ROUND);
         state.setFlueLength(FlueLength.TWO_TO_THREE);
 
         quoteLeadEmailService.sendLeadEmails(

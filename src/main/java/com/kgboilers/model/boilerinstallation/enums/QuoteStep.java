@@ -34,6 +34,8 @@ public enum QuoteStep {
 
     FLUE_TYPE("/quote/flue-type"),
 
+    FLUE_SHAPE("/quote/flue-shape"),
+
     FLUE_LENGTH("/quote/flue-length"),
 
     SLOPED_ROOF_POSITION("/quote/sloped-roof-position"),
@@ -107,6 +109,8 @@ public enum QuoteStep {
             case RELOCATION_DISTANCE -> RELOCATION;
 
             case FLUE_TYPE -> RELOCATION;
+
+            case FLUE_SHAPE -> FLUE_TYPE;
 
             case FLUE_LENGTH -> FLUE_TYPE;
 

@@ -68,14 +68,15 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
 
     async function selectFuel(fuelType) {
         clearError();
 
         try {
-            const response = await fetch("/quote/fuel", {
+            const response = await fetch(`${quoteApiBasePath}/fuel`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

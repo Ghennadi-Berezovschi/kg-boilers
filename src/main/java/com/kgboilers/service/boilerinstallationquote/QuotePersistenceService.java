@@ -325,6 +325,7 @@ public class QuotePersistenceService {
         answers.put("relocation", enumName(state.getRelocation()));
         answers.put("relocationDistance", state.getRelocationDistanceSummary());
         answers.put("flueType", state.getFlueSummary());
+        answers.put("horizontalFlueShape", state.getHorizontalFlueShapeSummary());
         answers.put("verticalFlueType", enumName(state.getVerticalFlueType()));
         answers.put("flueLength", state.getFlueLengthSummary());
         answers.put("slopedRoofPosition", state.getSlopedRoofPositionSummary());

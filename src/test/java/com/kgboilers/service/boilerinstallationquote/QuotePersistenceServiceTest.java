@@ -13,6 +13,7 @@ import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FluePropertyDistance;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
@@ -242,6 +243,7 @@ class QuotePersistenceServiceTest {
         state.setRelocation(Relocation.YES);
         state.setRelocationDistance(RelocationDistance.TWO_TO_THREE);
         state.setFlueType(FlueType.HORIZONTAL);
+        state.setHorizontalFlueShape(HorizontalFlueShape.ROUND);
         state.setFlueLength(FlueLength.TWO_TO_THREE);
         state.setFluePosition(FluePosition.UNDER_STRUCTURE);
         state.setFlueClearance(FlueClearance.LESS_THAN_THIRTY_CM);

@@ -19,6 +19,7 @@ import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
@@ -180,34 +181,6 @@ class QuotePageControllerTest {
     }
 
     @Test
-    void boilerMakePage_shouldReturnBoilerMakePageForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.BOILER_MAKE, "boiler-repair")).thenReturn(true);
-
-        String view = controller.boilerMakePage(session, model);
-
-        assertEquals("boiler-repair-quote/boiler-make", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-type"));
-        verify(model).addAttribute(eq("boilerMakeOptions"), any());
-    }
-
-    @Test
-    void boilerAgePage_shouldReturnBoilerAgePageForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.BOILER_AGE, "boiler-repair")).thenReturn(true);
-
-        String view = controller.boilerAgePage(session, model);
-
-        assertEquals("boiler-repair-quote/boiler-age", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-make"));
-        verify(model).addAttribute(eq("boilerAgeOptions"), any());
-    }
-
-    @Test
     void boilerPositionPage_shouldReturnBoilerPositionPage_whenStepAccessible() {
         when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_POSITION))).thenReturn(true);
@@ -230,19 +203,6 @@ class QuotePageControllerTest {
     }
 
     @Test
-    void boilerLocationPage_shouldUseBoilerMakeAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.BOILER_LOCATION, "boiler-repair")).thenReturn(true);
-
-        String view = controller.boilerLocationPage(session, model);
-
-        assertEquals("boiler-installation-quote/boiler-location", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-age"));
-    }
-
-    @Test
     void boilerFloorLevelPage_shouldReturnBoilerFloorLevelPage_whenStepAccessible() {
         when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_FLOOR_LEVEL))).thenReturn(true);
@@ -251,18 +211,6 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/boiler-floor-level", view);
         verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-location"));
-    }
-
-    @Test
-    void boilerFloorLevelPage_shouldRedirectToRadiatorCountForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT, "boiler-repair")).thenReturn(true);
-
-        String view = controller.boilerFloorLevelPage(session, model);
-
-        assertEquals("redirect:/boiler-repair-quote/radiator-count", view);
     }
 
     @Test
@@ -296,99 +244,6 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/relocation", view);
         verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-condition"));
-    }
-
-    @Test
-    void radiatorCountPage_shouldUseBoilerLocationAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT, "boiler-repair")).thenReturn(true);
-
-        String view = controller.radiatorCountPage(session, model);
-
-        assertEquals("boiler-installation-quote/radiator-count", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-location"));
-    }
-
-    @Test
-    void repairProblemPage_shouldUseMagneticFilterAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.REPAIR_PROBLEM, "boiler-repair")).thenReturn(true);
-
-        String view = controller.repairProblemPage(session, model);
-
-        assertEquals("boiler-repair-quote/repair-problem", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/magnetic-filter"));
-    }
-
-    @Test
-    void boilerPressurePage_shouldUseRepairProblemAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.BOILER_PRESSURE, "boiler-repair")).thenReturn(true);
-
-        String view = controller.boilerPressurePage(session, model);
-
-        assertEquals("boiler-repair-quote/boiler-pressure", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/repair-problem"));
-    }
-
-    @Test
-    void faultCodePage_shouldUseBoilerPressureAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.FAULT_CODE_DISPLAY, "boiler-repair")).thenReturn(true);
-
-        String view = controller.faultCodePage(session, model);
-
-        assertEquals("boiler-repair-quote/fault-code", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/boiler-pressure"));
-    }
-
-    @Test
-    void faultCodeDetailsPage_shouldUseFaultCodeAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        state.setFaultCodeDisplayStatus(com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus.YES_SHOWING);
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.FAULT_CODE_DETAILS, "boiler-repair")).thenReturn(true);
-
-        String view = controller.faultCodeDetailsPage(session, model);
-
-        assertEquals("boiler-repair-quote/fault-code-details", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/fault-code"));
-        verify(model).addAttribute(eq("faultCodeDetails"), eq(""));
-    }
-
-    @Test
-    void powerFlushPage_shouldUseRadiatorCountAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.POWER_FLUSH, "boiler-repair")).thenReturn(true);
-
-        String view = controller.powerFlushPage(session, model);
-
-        assertEquals("boiler-repair-quote/power-flush", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/radiator-count"));
-    }
-
-    @Test
-    void magneticFilterPage_shouldUsePowerFlushAsBackUrlForBoilerRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        when(session.getAttribute("service")).thenReturn("boiler-repair");
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.MAGNETIC_FILTER, "boiler-repair")).thenReturn(true);
-
-        String view = controller.magneticFilterPage(session, model);
-
-        assertEquals("boiler-repair-quote/magnetic-filter", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/boiler-repair-quote/power-flush"));
     }
 
     @Test
@@ -456,6 +311,35 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/flue-length", view);
         verify(model).addAttribute(eq("flueLengthImage"), eq("/images/flues/flue-length-horizontal.svg"));
+    }
+
+    @Test
+    void flueLengthPage_shouldUseFlueShapeAsBackUrl_forHorizontalFlue() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFlueType(FlueType.HORIZONTAL);
+        state.setHorizontalFlueShape(HorizontalFlueShape.SQUARE);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.FLUE_LENGTH)).thenReturn(true);
+
+        String view = controller.flueLengthPage(session, model);
+
+        assertEquals("boiler-installation-quote/flue-length", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/flue-shape"));
+    }
+
+    @Test
+    void flueShapePage_shouldUseFlueTypeAsBackUrl() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFlueType(FlueType.HORIZONTAL);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.FLUE_SHAPE)).thenReturn(true);
+
+        String view = controller.flueShapePage(session, model);
+
+        assertEquals("boiler-installation-quote/flue-shape", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/flue-type"));
     }
 
     @Test
@@ -619,6 +503,50 @@ class QuotePageControllerTest {
         verify(model).addAttribute("recommendedBoilerExtraPriceGbp", 1000);
         verify(model).addAttribute("selectedOptionalExtrasPriceGbp", 150);
         verifyNoInteractions(quotePersistenceService);
+    }
+
+    @Test
+    void summaryPage_shouldSortRecommendedBoilersByPriceAscending() {
+        QuoteSessionState state = completeVerticalState();
+
+        BoilerModel expensive = new BoilerModel();
+        expensive.setBrand("Vaillant");
+        expensive.setModel("Expensive");
+        expensive.setAveragePriceGbp(2400);
+
+        BoilerModel cheapest = new BoilerModel();
+        cheapest.setBrand("Main");
+        cheapest.setModel("Cheapest");
+        cheapest.setAveragePriceGbp(1750);
+
+        BoilerModel middle = new BoilerModel();
+        middle.setBrand("Ideal");
+        middle.setModel("Middle");
+        middle.setAveragePriceGbp(1999);
+
+        BoilerRecommendationResult recommendation = new BoilerRecommendationResult(
+                BoilerType.COMBI,
+                "Combi boiler",
+                5,
+                1,
+                true,
+                java.util.List.of(expensive, cheapest, middle)
+        );
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(sessionService.getSavedQuoteId(session)).thenReturn(null);
+        when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
+
+        String view = controller.summaryPage(null, session, model);
+
+        assertEquals("boiler-installation-quote/summary", view);
+        verify(model).addAttribute(eq("boilerRecommendation"), argThat(sorted ->
+                sorted instanceof BoilerRecommendationResult result
+                        && result.getBoilers().size() == 3
+                        && result.getBoilers().get(0).getAveragePriceGbp() == 1750
+                        && result.getBoilers().get(1).getAveragePriceGbp() == 1999
+                        && result.getBoilers().get(2).getAveragePriceGbp() == 2400
+        ));
     }
 
     @Test
@@ -845,6 +773,7 @@ class QuotePageControllerTest {
         state.setRelocation(Relocation.YES);
         state.setRelocationDistance(RelocationDistance.TWO_TO_THREE);
         state.setFlueType(FlueType.HORIZONTAL);
+        state.setHorizontalFlueShape(HorizontalFlueShape.ROUND);
         state.setFlueLength(FlueLength.FOUR_TO_FIVE);
         state.setFluePosition(FluePosition.UNDER_STRUCTURE);
         state.setFlueClearance(FlueClearance.LESS_THAN_THIRTY_CM);

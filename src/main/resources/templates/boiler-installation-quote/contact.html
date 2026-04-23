@@ -6,7 +6,7 @@
 
     <title>Boiler Contact Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260422-1934')}">
 </head>
 <body>
 
@@ -29,7 +29,7 @@
             <article class="summary-boiler-card contact-selected-card">
                 <div class="summary-boiler-image-wrap">
                     <img class="summary-boiler-image"
-                         th:src="${selectedBoilerImage}"
+                         th:src="${selectedBoilerImage + '?v=20260422-1830'}"
                          th:alt="${selectedBoiler.brand + ' ' + selectedBoiler.model}">
                 </div>
 
@@ -38,7 +38,6 @@
                     <h3 class="summary-boiler-title" th:text="${selectedBoiler.model}">Boiler model</h3>
 
                     <div class="summary-boiler-meta">
-                        <span>Output: <strong th:text="${selectedBoiler.powerKw + ' kW'}">24 kW</strong></span>
                         <span>
                             Boiler price installation:
                             <strong>£<span th:text="${selectedBoilerPriceGbp}">1000</span></strong>

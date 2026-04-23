@@ -4,31 +4,32 @@ import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsExcept
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
-import com.kgboilers.model.boilerinstallation.enums.BoilerAge;
 import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
-import com.kgboilers.model.boilerinstallation.enums.BoilerPressureStatus;
 import com.kgboilers.model.boilerinstallation.enums.BoilerPosition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
-import com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus;
 import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
+import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FluePropertyDistance;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
-import com.kgboilers.model.boilerinstallation.enums.MagneticFilterStatus;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
-import com.kgboilers.model.boilerinstallation.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
-import com.kgboilers.model.boilerinstallation.enums.RepairProblem;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
 import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
+import com.kgboilers.model.boilerrepair.enums.BoilerAge;
+import com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus;
+import com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus;
+import com.kgboilers.model.boilerrepair.enums.MagneticFilterStatus;
+import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
+import com.kgboilers.model.boilerrepair.enums.RepairProblem;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -273,7 +274,7 @@ class QuoteWizardServiceTest {
     }
 
     @Test
-    void updateFlueType_shouldSetFlueTypeAndReturnSummary() {
+    void updateFlueType_shouldSetVerticalFlueTypeAndReturnFlueLength() {
         QuoteSessionState state = new QuoteSessionState();
 
         QuoteStep nextStep = service.updateFlueType(state, FlueType.VERTICAL, VerticalFlueType.FLAT_ROOF);
@@ -282,6 +283,30 @@ class QuoteWizardServiceTest {
         assertEquals(FlueType.VERTICAL, state.getFlueType());
         assertEquals(VerticalFlueType.FLAT_ROOF, state.getVerticalFlueType());
         assertEquals("Vertical flue (Flat roof)", state.getFlueSummary());
+        assertEquals(QuoteStep.FLUE_LENGTH, state.getCurrentStep());
+    }
+
+    @Test
+    void updateFlueType_shouldReturnFlueShape_forHorizontalFlue() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateFlueType(state, FlueType.HORIZONTAL, null);
+
+        assertEquals(QuoteStep.FLUE_SHAPE, nextStep);
+        assertEquals(FlueType.HORIZONTAL, state.getFlueType());
+        assertNull(state.getHorizontalFlueShape());
+        assertEquals(QuoteStep.FLUE_SHAPE, state.getCurrentStep());
+    }
+
+    @Test
+    void updateHorizontalFlueShape_shouldSetShapeAndReturnFlueLength() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateHorizontalFlueShape(state, HorizontalFlueShape.ROUND);
+
+        assertEquals(QuoteStep.FLUE_LENGTH, nextStep);
+        assertEquals(HorizontalFlueShape.ROUND, state.getHorizontalFlueShape());
+        assertEquals("Round", state.getHorizontalFlueShapeSummary());
         assertEquals(QuoteStep.FLUE_LENGTH, state.getCurrentStep());
     }
 

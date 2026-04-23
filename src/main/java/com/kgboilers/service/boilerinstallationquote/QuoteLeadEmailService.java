@@ -293,6 +293,7 @@ public class QuoteLeadEmailService {
                 Relocation distance: %s
                 Relocation price: £%d
                 Flue type: %s
+                Horizontal flue shape: %s
                 Flue length: %s
                 Roof position: %s
                 Flue length price: £%d
@@ -326,6 +327,7 @@ public class QuoteLeadEmailService {
                 state.getRelocationDistanceSummary(),
                 relocationPriceGbp,
                 state.getFlueSummary(),
+                state.getHorizontalFlueShapeSummary(),
                 state.getFlueLengthSummary(),
                 state.getSlopedRoofPositionSummary(),
                 flueLengthPriceGbp,

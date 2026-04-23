@@ -3,11 +3,11 @@
 ========================= */
 @import url("parts/base.css");
 @import url("parts/layout.css");
-@import url("parts/header.css");
+@import url("parts/header.css?v=20260422-1411");
 @import url("parts/buttons.css");
-@import url("parts/hero.css");
+@import url("parts/hero.css?v=20260422-1347");
 @import url("parts/cards.css");
 @import url("parts/sections.css");
 @import url("parts/footer.css");
-@import url("parts/quote.css?v=20260421-0918");
+@import url("parts/quote.css?v=20260423-1957");
 @import url("parts/responsive.css");

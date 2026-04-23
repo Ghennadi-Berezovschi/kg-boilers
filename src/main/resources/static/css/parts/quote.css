@@ -1301,6 +1301,10 @@
     line-height: 1.55;
 }
 
+.summary-sidebar-copy {
+    color: var(--blue-light);
+}
+
 .summary-boiler-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -1310,7 +1314,7 @@
 .summary-boiler-card {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px;
+    grid-template-columns: minmax(0, 1fr) 320px;
     align-items: stretch;
     overflow: hidden;
     background: #ffffff;
@@ -1346,16 +1350,19 @@
     align-items: center;
     justify-content: center;
     min-height: 100%;
-    padding: 18px;
+    padding: 6px 4px;
     background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
     border-left: 1px solid #e2e8f0;
 }
 
 .summary-boiler-image {
     width: 100%;
-    max-width: 135px;
-    height: 150px;
+    max-width: 285px;
+    height: 360px;
+    display: block;
+    margin: 0 auto;
     object-fit: contain;
+    object-position: center center;
 }
 
 .summary-boiler-body {
@@ -1408,6 +1415,10 @@
     display: grid;
     gap: 8px;
     margin-bottom: 14px;
+    color: var(--blue-light);
+}
+
+.summary-boiler-meta strong {
     color: #334155;
 }
 
@@ -1573,6 +1584,16 @@
 .contact-selected-card {
     position: sticky;
     top: 20px;
+    background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
+}
+
+.contact-selected-card .summary-boiler-body {
+    background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
+}
+
+.contact-selected-card .summary-boiler-image-wrap {
+    background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
+    border-left: none;
 }
 
 .contact-form-panel {
@@ -1911,14 +1932,14 @@
     .summary-boiler-image-wrap {
         grid-column: auto;
         grid-row: auto;
-        min-height: 220px;
+        min-height: 300px;
         border-left: none;
         border-top: 1px solid #e2e8f0;
     }
 
     .summary-boiler-image {
-        max-width: 180px;
-        height: 180px;
+        max-width: 260px;
+        height: 300px;
     }
 
     .summary-boiler-price-value {

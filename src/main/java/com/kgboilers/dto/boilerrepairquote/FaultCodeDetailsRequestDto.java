@@ -1,4 +1,4 @@
-package com.kgboilers.dto.boilerinstallationquote;
+package com.kgboilers.dto.boilerrepairquote;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

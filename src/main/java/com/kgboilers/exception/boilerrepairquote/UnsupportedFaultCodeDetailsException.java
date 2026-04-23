@@ -1,4 +1,4 @@
-package com.kgboilers.exception.boilerinstallationquote;
+package com.kgboilers.exception.boilerrepairquote;
 
 public class UnsupportedFaultCodeDetailsException extends RuntimeException {
 

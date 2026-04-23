@@ -36,9 +36,9 @@ class QuoteProgressServiceTest {
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FLUE_CLEARANCE, false);
 
-        assertEquals(16, progress.currentStepNumber());
-        assertEquals(21, progress.totalSteps());
-        assertEquals(76, progress.percentComplete());
+        assertEquals(17, progress.currentStepNumber());
+        assertEquals(22, progress.totalSteps());
+        assertEquals(77, progress.percentComplete());
         assertEquals("active", progress.stages().get(1).state());
     }
 
@@ -90,14 +90,14 @@ class QuoteProgressServiceTest {
         state.setPropertyType(com.kgboilers.model.boilerinstallation.enums.PropertyType.HOUSE);
         state.setBoilerType(BoilerType.COMBI);
         state.setBoilerMake(com.kgboilers.model.boilerinstallation.enums.BoilerMake.VAILLANT);
-        state.setBoilerAge(com.kgboilers.model.boilerinstallation.enums.BoilerAge.TWO_TO_FIVE_YEARS);
+        state.setBoilerAge(com.kgboilers.model.boilerrepair.enums.BoilerAge.TWO_TO_FIVE_YEARS);
         state.setBoilerLocation(com.kgboilers.model.boilerinstallation.enums.BoilerLocation.KITCHEN);
         state.setRadiatorCount(com.kgboilers.model.boilerinstallation.enums.RadiatorCount.SIX_TO_NINE);
-        state.setPowerFlushStatus(com.kgboilers.model.boilerinstallation.enums.PowerFlushStatus.YES_DONE);
-        state.setMagneticFilterStatus(com.kgboilers.model.boilerinstallation.enums.MagneticFilterStatus.YES_HAS);
-        state.setRepairProblem(com.kgboilers.model.boilerinstallation.enums.RepairProblem.HEATING);
-        state.setBoilerPressureStatus(com.kgboilers.model.boilerinstallation.enums.BoilerPressureStatus.YES_DROPPED_OR_DROPPING);
-        state.setFaultCodeDisplayStatus(com.kgboilers.model.boilerinstallation.enums.FaultCodeDisplayStatus.YES_SHOWING);
+        state.setPowerFlushStatus(com.kgboilers.model.boilerrepair.enums.PowerFlushStatus.YES_DONE);
+        state.setMagneticFilterStatus(com.kgboilers.model.boilerrepair.enums.MagneticFilterStatus.YES_HAS);
+        state.setRepairProblem(com.kgboilers.model.boilerrepair.enums.RepairProblem.HEATING);
+        state.setBoilerPressureStatus(com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus.YES_DROPPED_OR_DROPPING);
+        state.setFaultCodeDisplayStatus(com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus.YES_SHOWING);
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FAULT_CODE_DETAILS, false, "boiler-repair");
 

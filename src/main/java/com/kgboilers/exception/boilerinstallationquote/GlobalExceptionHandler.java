@@ -5,6 +5,11 @@ import com.kgboilers.controller.boilerinstallationquote.QuoteWizardApiController
 import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
 import com.kgboilers.exception.ExternalServiceException;
 import com.kgboilers.exception.PostcodeNotFoundException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedBoilerAgeException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedBoilerPressureException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDetailsException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDisplayException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedRepairProblemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

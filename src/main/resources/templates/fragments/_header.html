@@ -19,8 +19,16 @@
                th:href="@{/}"
                th:attr="aria-label=${company.name + ' home'}">
 
-                <span class="brand-title">
-                    <span th:text="${company.name}">K&amp;G Boiler Services</span>
+                <span class="brand-title" style="display:inline-flex; align-items:center; gap:6px; width:fit-content;">
+                    <span class="brand-title-text" th:text="${company.name}">K&amp;G Boiler Services</span>
+                                <span class="brand-safe-mark" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; margin-left:10px; transform:translateY(-6px);">
+                                    <img
+                                            class="brand-safe-mark-image"
+                                            th:src="@{/images/branding/gas-safe-header.svg}"
+                                            src="/images/branding/gas-safe-header.svg"
+                                            style="width:30px; height:auto; display:block;"
+                                            alt="">
+                                </span>
                 </span>
 
                 <span class="brand-subtitle">

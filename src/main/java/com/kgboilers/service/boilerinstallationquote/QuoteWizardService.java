@@ -3,20 +3,26 @@ package com.kgboilers.service.boilerinstallationquote;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerFloorLevelException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerLocationException;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerAgeException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerMakeException;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedBoilerPressureException;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedFaultCodeDetailsException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedFuelException;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedFaultCodeDisplayException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedMagneticFilterException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedOwnershipException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedPowerFlushException;
-import com.kgboilers.exception.boilerinstallationquote.UnsupportedRepairProblemException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedPropertyTypeException;
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedSlopedRoofPositionException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedBoilerAgeException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedBoilerPressureException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDetailsException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDisplayException;
+import com.kgboilers.exception.boilerrepairquote.UnsupportedRepairProblemException;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.*;
+import com.kgboilers.model.boilerrepair.enums.BoilerAge;
+import com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus;
+import com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus;
+import com.kgboilers.model.boilerrepair.enums.MagneticFilterStatus;
+import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
+import com.kgboilers.model.boilerrepair.enums.RepairProblem;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -105,6 +111,9 @@ public class QuoteWizardService {
 
             case FLUE_TYPE -> !skipRepairDetails && state.hasRelocation()
                     && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance());
+
+            case FLUE_SHAPE -> !skipRepairDetails
+                    && state.getFlueType() == FlueType.HORIZONTAL;
 
             case FLUE_LENGTH -> !skipRepairDetails && state.hasCompleteFlueSelection();
 
@@ -410,6 +419,7 @@ public class QuoteWizardService {
             state.setRelocationDistance(null);
             state.setFlueType(null);
             state.setVerticalFlueType(null);
+            state.setHorizontalFlueShape(null);
             state.setFlueLength(null);
             state.setFluePosition(null);
             state.setFlueClearance(null);
@@ -441,6 +451,7 @@ public class QuoteWizardService {
         state.setRelocation(relocation);
         state.setFlueType(null);
         state.setVerticalFlueType(null);
+        state.setHorizontalFlueShape(null);
         state.setFlueLength(null);
         state.setFluePosition(null);
         state.setFlueClearance(null);
@@ -472,6 +483,7 @@ public class QuoteWizardService {
         state.setRelocationDistance(distance);
         state.setFlueType(null);
         state.setVerticalFlueType(null);
+        state.setHorizontalFlueShape(null);
         state.setFlueLength(null);
         state.setFluePosition(null);
         state.setFlueClearance(null);
@@ -563,6 +575,36 @@ public class QuoteWizardService {
 
         state.setFlueType(flueType);
         state.setVerticalFlueType(flueType == FlueType.VERTICAL ? verticalFlueType : null);
+        state.setHorizontalFlueShape(null);
+        state.setFlueLength(null);
+        state.setSlopedRoofPosition(null);
+        state.setFluePosition(null);
+        state.setFlueClearance(null);
+        state.setFluePropertyDistance(null);
+        state.setRadiatorCount(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
+        state.setBathShowerCount(null);
+        state.setRepairProblem(null);
+        state.setBoilerPressureStatus(null);
+        state.setFaultCodeDisplayStatus(null);
+        state.setFaultCodeDetails(null);
+
+        if (flueType == FlueType.HORIZONTAL) {
+            state.setCurrentStep(QuoteStep.FLUE_SHAPE);
+            return QuoteStep.FLUE_SHAPE;
+        }
+
+        state.setCurrentStep(QuoteStep.FLUE_LENGTH);
+        return QuoteStep.FLUE_LENGTH;
+    }
+
+    public QuoteStep updateHorizontalFlueShape(QuoteSessionState state, HorizontalFlueShape flueShape) {
+        if (flueShape == null) {
+            throw new IllegalArgumentException("Flue shape is required");
+        }
+
+        state.setHorizontalFlueShape(flueShape);
         state.setFlueLength(null);
         state.setSlopedRoofPosition(null);
         state.setFluePosition(null);

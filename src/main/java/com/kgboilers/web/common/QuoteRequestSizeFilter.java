@@ -56,7 +56,9 @@ public class QuoteRequestSizeFilter extends OncePerRequestFilter {
         }
 
         String path = request.getRequestURI();
-        return path.startsWith("/quote/") || path.startsWith("/central-heating-quote/");
+        return path.startsWith("/quote/")
+                || path.startsWith("/boiler-repair-quote/")
+                || path.startsWith("/central-heating-quote/");
     }
 
     private boolean isRequestTooLarge(HttpServletRequest request) {

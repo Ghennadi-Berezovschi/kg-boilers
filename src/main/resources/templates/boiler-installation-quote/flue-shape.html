@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Boiler Repair Magnetic Filter</title>
+    <title>Flue Shape</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260421-1012')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260423-1505')}">
 </head>
 <body>
 
@@ -21,39 +21,48 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            Does your boiler have a <span style="color:#ff5a3c;">magnetic filter?</span>
+            Looking at the <span style="color:#ff5a3c;">outside flue terminal</span>, is it square or round?
         </h2>
+        <p class="section-subtitle">
+            Choose the shape you can see on the outside wall of your home.
+        </p>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectMagneticFilter('yes-has')">
+            <article class="card fuel-card" onclick="selectFlueShape('square')">
                 <div class="fuel-icon">
-                    <img src="/images/central-heating/magnetic-filter.jpg"
-                         alt="Magnetic filter example"
-                         class="power-flush-photo"
-                         width="144"
-                         height="144">
+                    <img src="/images/flues/horizontal-flue-square.svg"
+                         alt="Square flue terminal diagram"
+                         width="140"
+                         height="140">
                 </div>
-                <h3 class="fuel-title">Yes, it has one</h3>
+                <h3 class="fuel-title">Square</h3>
                 <div class="fuel-desc">
-                    Usually found under the boiler.
-                </div>
-                <div class="fuel-select">Select</div>
-            </article>
-
-            <article class="card fuel-card" onclick="selectMagneticFilter('no-does-not-have')">
-                <div class="fuel-icon" style="color:#ff5a3c;">✖</div>
-                <h3 class="fuel-title">No, it does not have one</h3>
-                <div class="fuel-desc">
-                    Magnetic filters are usually fitted under the boiler.
+                    A box-style flue terminal on the outside wall.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectMagneticFilter('do-not-know')">
-                <div class="fuel-icon" style="color:#ff5a3c;">❓</div>
-                <h3 class="fuel-title">I do not know what it is</h3>
+            <article class="card fuel-card" onclick="selectFlueShape('round')">
+                <div class="fuel-icon">
+                    <img src="/images/flues/horizontal-flue-round.svg"
+                         alt="Round flue terminal diagram"
+                         width="140"
+                         height="140">
+                </div>
+                <h3 class="fuel-title">Round</h3>
                 <div class="fuel-desc">
-                    It is usually found under the boiler.
+                    A circular flue terminal on the outside wall.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectFlueShape('i-do-not-know')">
+                <div class="fuel-icon">
+                    <span style="font-size:72px; line-height:1; color:#ff5a3c;">?</span>
+                </div>
+                <h3 class="fuel-title">I don't know</h3>
+                <div class="fuel-desc">
+                    Select this if you are not sure what shape the outside terminal is.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
@@ -68,16 +77,16 @@
 <script>
     const resultElement = document.getElementById("result");
 
-    async function selectMagneticFilter(magneticFilterStatus) {
+    async function selectFlueShape(flueShape) {
         clearError();
 
         try {
-            const response = await fetch("/boiler-repair-quote/magnetic-filter", {
+            const response = await fetch("/quote/flue-shape", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ magneticFilterStatus: magneticFilterStatus })
+                body: JSON.stringify({ flueShape: flueShape })
             });
 
             const data = await response.json();
@@ -87,9 +96,9 @@
                 return;
             }
 
-            window.location.href = data.nextStep;
+            window.location.href = data.nextStep.trim();
         } catch (error) {
-            console.error("Magnetic filter error:", error);
+            console.error("Flue shape error:", error);
             showError("Something went wrong. Please try again.");
         }
     }
