@@ -26,6 +26,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/boiler-repair-quote")
 public class BoilerRepairQuotePageController {
 
+    private static final String POWER_FLUSHING_EXTRA = "Power flushing";
+    private static final String MAGNETIC_FILTER_EXTRA = "Magnetic filter";
+
     private final QuoteSessionService quoteSessionService;
     private final QuoteProgressService quoteProgressService;
     private final QuotePersistenceService quotePersistenceService;
@@ -114,7 +117,7 @@ public class BoilerRepairQuotePageController {
             return boilerRepairQuotePageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.PROPERTY_TYPE));
+        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.FUEL_TYPE));
         return "boiler-installation-quote/boiler-type";
     }
 
@@ -160,7 +163,7 @@ public class BoilerRepairQuotePageController {
             return boilerRepairQuotePageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.BOILER_LOCATION));
+        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.BOILER_AGE));
         return "boiler-installation-quote/radiator-count";
     }
 
@@ -171,7 +174,10 @@ public class BoilerRepairQuotePageController {
             return boilerRepairQuotePageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.RADIATOR_COUNT));
+        QuoteStep backStep = state != null && state.requiresFaultCodeDetails()
+                ? QuoteStep.FAULT_CODE_DETAILS
+                : QuoteStep.FAULT_CODE_DISPLAY;
+        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(backStep));
         return "boiler-repair-quote/power-flush";
     }
 
@@ -193,7 +199,7 @@ public class BoilerRepairQuotePageController {
             return boilerRepairQuotePageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.MAGNETIC_FILTER));
+        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.BOILER_AGE));
         return "boiler-repair-quote/repair-problem";
     }
 
@@ -215,7 +221,7 @@ public class BoilerRepairQuotePageController {
             return boilerRepairQuotePageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.BOILER_PRESSURE));
+        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.REPAIR_PROBLEM));
         return "boiler-repair-quote/fault-code";
     }
 
@@ -244,6 +250,9 @@ public class BoilerRepairQuotePageController {
         if (!model.containsAttribute("contactSuccess")) {
             model.addAttribute("contactSuccess", false);
         }
+        if (!model.containsAttribute("selectedServiceExtras")) {
+            model.addAttribute("selectedServiceExtras", java.util.List.of());
+        }
 
         boilerRepairQuotePageService.populateSummaryModel(model, state);
         return "boiler-repair-quote/summary";
@@ -262,10 +271,12 @@ public class BoilerRepairQuotePageController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("contactSuccess", false);
+            model.addAttribute("selectedServiceExtras", sanitizeServiceExtras(contactRequest.getSelectedExtras()));
             boilerRepairQuotePageService.populateSummaryModel(model, state);
             return "boiler-repair-quote/summary";
         }
 
+        java.util.List<String> selectedServiceExtras = sanitizeServiceExtras(contactRequest.getSelectedExtras());
         Long quoteId = quotePersistenceService.saveRepairLead(
                 quoteSessionService.getSavedQuoteId(session),
                 BoilerRepairQuotePageService.SERVICE,
@@ -281,10 +292,23 @@ public class BoilerRepairQuotePageController {
                 BoilerRepairQuotePageService.SERVICE,
                 contactRequest.getName(),
                 contactRequest.getEmail(),
-                contactRequest.getPhone()
+                contactRequest.getPhone(),
+                selectedServiceExtras
         );
 
         redirectAttributes.addFlashAttribute("contactSuccess", true);
+        redirectAttributes.addFlashAttribute("selectedServiceExtras", selectedServiceExtras);
         return "redirect:" + boilerRepairQuotePageService.pathForStep(QuoteStep.SUMMARY);
+    }
+
+    private java.util.List<String> sanitizeServiceExtras(java.util.List<String> selectedExtras) {
+        if (selectedExtras == null || selectedExtras.isEmpty()) {
+            return java.util.List.of();
+        }
+
+        return selectedExtras.stream()
+                .filter(extra -> POWER_FLUSHING_EXTRA.equals(extra) || MAGNETIC_FILTER_EXTRA.equals(extra))
+                .distinct()
+                .toList();
     }
 }

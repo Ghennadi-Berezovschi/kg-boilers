@@ -16,6 +16,7 @@ import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDetailsExce
 import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDisplayException;
 import com.kgboilers.exception.boilerrepairquote.UnsupportedRepairProblemException;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
+import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallation.enums.*;
 import com.kgboilers.model.boilerrepair.enums.BoilerAge;
 import com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus;
@@ -25,17 +26,32 @@ import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerrepair.enums.RepairProblem;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class QuoteWizardService {
 
     private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
+    private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
 
     // =========================
     // START
     // =========================
 
     public QuoteStep startWizard(QuoteSessionState state, String postcode) {
+        return startWizard(state, postcode, null);
+    }
+
+    public QuoteStep startWizard(QuoteSessionState state, String postcode, String service) {
         state.setPostcode(postcode);
+        if (isBoilerServiceAndGasSafety(service)) {
+            state.setGasSafetyServiceType(null);
+            state.setFuel(null);
+            state.setGasAppliances(null);
+            state.setCurrentStep(QuoteStep.SERVICE_TYPE);
+            return QuoteStep.SERVICE_TYPE;
+        }
+
         state.setCurrentStep(QuoteStep.FUEL_TYPE);
         return QuoteStep.FUEL_TYPE;
     }
@@ -53,6 +69,32 @@ public class QuoteWizardService {
             return step == QuoteStep.START;
         }
 
+        if (isBoilerServiceAndGasSafety(service)) {
+            return switch (step) {
+                case START -> true;
+                case SERVICE_TYPE -> state.hasPostcode();
+                case BOILER_TYPE -> state.hasGasSafetyServiceType()
+                        && requiresBoilerTypeForGasSafety(state);
+                case FUEL_TYPE -> state.hasGasSafetyServiceType()
+                        && requiresBoilerTypeForGasSafety(state)
+                        && state.hasBoilerType();
+                case BOILER_MAKE -> state.hasGasSafetyServiceType()
+                        && requiresBoilerTypeForGasSafety(state)
+                        && state.hasBoilerType()
+                        && state.hasFuel();
+                case GAS_APPLIANCES -> state.hasGasSafetyServiceType()
+                        && (!requiresBoilerTypeForGasSafety(state)
+                        || (state.hasBoilerType() && state.hasFuel() && state.hasBoilerMake()));
+                case PROPERTY_OWNERSHIP -> state.hasGasSafetyServiceType()
+                        && (!requiresBoilerTypeForGasSafety(state)
+                        || (state.hasBoilerType() && state.hasFuel() && state.hasBoilerMake()))
+                        && state.hasGasAppliances();
+                case PROPERTY_TYPE -> state.hasOwnership();
+                case SUMMARY, CONTACT -> isComplete(state, service);
+                default -> false;
+            };
+        }
+
         boolean skipBedrooms = shouldSkipBedrooms(service);
         boolean skipBoilerPosition = shouldSkipBoilerPosition(service);
         boolean skipRepairDetails = shouldSkipRepairDetails(service);
@@ -60,20 +102,26 @@ public class QuoteWizardService {
         return switch (step) {
             case START -> true;
 
+            case SERVICE_TYPE -> false;
+
             case FUEL_TYPE -> state.hasPostcode();
 
-            case PROPERTY_OWNERSHIP -> state.hasFuel();
+            case PROPERTY_OWNERSHIP -> !isBoilerRepair(service) && state.hasFuel();
 
             case PROPERTY_TYPE -> state.hasOwnership();
 
             case BEDROOMS -> state.hasPropertyType() && !skipBedrooms;
 
-            case BOILER_TYPE -> skipBedrooms
+            case BOILER_TYPE -> isBoilerRepair(service)
+                    ? state.hasFuel()
+                    : skipBedrooms
                     ? state.hasPropertyType()
                     : state.hasBedrooms();
 
             case BOILER_MAKE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && state.hasBoilerType();
+
+            case GAS_APPLIANCES -> false;
 
             case BOILER_AGE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && state.hasBoilerMake();
@@ -87,11 +135,11 @@ public class QuoteWizardService {
                     && (state.getBoilerType() != BoilerType.HEAT_ONLY || state.hasHeatOnlyConversion());
 
             case BOILER_LOCATION -> {
-                if (skipBoilerPosition) {
-                    if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
-                        yield state.hasBoilerAge();
-                    }
+                if (isBoilerRepair(service)) {
+                    yield false;
+                }
 
+                if (skipBoilerPosition) {
                     yield state.hasBoilerType()
                             && (state.getBoilerType() != BoilerType.HEAT_ONLY
                             || shouldSkipBoilerPosition(service)
@@ -131,37 +179,36 @@ public class QuoteWizardService {
             case FLUE_PROPERTY_DISTANCE -> !skipRepairDetails && state.hasFlueClearance()
                     && state.getFlueType() == FlueType.HORIZONTAL;
 
-            case RADIATOR_COUNT -> skipRepairDetails
-                    ? state.hasBoilerLocation()
-                    : state.hasFlueLength()
+            case RADIATOR_COUNT -> !skipRepairDetails
+                    && state.hasFlueLength()
                     && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
                     && (state.getFlueType() != FlueType.HORIZONTAL
                     || (state.hasFluePosition() && state.hasFlueClearance() && state.hasFluePropertyDistance()));
 
-            case POWER_FLUSH -> skipRepairDetails && state.hasRadiatorCount();
+            case POWER_FLUSH -> skipRepairDetails
+                    && state.hasFaultCodeDisplayStatus()
+                    && (!state.requiresFaultCodeDetails() || state.hasFaultCodeDetails());
 
             case MAGNETIC_FILTER -> skipRepairDetails && state.hasPowerFlushStatus();
 
-            case REPAIR_PROBLEM -> skipRepairDetails && state.hasMagneticFilterStatus();
+            case REPAIR_PROBLEM -> skipRepairDetails && state.hasBoilerAge();
 
-            case BOILER_PRESSURE -> skipRepairDetails && state.hasRepairProblem();
+            case BOILER_PRESSURE -> false;
 
-            case FAULT_CODE_DISPLAY -> skipRepairDetails && state.hasBoilerPressureStatus();
+            case FAULT_CODE_DISPLAY -> skipRepairDetails && state.hasRepairProblem();
 
             case FAULT_CODE_DETAILS -> skipRepairDetails
-                    && state.hasBoilerPressureStatus()
+                    && state.hasRepairProblem()
                     && state.requiresFaultCodeDetails();
 
             case BATH_SHOWER_COUNT -> !skipRepairDetails && state.hasRadiatorCount();
 
             case SUMMARY -> skipRepairDetails
-                    ? state.hasRadiatorCount()
-                    && state.hasPowerFlushStatus()
-                    && state.hasMagneticFilterStatus()
-                    && state.hasRepairProblem()
-                    && state.hasBoilerPressureStatus()
+                    ? state.hasRepairProblem()
                     && state.hasFaultCodeDisplayStatus()
                     && (!state.requiresFaultCodeDetails() || state.hasFaultCodeDetails())
+                    && state.hasPowerFlushStatus()
+                    && state.hasMagneticFilterStatus()
                     : state.hasRelocation()
                     && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
                     && state.hasCompleteFlueSelection()
@@ -199,6 +246,29 @@ public class QuoteWizardService {
         }
 
         state.setFuel(selectedFuel);
+        state.setGasAppliances(null);
+
+        if (isBoilerServiceAndGasSafety(service)) {
+            state.setCurrentStep(QuoteStep.BOILER_MAKE);
+            return QuoteStep.BOILER_MAKE;
+        }
+
+        if (isBoilerRepair(service)) {
+            state.setOwnership(null);
+            state.setPropertyType(null);
+            state.setBedrooms(null);
+            state.setBoilerType(null);
+            state.setBoilerMake(null);
+            state.setBoilerAge(null);
+            state.setBoilerLocation(null);
+            state.setRepairProblem(null);
+            state.setBoilerPressureStatus(null);
+            state.setFaultCodeDisplayStatus(null);
+            state.setFaultCodeDetails(null);
+            state.setCurrentStep(QuoteStep.BOILER_TYPE);
+            return QuoteStep.BOILER_TYPE;
+        }
+
         state.setCurrentStep(QuoteStep.PROPERTY_OWNERSHIP);
         return QuoteStep.PROPERTY_OWNERSHIP;
     }
@@ -213,6 +283,28 @@ public class QuoteWizardService {
         return QuoteStep.PROPERTY_TYPE;
     }
 
+    public QuoteStep updateGasSafetyServiceType(QuoteSessionState state, GasSafetyServiceType selectedServiceType) {
+        if (selectedServiceType == null) {
+            throw new IllegalArgumentException("Service type is required");
+        }
+
+        state.setGasSafetyServiceType(selectedServiceType);
+        state.setOwnership(null);
+        state.setPropertyType(null);
+        state.setBoilerType(null);
+        state.setFuel(null);
+        state.setBoilerMake(null);
+        state.setGasAppliances(null);
+
+        if (requiresBoilerTypeForGasSafety(selectedServiceType)) {
+            state.setCurrentStep(QuoteStep.BOILER_TYPE);
+            return QuoteStep.BOILER_TYPE;
+        }
+
+        state.setCurrentStep(QuoteStep.GAS_APPLIANCES);
+        return QuoteStep.GAS_APPLIANCES;
+    }
+
     public QuoteStep updatePropertyType(QuoteSessionState state, PropertyType selectedPropertyType) {
         return updatePropertyType(state, selectedPropertyType, null);
     }
@@ -225,6 +317,12 @@ public class QuoteWizardService {
         }
 
         state.setPropertyType(selectedPropertyType);
+
+        if (isBoilerServiceAndGasSafety(service)) {
+            state.setBedrooms(null);
+            state.setCurrentStep(QuoteStep.SUMMARY);
+            return QuoteStep.SUMMARY;
+        }
 
         if (shouldSkipBedrooms(service)) {
             state.setBedrooms(null);
@@ -259,6 +357,7 @@ public class QuoteWizardService {
 
         state.setBoilerType(selectedBoilerType);
         state.setBoilerMake(null);
+        state.setGasAppliances(null);
         state.setBoilerAge(null);
         state.setPowerFlushStatus(null);
         state.setMagneticFilterStatus(null);
@@ -266,6 +365,12 @@ public class QuoteWizardService {
         state.setBoilerPressureStatus(null);
         state.setFaultCodeDisplayStatus(null);
         state.setFaultCodeDetails(null);
+
+        if (isBoilerServiceAndGasSafety(service)) {
+            state.setFuel(null);
+            state.setCurrentStep(QuoteStep.FUEL_TYPE);
+            return QuoteStep.FUEL_TYPE;
+        }
 
         if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
             state.setHeatOnlyConversion(null);
@@ -311,8 +416,35 @@ public class QuoteWizardService {
             return QuoteStep.BOILER_AGE;
         }
 
+        if (isBoilerServiceAndGasSafety(service)) {
+            state.setGasAppliances(null);
+            state.setCurrentStep(QuoteStep.GAS_APPLIANCES);
+            return QuoteStep.GAS_APPLIANCES;
+        }
+
         state.setCurrentStep(QuoteStep.BOILER_POSITION);
         return QuoteStep.BOILER_POSITION;
+    }
+
+    public QuoteStep updateGasAppliances(QuoteSessionState state, List<GasApplianceSelection> appliances) {
+        if (appliances == null || appliances.isEmpty()) {
+            throw new IllegalArgumentException("Select at least one gas appliance");
+        }
+
+        boolean invalidQuantity = appliances.stream()
+                .anyMatch(selection -> selection == null
+                        || selection.getAppliance() == null
+                        || selection.getQuantity() < 1
+                        || selection.getQuantity() > 9);
+        if (invalidQuantity) {
+            throw new IllegalArgumentException("Gas appliance quantity must be between 1 and 9");
+        }
+
+        state.setGasAppliances(appliances);
+        state.setOwnership(null);
+        state.setPropertyType(null);
+        state.setCurrentStep(QuoteStep.PROPERTY_OWNERSHIP);
+        return QuoteStep.PROPERTY_OWNERSHIP;
     }
 
     public QuoteStep updateBoilerAge(QuoteSessionState state,
@@ -335,8 +467,8 @@ public class QuoteWizardService {
         state.setBoilerPressureStatus(null);
         state.setFaultCodeDisplayStatus(null);
         state.setFaultCodeDetails(null);
-        state.setCurrentStep(QuoteStep.BOILER_LOCATION);
-        return QuoteStep.BOILER_LOCATION;
+        state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
+        return QuoteStep.REPAIR_PROBLEM;
     }
 
     public QuoteStep updateBoilerConversion(QuoteSessionState state, HeatOnlyConversion conversion) {
@@ -393,8 +525,8 @@ public class QuoteWizardService {
             state.setBoilerPressureStatus(null);
             state.setFaultCodeDisplayStatus(null);
             state.setFaultCodeDetails(null);
-            state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
-            return QuoteStep.RADIATOR_COUNT;
+            state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
+            return QuoteStep.REPAIR_PROBLEM;
         }
         state.setCurrentStep(QuoteStep.BOILER_FLOOR_LEVEL);
         return QuoteStep.BOILER_FLOOR_LEVEL;
@@ -425,8 +557,8 @@ public class QuoteWizardService {
             state.setFlueClearance(null);
             state.setFluePropertyDistance(null);
             state.setBathShowerCount(null);
-            state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
-            return QuoteStep.RADIATOR_COUNT;
+            state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
+            return QuoteStep.REPAIR_PROBLEM;
         }
 
         state.setCurrentStep(QuoteStep.BOILER_CONDITION);
@@ -508,21 +640,24 @@ public class QuoteWizardService {
         if (shouldSkipRepairDetails(service)) {
             return state.hasPostcode()
                     && state.hasFuel()
-                    && state.hasOwnership()
-                    && state.hasPropertyType()
-                    && (shouldSkipBedrooms(service) || state.hasBedrooms())
                     && state.hasBoilerType()
                     && state.hasBoilerMake()
                     && state.hasBoilerAge()
-                    && (shouldSkipBoilerPosition(service) || state.hasBoilerPosition())
-                    && state.hasBoilerLocation()
-                    && state.hasRadiatorCount()
-                    && state.hasPowerFlushStatus()
-                    && state.hasMagneticFilterStatus()
                     && state.hasRepairProblem()
-                    && state.hasBoilerPressureStatus()
                     && state.hasFaultCodeDisplayStatus()
-                    && (!state.requiresFaultCodeDetails() || state.hasFaultCodeDetails());
+                    && (!state.requiresFaultCodeDetails() || state.hasFaultCodeDetails())
+                    && state.hasPowerFlushStatus()
+                    && state.hasMagneticFilterStatus();
+        }
+
+        if (isBoilerServiceAndGasSafety(service)) {
+            return state.hasPostcode()
+                    && state.hasGasSafetyServiceType()
+                    && (!requiresBoilerTypeForGasSafety(state)
+                    || (state.hasBoilerType() && state.hasFuel() && state.hasBoilerMake()))
+                    && state.hasGasAppliances()
+                    && state.hasOwnership()
+                    && state.hasPropertyType();
         }
 
         return state.hasPostcode()
@@ -547,15 +682,32 @@ public class QuoteWizardService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+        return isBoilerRepair(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
-        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+        return isBoilerRepair(service);
     }
 
     private boolean shouldSkipRepairDetails(String service) {
+        return isBoilerRepair(service);
+    }
+
+    private boolean isBoilerRepair(String service) {
         return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean isBoilerServiceAndGasSafety(String service) {
+        return GAS_SAFETY_CERTIFICATE_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean requiresBoilerTypeForGasSafety(QuoteSessionState state) {
+        return state != null && requiresBoilerTypeForGasSafety(state.getGasSafetyServiceType());
+    }
+
+    private boolean requiresBoilerTypeForGasSafety(GasSafetyServiceType serviceType) {
+        return serviceType == GasSafetyServiceType.BOILER_SERVICE
+                || serviceType == GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE;
     }
 
     public QuoteStep updateFlueType(QuoteSessionState state, FlueType flueType) {
@@ -757,8 +909,8 @@ public class QuoteWizardService {
         state.setFaultCodeDetails(null);
 
         if (shouldSkipRepairDetails(service)) {
-            state.setCurrentStep(QuoteStep.POWER_FLUSH);
-            return QuoteStep.POWER_FLUSH;
+            state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
+            return QuoteStep.REPAIR_PROBLEM;
         }
 
         state.setCurrentStep(QuoteStep.BATH_SHOWER_COUNT);
@@ -788,10 +940,7 @@ public class QuoteWizardService {
 
         state.setPowerFlushStatus(powerFlushStatus);
         state.setMagneticFilterStatus(null);
-        state.setRepairProblem(null);
         state.setBoilerPressureStatus(null);
-        state.setFaultCodeDisplayStatus(null);
-        state.setFaultCodeDetails(null);
         state.setCurrentStep(QuoteStep.MAGNETIC_FILTER);
         return QuoteStep.MAGNETIC_FILTER;
     }
@@ -808,12 +957,9 @@ public class QuoteWizardService {
         }
 
         state.setMagneticFilterStatus(magneticFilterStatus);
-        state.setRepairProblem(null);
         state.setBoilerPressureStatus(null);
-        state.setFaultCodeDisplayStatus(null);
-        state.setFaultCodeDetails(null);
-        state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
-        return QuoteStep.REPAIR_PROBLEM;
+        state.setCurrentStep(QuoteStep.SUMMARY);
+        return QuoteStep.SUMMARY;
     }
 
     public QuoteStep updateRepairProblem(QuoteSessionState state,
@@ -828,11 +974,12 @@ public class QuoteWizardService {
         }
 
         state.setRepairProblem(repairProblem);
+        state.setPowerFlushStatus(null);
         state.setBoilerPressureStatus(null);
         state.setFaultCodeDisplayStatus(null);
         state.setFaultCodeDetails(null);
-        state.setCurrentStep(QuoteStep.BOILER_PRESSURE);
-        return QuoteStep.BOILER_PRESSURE;
+        state.setCurrentStep(QuoteStep.FAULT_CODE_DISPLAY);
+        return QuoteStep.FAULT_CODE_DISPLAY;
     }
 
     public QuoteStep updateBoilerPressure(QuoteSessionState state,
@@ -866,14 +1013,15 @@ public class QuoteWizardService {
 
         state.setFaultCodeDisplayStatus(faultCodeDisplayStatus);
         state.setFaultCodeDetails(null);
+        state.setPowerFlushStatus(null);
 
         if (faultCodeDisplayStatus == FaultCodeDisplayStatus.YES_SHOWING) {
             state.setCurrentStep(QuoteStep.FAULT_CODE_DETAILS);
             return QuoteStep.FAULT_CODE_DETAILS;
         }
 
-        state.setCurrentStep(QuoteStep.SUMMARY);
-        return QuoteStep.SUMMARY;
+        state.setCurrentStep(QuoteStep.POWER_FLUSH);
+        return QuoteStep.POWER_FLUSH;
     }
 
     public QuoteStep updateFaultCodeDetails(QuoteSessionState state,
@@ -897,7 +1045,8 @@ public class QuoteWizardService {
         }
 
         state.setFaultCodeDetails(normalizedDetails);
-        state.setCurrentStep(QuoteStep.SUMMARY);
-        return QuoteStep.SUMMARY;
+        state.setPowerFlushStatus(null);
+        state.setCurrentStep(QuoteStep.POWER_FLUSH);
+        return QuoteStep.POWER_FLUSH;
     }
 }

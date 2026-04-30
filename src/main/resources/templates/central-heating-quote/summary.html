@@ -6,7 +6,7 @@
 
     <title>Central Heating Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260418-2148')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260429-2005')}">
 </head>
 <body>
 
@@ -15,7 +15,7 @@
 <main class="container">
     <section class="section">
 
-        <a th:if="${backUrl != null}"
+        <a th:if="${backUrl != null and !contactSuccess}"
            th:href="${backUrl}"
            class="back-link"
            aria-label="Go back">← Back</a>
@@ -107,16 +107,8 @@
                             <span class="summary-value" th:text="${state.propertyType}">HOUSE</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Bedrooms</span>
-                            <span class="summary-value" th:text="${state.bedrooms}">THREE</span>
-                        </div>
-                        <div class="summary-item">
                             <span class="summary-label">Boiler type</span>
                             <span class="summary-value" th:text="${state.boilerType}">COMBI</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Fuel</span>
-                            <span class="summary-value" th:text="${state.fuel}">GAS</span>
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Radiators</span>
@@ -136,6 +128,120 @@
                         </div>
                     </div>
                 </section>
+
+                <section class="summary-optional-section">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Optional extras</h3>
+                            <p class="summary-empty-copy">
+                                Add anything extra you’d like with the visit.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="summary-optional-grid gas-safety-extra-grid">
+                        <article class="summary-optional-card js-service-extra-card"
+                                 th:classappend="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Power flushing')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Power flushing')) ? ' is-selected' : ''}">
+                            <input class="summary-optional-checkbox js-service-extra-checkbox"
+                                   type="checkbox"
+                                   name="selectedExtras"
+                                   value="Power flushing"
+                                   form="centralHeatingContactForm"
+                                   th:checked="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Power flushing')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Power flushing'))}">
+
+                            <div class="summary-optional-media">
+                                <img class="summary-optional-image"
+                                     th:src="@{/images/central-heating/power-flush-combined.jpg(v='20260424-1130')}"
+                                     alt="Power flushing">
+                            </div>
+
+                            <div class="summary-optional-body">
+                                <h4 class="summary-optional-title">Power flushing</h4>
+                                <p class="summary-optional-desc">
+                                    Add a deep system clean to help improve heating circulation.
+                                </p>
+                                <button type="button"
+                                        class="summary-boxt-btn boiler-repair-toggle-button"
+                                        data-toggle-target="power-flushing-included"
+                                        aria-expanded="false"
+                                        aria-controls="power-flushing-included">
+                                    What's included
+                                </button>
+                                <div class="summary-optional-footer">
+                                    <strong class="summary-optional-price">+£195</strong>
+                                    <button type="button"
+                                            class="summary-optional-toggle js-service-extra-toggle">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="summary-optional-card js-service-extra-card"
+                                 th:classappend="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Magnetic filter')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Magnetic filter')) ? ' is-selected' : ''}">
+                            <input class="summary-optional-checkbox js-service-extra-checkbox"
+                                   type="checkbox"
+                                   name="selectedExtras"
+                                   value="Magnetic filter"
+                                   form="centralHeatingContactForm"
+                                   th:checked="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Magnetic filter')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Magnetic filter'))}">
+
+                            <div class="summary-optional-media">
+                                <img class="summary-optional-image"
+                                     th:src="@{/images/central-heating/magnetic-filter.jpg(v='20260424-1130')}"
+                                     alt="Magnetic filter">
+                            </div>
+
+                            <div class="summary-optional-body">
+                                <h4 class="summary-optional-title">Magnetic filter</h4>
+                                <p class="summary-optional-desc">
+                                    Add a filter to help catch magnetic sludge before it reaches the boiler.
+                                </p>
+                                <button type="button"
+                                        class="summary-boxt-btn boiler-repair-toggle-button"
+                                        data-toggle-target="magnetic-filter-included"
+                                        aria-expanded="false"
+                                        aria-controls="magnetic-filter-included">
+                                    What's included
+                                </button>
+                                <div class="summary-optional-footer">
+                                    <strong class="summary-optional-price">+£145</strong>
+                                    <button type="button"
+                                            class="summary-optional-toggle js-service-extra-toggle">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <section class="boiler-repair-reassurance" id="power-flushing-included" hidden>
+                        <h4 class="boiler-repair-reassurance-title">What's included with Power flushing?</h4>
+                        <p class="boiler-repair-reassurance-copy">
+                            Power flushing is a deep clean of your central heating system. It pushes cleaning chemicals
+                            through the radiators and pipework to help remove sludge, dirty water and debris that can
+                            build up inside the system over time.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            It can help improve circulation, make radiators heat more evenly and reduce strain on the
+                            boiler. If a dirty system is left untreated, radiators may stay cold in places, the boiler
+                            can become noisy or less efficient, and sludge can block boiler components, causing the
+                            boiler to fault or stop working properly after a service.
+                        </p>
+                    </section>
+
+                    <section class="boiler-repair-reassurance" id="magnetic-filter-included" hidden>
+                        <h4 class="boiler-repair-reassurance-title">What's included with Magnetic filter?</h4>
+                        <p class="boiler-repair-reassurance-copy">
+                            A magnetic filter is fitted on the heating pipework to help capture black iron oxide sludge
+                            and small metal particles moving around the system.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            It helps protect the boiler, pump and valves from dirt build-up. Without a filter, sludge can
+                            circulate back into the boiler, reduce efficiency and make heating faults more likely to return.
+                        </p>
+                    </section>
+                </section>
             </div>
 
             <aside class="summary-offer-sidebar">
@@ -144,8 +250,13 @@
                     <h3 class="summary-panel-title">Leave your details</h3>
 
                     <div class="summary-success-banner" th:if="${contactSuccess}">
-                        Thanks, we received your request. We will contact you soon.
+                        <p>Thanks, we received your request. We will contact you soon.</p>
                     </div>
+                    <a th:if="${contactSuccess}"
+                       th:href="@{/}"
+                       class="btn btn-phone summary-contact-submit summary-success-home-link">
+                        Return to main page
+                    </a>
 
                     <div class="contact-form-panel-body" th:if="${!contactSuccess}">
                         <div class="summary-selected-boiler has-selection">
@@ -161,6 +272,30 @@
                                       th:text="${installationItemsCount + ' installation item' + (installationItemsCount == 1 ? '' : 's')}">
                                     1 installation item
                                 </span>
+                                <span class="gas-safety-extra-overview js-service-extra-overview"
+                                      data-extra-value="Power flushing"
+                                      th:hidden="${!((contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Power flushing')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Power flushing')))}">
+                                    <span>Power flushing</span>
+                                    <span class="gas-safety-extra-overview-actions">
+                                        <strong>£195</strong>
+                                        <button type="button"
+                                                class="gas-safety-extra-remove js-service-extra-remove">
+                                            Remove
+                                        </button>
+                                    </span>
+                                </span>
+                                <span class="gas-safety-extra-overview js-service-extra-overview"
+                                      data-extra-value="Magnetic filter"
+                                      th:hidden="${!((contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Magnetic filter')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Magnetic filter')))}">
+                                    <span>Magnetic filter</span>
+                                    <span class="gas-safety-extra-overview-actions">
+                                        <strong>£145</strong>
+                                        <button type="button"
+                                                class="gas-safety-extra-remove js-service-extra-remove">
+                                            Remove
+                                        </button>
+                                    </span>
+                                </span>
                             </div>
                         </div>
 
@@ -171,6 +306,7 @@
                         <form th:action="@{/central-heating-quote/contact}"
                               th:object="${contactRequest}"
                               method="post"
+                              id="centralHeatingContactForm"
                               class="summary-contact-form">
 
                             <div class="summary-contact-fields">
@@ -226,6 +362,92 @@
 </main>
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:if="${contactSuccess}">
+    (function () {
+        window.history.replaceState({ leadSubmitted: true }, "", window.location.href);
+        window.history.pushState({ leadSubmitted: true }, "", window.location.href);
+        window.addEventListener("popstate", function () {
+            window.location.replace("/");
+        });
+    })();
+</script>
+
+<script>
+    (function () {
+        document.querySelectorAll(".js-service-extra-card").forEach(function (card) {
+            const checkbox = card.querySelector(".js-service-extra-checkbox");
+            const toggle = card.querySelector(".js-service-extra-toggle");
+
+            if (!checkbox || !toggle) {
+                return;
+            }
+
+            const overview = document.querySelector('.js-service-extra-overview[data-extra-value="' + checkbox.value + '"]');
+            const remove = overview ? overview.querySelector(".js-service-extra-remove") : null;
+
+            function sync() {
+                card.classList.toggle("is-selected", checkbox.checked);
+                toggle.textContent = checkbox.checked ? "Added" : "Add";
+                if (overview) {
+                    overview.hidden = !checkbox.checked;
+                }
+            }
+
+            toggle.addEventListener("click", function () {
+                checkbox.checked = !checkbox.checked;
+                sync();
+            });
+
+            if (remove) {
+                remove.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    checkbox.checked = false;
+                    sync();
+                });
+            }
+
+            card.addEventListener("click", function (event) {
+                if (event.target.closest(".js-service-extra-toggle")
+                        || event.target.closest("[data-toggle-target]")) {
+                    return;
+                }
+
+                checkbox.checked = !checkbox.checked;
+                sync();
+            });
+
+            sync();
+        });
+    })();
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-toggle-target]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+
+                const targetId = button.getAttribute('data-toggle-target');
+                const target = document.getElementById(targetId);
+
+                if (!target) {
+                    return;
+                }
+
+                const willOpen = target.hasAttribute('hidden');
+                if (willOpen) {
+                    target.removeAttribute('hidden');
+                    target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    target.setAttribute('hidden', '');
+                }
+
+                button.setAttribute('aria-expanded', String(willOpen));
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

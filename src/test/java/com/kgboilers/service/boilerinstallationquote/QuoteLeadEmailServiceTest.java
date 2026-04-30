@@ -78,6 +78,8 @@ class QuoteLeadEmailServiceTest {
                 250,
                 50,
                 0,
+                0,
+                0,
                 List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)),
                 150
         );
@@ -93,7 +95,7 @@ class QuoteLeadEmailServiceTest {
 
         assertEquals("client@example.com", clientMessage.getTo()[0]);
         assertTrue(clientMessage.getText().contains("Hello Jane Smith,"));
-        assertTrue(clientMessage.getText().contains("Your fixed price including installation:"));
+        assertTrue(clientMessage.getText().contains("Your price including installation:"));
         assertTrue(clientMessage.getText().contains("Boiler installation"));
         assertTrue(clientMessage.getText().contains("Programmable Room Thermostat"));
         assertTrue(clientMessage.getText().contains("Disposal of your old boiler"));
@@ -124,6 +126,8 @@ class QuoteLeadEmailServiceTest {
                 "Jane Smith",
                 "client@example.com",
                 "+44 7700 900123",
+                0,
+                0,
                 0,
                 0,
                 0,

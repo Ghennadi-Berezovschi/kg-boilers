@@ -28,6 +28,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/central-heating-quote")
 public class CentralHeatingQuotePageController {
 
+    private static final String POWER_FLUSHING_EXTRA = "Power flushing";
+    private static final String MAGNETIC_FILTER_EXTRA = "Magnetic filter";
+
     private final CentralHeatingQuoteSessionService sessionService;
     private final CentralHeatingQuoteWizardService wizardService;
     private final CentralHeatingQuotePersistenceService quotePersistenceService;
@@ -149,7 +152,7 @@ public class CentralHeatingQuotePageController {
             return "redirect:/central-heating-quote";
         }
 
-        model.addAttribute("backUrl", "/central-heating-quote/radiator-issues");
+        model.addAttribute("backUrl", "/central-heating-quote/magnetic-filter");
         model.addAttribute("existingTrvValvesQuantity", state.getTrvValvesQuantity());
         model.addAttribute("existingLockshieldValvesQuantity", state.getLockshieldValvesQuantity());
         model.addAttribute("existingTowelRailValvesQuantity", state.getTowelRailValvesQuantity());
@@ -166,9 +169,11 @@ public class CentralHeatingQuotePageController {
 
         model.addAttribute(
                 "backUrl",
-                state.needsTrvInstallationQuantity()
+                state.hasInstallationItems()
+                        ? "/central-heating-quote/add-another-installation"
+                        : state.needsTrvInstallationQuantity()
                         ? "/central-heating-quote/trv-installation-quantity"
-                        : "/central-heating-quote/radiator-issues"
+                        : "/central-heating-quote/magnetic-filter"
         );
         model.addAttribute("selectedInstallationItemType", state.getInstallationItemType());
         model.addAttribute("installationItemOptions", InstallationItemType.values());
@@ -311,6 +316,9 @@ public class CentralHeatingQuotePageController {
         if (!model.containsAttribute("contactSuccess")) {
             model.addAttribute("contactSuccess", false);
         }
+        if (!model.containsAttribute("selectedServiceExtras")) {
+            model.addAttribute("selectedServiceExtras", java.util.List.of());
+        }
 
         populateSummaryModel(model, state);
         return "central-heating-quote/summary";
@@ -330,10 +338,12 @@ public class CentralHeatingQuotePageController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("contactSuccess", false);
+            model.addAttribute("selectedServiceExtras", sanitizeServiceExtras(contactRequest.getSelectedExtras()));
             populateSummaryModel(model, state);
             return "central-heating-quote/summary";
         }
 
+        java.util.List<String> selectedServiceExtras = sanitizeServiceExtras(contactRequest.getSelectedExtras());
         Long quoteId = quotePersistenceService.saveLead(
                 sessionService.getSavedQuoteId(session),
                 "central-heating",
@@ -349,11 +359,24 @@ public class CentralHeatingQuotePageController {
                 "central-heating",
                 contactRequest.getName(),
                 contactRequest.getEmail(),
-                contactRequest.getPhone()
+                contactRequest.getPhone(),
+                selectedServiceExtras
         );
 
         redirectAttributes.addFlashAttribute("contactSuccess", true);
+        redirectAttributes.addFlashAttribute("selectedServiceExtras", selectedServiceExtras);
         return "redirect:/central-heating-quote/summary";
+    }
+
+    private java.util.List<String> sanitizeServiceExtras(java.util.List<String> selectedExtras) {
+        if (selectedExtras == null || selectedExtras.isEmpty()) {
+            return java.util.List.of();
+        }
+
+        return selectedExtras.stream()
+                .filter(extra -> POWER_FLUSHING_EXTRA.equals(extra) || MAGNETIC_FILTER_EXTRA.equals(extra))
+                .distinct()
+                .toList();
     }
 
     private void populateSummaryModel(Model model, CentralHeatingQuoteSessionState state) {
@@ -363,7 +386,7 @@ public class CentralHeatingQuotePageController {
                         ? "/central-heating-quote/add-another-installation"
                         : state.needsTrvInstallationQuantity()
                         ? "/central-heating-quote/trv-installation-quantity"
-                        : "/central-heating-quote/radiator-issues"
+                        : "/central-heating-quote/magnetic-filter"
         );
         model.addAttribute("state", state);
         model.addAttribute("requestTitle", "Central Heating Installation & Repair");

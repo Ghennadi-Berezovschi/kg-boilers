@@ -85,6 +85,8 @@ class QuotePersistenceServiceTest {
                 250,
                 50,
                 150,
+                0,
+                0,
                 List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)),
                 150
         );
@@ -133,6 +135,8 @@ class QuotePersistenceServiceTest {
                 250,
                 0,
                 150,
+                0,
+                0,
                 List.of(),
                 0
         );
@@ -209,6 +213,8 @@ class QuotePersistenceServiceTest {
                 250,
                 50,
                 150,
+                0,
+                0,
                 List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)),
                 150,
                 "Vaillant ecoTEC Plus 28kW Combi",

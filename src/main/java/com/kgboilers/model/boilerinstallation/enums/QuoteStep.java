@@ -4,6 +4,8 @@ public enum QuoteStep {
 
     START("/quote"),
 
+    SERVICE_TYPE("/quote/service-type"),
+
     FUEL_TYPE("/quote/fuel-type"),
 
     PROPERTY_OWNERSHIP("/quote/property-ownership"),
@@ -15,6 +17,8 @@ public enum QuoteStep {
     BOILER_TYPE("/quote/boiler-type"),
 
     BOILER_MAKE("/quote/boiler-make"),
+
+    GAS_APPLIANCES("/quote/gas-appliances"),
 
     BOILER_AGE("/quote/boiler-age"),
 
@@ -80,6 +84,8 @@ public enum QuoteStep {
         return switch (this) {
             case START -> START;
 
+            case SERVICE_TYPE -> START;
+
             case FUEL_TYPE -> START;
 
             case PROPERTY_OWNERSHIP -> FUEL_TYPE;
@@ -91,6 +97,8 @@ public enum QuoteStep {
             case BOILER_TYPE -> BEDROOMS;
 
             case BOILER_MAKE -> BOILER_TYPE;
+
+            case GAS_APPLIANCES -> BOILER_MAKE;
 
             case BOILER_AGE -> BOILER_MAKE;
 

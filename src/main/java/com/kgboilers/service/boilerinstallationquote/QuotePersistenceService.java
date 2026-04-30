@@ -36,6 +36,8 @@ public class QuotePersistenceService {
                              int flueLengthPriceGbp,
                              int fluePositionPriceGbp,
                              int flueClearancePriceGbp,
+                             int horizontalFlueShapePriceGbp,
+                             int heatOnlyConversionPriceGbp,
                              List<QuoteOptionalExtra> selectedOptionalExtras,
                              int optionalExtrasPriceGbp) {
 
@@ -47,6 +49,8 @@ public class QuotePersistenceService {
                 flueLengthPriceGbp,
                 fluePositionPriceGbp,
                 flueClearancePriceGbp,
+                horizontalFlueShapePriceGbp,
+                heatOnlyConversionPriceGbp,
                 selectedOptionalExtras,
                 optionalExtrasPriceGbp
         );
@@ -157,6 +161,8 @@ public class QuotePersistenceService {
                          int flueLengthPriceGbp,
                          int fluePositionPriceGbp,
                          int flueClearancePriceGbp,
+                         int horizontalFlueShapePriceGbp,
+                         int heatOnlyConversionPriceGbp,
                          List<QuoteOptionalExtra> selectedOptionalExtras,
                          int optionalExtrasPriceGbp,
                          String selectedBoiler,
@@ -172,6 +178,8 @@ public class QuotePersistenceService {
                 flueLengthPriceGbp,
                 fluePositionPriceGbp,
                 flueClearancePriceGbp,
+                horizontalFlueShapePriceGbp,
+                heatOnlyConversionPriceGbp,
                 selectedOptionalExtras,
                 optionalExtrasPriceGbp
         );
@@ -192,6 +200,8 @@ public class QuotePersistenceService {
                 serviceType,
                 state,
                 null,
+                0,
+                0,
                 0,
                 0,
                 0,
@@ -240,10 +250,12 @@ public class QuotePersistenceService {
                                                   int flueLengthPriceGbp,
                                                   int fluePositionPriceGbp,
                                                   int flueClearancePriceGbp,
+                                                  int horizontalFlueShapePriceGbp,
+                                                  int heatOnlyConversionPriceGbp,
                                                   List<QuoteOptionalExtra> selectedOptionalExtras,
                                                   int optionalExtrasPriceGbp) {
 
-        int extrasTotalPriceGbp = relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp;
+        int extrasTotalPriceGbp = relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp + horizontalFlueShapePriceGbp + heatOnlyConversionPriceGbp;
         BoilerModel primaryBoiler = getPrimaryBoiler(recommendation);
         Integer installationPriceGbp = primaryBoiler != null
                 ? primaryBoiler.getAveragePriceGbp() + extrasTotalPriceGbp + optionalExtrasPriceGbp
@@ -283,6 +295,8 @@ public class QuotePersistenceService {
                         flueLengthPriceGbp,
                         fluePositionPriceGbp,
                         flueClearancePriceGbp,
+                        horizontalFlueShapePriceGbp,
+                        heatOnlyConversionPriceGbp,
                         selectedOptionalExtras,
                         optionalExtrasPriceGbp,
                         installationPriceGbp
@@ -296,6 +310,8 @@ public class QuotePersistenceService {
                                                            int flueLengthPriceGbp,
                                                            int fluePositionPriceGbp,
                                                            int flueClearancePriceGbp,
+                                                           int horizontalFlueShapePriceGbp,
+                                                           int heatOnlyConversionPriceGbp,
                                                            List<QuoteOptionalExtra> selectedOptionalExtras,
                                                            int optionalExtrasPriceGbp,
                                                            Integer installationPriceGbp) {
@@ -341,6 +357,8 @@ public class QuotePersistenceService {
         pricing.put("flueLengthPriceGbp", flueLengthPriceGbp);
         pricing.put("fluePositionPriceGbp", fluePositionPriceGbp);
         pricing.put("flueClearancePriceGbp", flueClearancePriceGbp);
+        pricing.put("horizontalFlueShapePriceGbp", horizontalFlueShapePriceGbp);
+        pricing.put("heatOnlyConversionPriceGbp", heatOnlyConversionPriceGbp);
         pricing.put("optionalExtrasPriceGbp", optionalExtrasPriceGbp);
         pricing.put("installationPriceGbp", installationPriceGbp);
         snapshot.put("pricing", pricing);
@@ -385,6 +403,7 @@ public class QuotePersistenceService {
                     extraData.put("id", extra.getId());
                     extraData.put("title", extra.getTitle());
                     extraData.put("description", extra.getDescription());
+                    extraData.put("quantity", extra.getQuantity());
                     extraData.put("priceGbp", extra.getPriceGbp());
                     extraData.put("image", extra.getImage());
                     return extraData;

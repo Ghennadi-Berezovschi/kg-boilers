@@ -16,6 +16,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(quoteWizardInterceptor)
-                .addPathPatterns("/quote/fuel-type", "/quote/property-ownership");
+                .addPathPatterns(
+                        "/quote/service-type",
+                        "/quote/fuel-type",
+                        "/quote/property-ownership",
+                        "/quote/property-type",
+                        "/quote/boiler-type",
+                        "/quote/boiler-make"
+                );
     }
 }

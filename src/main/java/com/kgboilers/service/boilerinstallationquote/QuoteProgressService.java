@@ -2,6 +2,7 @@ package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
@@ -17,6 +18,7 @@ import java.util.List;
 public class QuoteProgressService {
 
     private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
+    private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
 
     private static final List<String> STAGE_LABELS = List.of(
             "1.Your home",
@@ -36,7 +38,7 @@ public class QuoteProgressService {
         List<QuoteStep> flow = buildVisibleFlow(state, currentStep, service);
         int totalSteps = Math.max(1, flow.size() - 1);
         int currentIndex = Math.max(0, flow.indexOf(currentStep));
-        int currentStepNumber = Math.min(totalSteps, currentIndex);
+        int currentStepNumber = bookingComplete ? totalSteps : Math.min(totalSteps, currentIndex);
         int percentComplete = (int) Math.round((currentStepNumber * 100.0) / totalSteps);
         int stepsRemaining = Math.max(0, totalSteps - currentStepNumber);
 
@@ -56,9 +58,28 @@ public class QuoteProgressService {
         boolean skipRepairDetails = shouldSkipRepairDetails(service);
         List<QuoteStep> flow = new ArrayList<>();
         flow.add(QuoteStep.START);
-        flow.add(QuoteStep.FUEL_TYPE);
-        flow.add(QuoteStep.PROPERTY_OWNERSHIP);
-        flow.add(QuoteStep.PROPERTY_TYPE);
+        if (isBoilerServiceAndGasSafety(service)) {
+            flow.add(QuoteStep.SERVICE_TYPE);
+            if (shouldIncludeGasSafetyBoilerType(state, currentStep)) {
+                flow.add(QuoteStep.BOILER_TYPE);
+                flow.add(QuoteStep.FUEL_TYPE);
+                flow.add(QuoteStep.BOILER_MAKE);
+            }
+            flow.add(QuoteStep.GAS_APPLIANCES);
+            flow.add(QuoteStep.PROPERTY_OWNERSHIP);
+            flow.add(QuoteStep.PROPERTY_TYPE);
+            flow.add(QuoteStep.SUMMARY);
+            flow.add(QuoteStep.CONTACT);
+            return flow;
+        }
+
+        if (!isBoilerServiceAndGasSafety(service)) {
+            flow.add(QuoteStep.FUEL_TYPE);
+        }
+        if (!isBoilerRepair(service)) {
+            flow.add(QuoteStep.PROPERTY_OWNERSHIP);
+            flow.add(QuoteStep.PROPERTY_TYPE);
+        }
         if (!shouldSkipBedrooms(service)) {
             flow.add(QuoteStep.BEDROOMS);
         }
@@ -75,7 +96,9 @@ public class QuoteProgressService {
         if (!shouldSkipBoilerPosition(service)) {
             flow.add(QuoteStep.BOILER_POSITION);
         }
-        flow.add(QuoteStep.BOILER_LOCATION);
+        if (!isBoilerRepair(service)) {
+            flow.add(QuoteStep.BOILER_LOCATION);
+        }
         if (!skipRepairDetails) {
             flow.add(QuoteStep.BOILER_FLOOR_LEVEL);
         }
@@ -105,20 +128,22 @@ public class QuoteProgressService {
             }
         }
 
-        flow.add(QuoteStep.RADIATOR_COUNT);
-
         if (skipRepairDetails) {
-            flow.add(QuoteStep.POWER_FLUSH);
-            flow.add(QuoteStep.MAGNETIC_FILTER);
             flow.add(QuoteStep.REPAIR_PROBLEM);
-            flow.add(QuoteStep.BOILER_PRESSURE);
             flow.add(QuoteStep.FAULT_CODE_DISPLAY);
             if (shouldIncludeFaultCodeDetails(state, currentStep)) {
                 flow.add(QuoteStep.FAULT_CODE_DETAILS);
             }
+            if (shouldIncludeRepairPowerFlush(state, currentStep)) {
+                flow.add(QuoteStep.POWER_FLUSH);
+            }
+            if (shouldIncludeRepairMagneticFilter(state, currentStep)) {
+                flow.add(QuoteStep.MAGNETIC_FILTER);
+            }
         }
 
         if (!skipRepairDetails) {
+            flow.add(QuoteStep.RADIATOR_COUNT);
             flow.add(QuoteStep.BATH_SHOWER_COUNT);
         }
 
@@ -128,15 +153,33 @@ public class QuoteProgressService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+        return isBoilerRepair(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
-        return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+        return isBoilerRepair(service);
     }
 
     private boolean shouldSkipRepairDetails(String service) {
+        return isBoilerRepair(service);
+    }
+
+    private boolean isBoilerRepair(String service) {
         return BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean isBoilerServiceAndGasSafety(String service) {
+        return GAS_SAFETY_CERTIFICATE_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldIncludeGasSafetyBoilerType(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.BOILER_TYPE
+                || (state != null && requiresBoilerTypeForGasSafety(state.getGasSafetyServiceType()));
+    }
+
+    private boolean requiresBoilerTypeForGasSafety(GasSafetyServiceType serviceType) {
+        return serviceType == GasSafetyServiceType.BOILER_SERVICE
+                || serviceType == GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE;
     }
 
     private boolean shouldIncludeBoilerConversion(QuoteSessionState state, QuoteStep currentStep, String service) {
@@ -175,6 +218,16 @@ public class QuoteProgressService {
     private boolean shouldIncludeFaultCodeDetails(QuoteSessionState state, QuoteStep currentStep) {
         return currentStep == QuoteStep.FAULT_CODE_DETAILS
                 || (state != null && state.requiresFaultCodeDetails());
+    }
+
+    private boolean shouldIncludeRepairPowerFlush(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.POWER_FLUSH
+                || (state != null && state.hasFaultCodeDisplayStatus());
+    }
+
+    private boolean shouldIncludeRepairMagneticFilter(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.MAGNETIC_FILTER
+                || (state != null && state.hasPowerFlushStatus());
     }
 
     private int resolveCurrentStage(QuoteStep currentStep, boolean bookingComplete) {

@@ -39,8 +39,8 @@ public class CentralHeatingQuoteWizardService {
 
     public CentralHeatingQuoteStep startWizard(CentralHeatingQuoteSessionState state, String postcode) {
         state.setPostcode(postcode);
-        state.setCurrentStep(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP);
-        return CentralHeatingQuoteStep.PROPERTY_OWNERSHIP;
+        state.setCurrentStep(CentralHeatingQuoteStep.RADIATOR_ISSUES);
+        return CentralHeatingQuoteStep.RADIATOR_ISSUES;
     }
 
     public boolean canAccessStep(CentralHeatingQuoteSessionState state, CentralHeatingQuoteStep step) {
@@ -50,18 +50,21 @@ public class CentralHeatingQuoteWizardService {
 
         return switch (step) {
             case START -> true;
-            case PROPERTY_OWNERSHIP -> state.hasPostcode();
+            case PROPERTY_OWNERSHIP -> state.hasRadiatorIssues();
             case PROPERTY_TYPE -> state.hasOwnership();
-            case BEDROOMS -> state.hasPropertyType();
-            case BOILER_TYPE -> state.hasBedrooms();
-            case FUEL_TYPE -> state.hasBoilerType();
-            case RADIATOR_COUNT -> state.hasFuel();
+            case BEDROOMS -> false;
+            case BOILER_TYPE -> state.hasPropertyType();
+            case FUEL_TYPE -> false;
+            case RADIATOR_COUNT -> state.hasBoilerType();
             case TRV_VALVES -> state.hasRadiatorCount();
             case POWER_FLUSH -> state.hasTrvValveStatus();
             case MAGNETIC_FILTER -> state.hasPowerFlushStatus();
-            case RADIATOR_ISSUES -> state.hasMagneticFilterStatus();
-            case TRV_INSTALLATION_QUANTITY -> state.hasRadiatorIssues() && state.needsTrvInstallationQuantity();
+            case RADIATOR_ISSUES -> state.hasPostcode();
+            case TRV_INSTALLATION_QUANTITY -> state.hasMagneticFilterStatus()
+                    && state.hasRadiatorIssues()
+                    && state.needsTrvInstallationQuantity();
             case INSTALLATION_ITEM -> state.hasRadiatorIssues()
+                    && state.hasMagneticFilterStatus()
                     && state.needsInstallationSpecification()
                     && (!state.needsTrvInstallationQuantity() || state.hasTrvInstallationQuantity());
             case INSTALLATION_POSITION -> state.hasRadiatorIssues()
@@ -87,6 +90,7 @@ public class CentralHeatingQuoteWizardService {
                     && state.needsInstallationSpecification()
                     && (state.hasInstallationSpecification() || state.hasInstallationItems());
             case SUMMARY -> state.hasRadiatorIssues()
+                    && state.hasMagneticFilterStatus()
                     && (!state.needsTrvInstallationQuantity() || state.hasTrvInstallationQuantity())
                     && (!state.needsInstallationSpecification() || state.hasInstallationItems());
         };
@@ -119,8 +123,9 @@ public class CentralHeatingQuoteWizardService {
         }
 
         state.setPropertyType(selectedPropertyType);
-        state.setCurrentStep(CentralHeatingQuoteStep.BEDROOMS);
-        return CentralHeatingQuoteStep.BEDROOMS;
+        state.setBedrooms(null);
+        state.setCurrentStep(CentralHeatingQuoteStep.BOILER_TYPE);
+        return CentralHeatingQuoteStep.BOILER_TYPE;
     }
 
     public CentralHeatingQuoteStep updateBedrooms(CentralHeatingQuoteSessionState state, Bedrooms bedrooms) {
@@ -143,8 +148,10 @@ public class CentralHeatingQuoteWizardService {
         }
 
         state.setBoilerType(selectedBoilerType);
-        state.setCurrentStep(CentralHeatingQuoteStep.FUEL_TYPE);
-        return CentralHeatingQuoteStep.FUEL_TYPE;
+        state.setFuel(null);
+        state.setRadiatorCount(null);
+        state.setCurrentStep(CentralHeatingQuoteStep.RADIATOR_COUNT);
+        return CentralHeatingQuoteStep.RADIATOR_COUNT;
     }
 
     public CentralHeatingQuoteStep updateRadiatorCount(CentralHeatingQuoteSessionState state, RadiatorCount radiatorCount) {
@@ -185,12 +192,9 @@ public class CentralHeatingQuoteWizardService {
         }
 
         state.setMagneticFilterStatus(magneticFilterStatus);
-        state.setRadiatorIssues(new LinkedHashSet<>());
-        state.setOtherRadiatorIssueDetails(null);
-        state.getInstallationItems().clear();
-        state.clearInstallationDraft();
-        state.setCurrentStep(CentralHeatingQuoteStep.RADIATOR_ISSUES);
-        return CentralHeatingQuoteStep.RADIATOR_ISSUES;
+        CentralHeatingQuoteStep nextStep = nextStepAfterHeatingDetails(state);
+        state.setCurrentStep(nextStep);
+        return nextStep;
     }
 
     public CentralHeatingQuoteStep updateRadiatorIssues(CentralHeatingQuoteSessionState state,
@@ -220,17 +224,27 @@ public class CentralHeatingQuoteWizardService {
             state.clearInstallationDraft();
         }
 
+        state.setOwnership(null);
+        state.setPropertyType(null);
+        state.setBoilerType(null);
+        state.setFuel(null);
+        state.setRadiatorCount(null);
+        state.setTrvValveStatus(null);
+        state.setPowerFlushStatus(null);
+        state.setMagneticFilterStatus(null);
+        state.setCurrentStep(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP);
+        return CentralHeatingQuoteStep.PROPERTY_OWNERSHIP;
+    }
+
+    private CentralHeatingQuoteStep nextStepAfterHeatingDetails(CentralHeatingQuoteSessionState state) {
         if (state.needsTrvInstallationQuantity()) {
-            state.setCurrentStep(CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY);
             return CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY;
         }
 
         if (state.needsInstallationSpecification()) {
-            state.setCurrentStep(CentralHeatingQuoteStep.INSTALLATION_ITEM);
             return CentralHeatingQuoteStep.INSTALLATION_ITEM;
         }
 
-        state.setCurrentStep(CentralHeatingQuoteStep.SUMMARY);
         return CentralHeatingQuoteStep.SUMMARY;
     }
 

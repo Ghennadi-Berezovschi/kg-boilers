@@ -19,6 +19,7 @@ import com.kgboilers.model.boilerinstallation.enums.FlueClearance;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
@@ -40,6 +41,8 @@ import com.kgboilers.service.boilerinstallationquote.QuoteProgressService;
 import com.kgboilers.service.boilerinstallationquote.RelocationPricingService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
 import com.kgboilers.service.boilerinstallationquote.QuoteWizardService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +71,8 @@ class QuotePageControllerTest {
     private QuoteOfferProperties quoteOfferProperties;
     private QuoteProgressService quoteProgressService;
     private HttpSession session;
+    private HttpServletRequest request;
+    private HttpServletResponse response;
     private Model model;
     private QuotePageController controller;
 
@@ -91,10 +96,14 @@ class QuotePageControllerTest {
                 "Disposal of your old boiler"
         ));
         when(quoteOptionalExtraService.getAllOptionalExtras()).thenReturn(java.util.List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)));
+        when(quoteOptionalExtraService.getOptionalExtrasFor(any())).thenReturn(java.util.List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)));
         when(quoteOptionalExtraService.resolveSelectedExtras(any())).thenReturn(java.util.List.of());
+        when(quoteOptionalExtraService.resolveSelectedExtras(any(), any())).thenReturn(java.util.List.of());
         when(quoteOptionalExtraService.getTotalPriceGbp(any())).thenReturn(0);
         when(quoteProgressService.buildProgress(any(), any(), anyBoolean())).thenReturn(new QuoteProgressView(1, 1, 100, 0, java.util.List.of()));
         session = mock(HttpSession.class);
+        request = mock(HttpServletRequest.class);
+        response = mock(HttpServletResponse.class);
         model = mock(Model.class);
 
         when(relocationPricingService.getPricesByValue()).thenReturn(Map.of());
@@ -107,6 +116,8 @@ class QuotePageControllerTest {
                 flueLengthPricingService,
                 flueClearancePricingService,
                 fluePositionPricingService,
+                200,
+                1000,
                 boilerRecommendationService,
                 quoteOptionalExtraService,
                 quotePersistenceService,
@@ -118,12 +129,24 @@ class QuotePageControllerTest {
 
     @Test
     void startPage_shouldReturnQuotePage_andSaveServiceInSessionAndModel() {
-        String view = controller.startPage("Boiler-Installation", model, session);
+        String view = controller.startPage("Boiler-Installation", model, session, request, response);
 
         assertEquals("boiler-installation-quote/quote", view);
         verify(session).setAttribute(eq("service"), eq("boiler-installation"));
         verify(model).addAttribute(eq("service"), eq("boiler-installation"));
         verify(model).addAttribute(eq("serviceTitle"), eq("Boiler Installation"));
+        verify(response).addCookie(any());
+    }
+
+    @Test
+    void startPage_shouldRedirectToCanonicalServiceUrl_whenServiceParamIsMissing() {
+        when(session.getAttribute("service")).thenReturn("gas-safety-certificate");
+
+        String view = controller.startPage(null, model, session, request, response);
+
+        assertEquals("redirect:/quote?service=gas-safety-certificate", view);
+        verify(session).setAttribute(eq("service"), eq("gas-safety-certificate"));
+        verify(response).addCookie(any());
     }
 
     @Test
@@ -490,7 +513,7 @@ class QuotePageControllerTest {
         when(fluePositionPricingService.getPrice(FluePosition.UNDER_STRUCTURE)).thenReturn(50);
         when(flueClearancePricingService.getPrice(FlueClearance.LESS_THAN_THIRTY_CM)).thenReturn(150);
 
-        when(quoteOptionalExtraService.resolveSelectedExtras(any())).thenReturn(java.util.List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)));
+        when(quoteOptionalExtraService.resolveSelectedExtras(any(), any())).thenReturn(java.util.List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)));
         when(quoteOptionalExtraService.getTotalPriceGbp(any())).thenReturn(150);
 
         String view = controller.summaryPage(java.util.List.of("hive-thermostat-mini"), session, model);
@@ -502,6 +525,58 @@ class QuotePageControllerTest {
         verify(model).addAttribute("flueClearancePriceGbp", 150);
         verify(model).addAttribute("recommendedBoilerExtraPriceGbp", 1000);
         verify(model).addAttribute("selectedOptionalExtrasPriceGbp", 150);
+        verifyNoInteractions(quotePersistenceService);
+    }
+
+    @Test
+    void summaryPage_shouldAddHeatOnlyToCombiConversionPrice_whenConversionIsYes() {
+        QuoteSessionState state = completeVerticalState();
+        state.setHeatOnlyConversion(HeatOnlyConversion.YES);
+        BoilerRecommendationResult recommendation = new BoilerRecommendationResult(
+                BoilerType.COMBI,
+                "Combi boiler",
+                5,
+                1,
+                false,
+                java.util.List.of()
+        );
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(sessionService.getSavedQuoteId(session)).thenReturn(null);
+        when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
+
+        String view = controller.summaryPage(null, session, model);
+
+        assertEquals("boiler-installation-quote/summary", view);
+        verify(model).addAttribute("heatOnlyConversionPriceGbp", 1000);
+        verify(model).addAttribute("recommendedBoilerExtraPriceGbp", 1000);
+        verify(quoteOptionalExtraService).getOptionalExtrasFor(BoilerType.COMBI);
+        verify(quoteOptionalExtraService).resolveSelectedExtras(null, BoilerType.COMBI);
+        verifyNoInteractions(quotePersistenceService);
+    }
+
+    @Test
+    void summaryPage_shouldAddSquareFlueShapePrice_whenHorizontalFlueShapeIsSquare() {
+        QuoteSessionState state = completeHorizontalStateWithExtras();
+        state.setHorizontalFlueShape(HorizontalFlueShape.SQUARE);
+        BoilerRecommendationResult recommendation = new BoilerRecommendationResult(
+                BoilerType.COMBI,
+                "Combi boiler",
+                5,
+                2,
+                false,
+                java.util.List.of()
+        );
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(sessionService.getSavedQuoteId(session)).thenReturn(null);
+        when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
+
+        String view = controller.summaryPage(null, session, model);
+
+        assertEquals("boiler-installation-quote/summary", view);
+        verify(model).addAttribute("horizontalFlueShapePriceGbp", 200);
+        verify(model).addAttribute("recommendedBoilerExtraPriceGbp", 200);
         verifyNoInteractions(quotePersistenceService);
     }
 
@@ -576,7 +651,7 @@ class QuotePageControllerTest {
         when(flueLengthPricingService.getPrice(FlueLength.FOUR_TO_FIVE)).thenReturn(500);
         when(fluePositionPricingService.getPrice(FluePosition.UNDER_STRUCTURE)).thenReturn(50);
         when(flueClearancePricingService.getPrice(FlueClearance.LESS_THAN_THIRTY_CM)).thenReturn(150);
-        when(quoteOptionalExtraService.resolveSelectedExtras(any())).thenReturn(java.util.List.of(selectedExtra));
+        when(quoteOptionalExtraService.resolveSelectedExtras(any(), any())).thenReturn(java.util.List.of(selectedExtra));
         when(quoteOptionalExtraService.getTotalPriceGbp(any())).thenReturn(150);
 
         String view = controller.contactPage("Vaillant ecoTEC Plus 28kW Combi", java.util.List.of("hive-thermostat-mini"), session, model);
@@ -625,7 +700,7 @@ class QuotePageControllerTest {
         when(flueLengthPricingService.getPrice(FlueLength.FOUR_TO_FIVE)).thenReturn(500);
         when(fluePositionPricingService.getPrice(FluePosition.UNDER_STRUCTURE)).thenReturn(50);
         when(flueClearancePricingService.getPrice(FlueClearance.LESS_THAN_THIRTY_CM)).thenReturn(150);
-        when(quoteOptionalExtraService.resolveSelectedExtras(any())).thenReturn(java.util.List.of(selectedExtra));
+        when(quoteOptionalExtraService.resolveSelectedExtras(any(), any())).thenReturn(java.util.List.of(selectedExtra));
         when(quoteOptionalExtraService.getTotalPriceGbp(any())).thenReturn(150);
         when(quotePersistenceService.saveLead(
                 null,
@@ -636,6 +711,8 @@ class QuotePageControllerTest {
                 500,
                 50,
                 150,
+                0,
+                0,
                 java.util.List.of(selectedExtra),
                 150,
                 "Vaillant ecoTEC Plus 28kW Combi",
@@ -656,6 +733,8 @@ class QuotePageControllerTest {
                 500,
                 50,
                 150,
+                0,
+                0,
                 java.util.List.of(selectedExtra),
                 150,
                 "Vaillant ecoTEC Plus 28kW Combi",
@@ -676,6 +755,8 @@ class QuotePageControllerTest {
                 500,
                 50,
                 150,
+                0,
+                0,
                 java.util.List.of(selectedExtra),
                 150
         );
@@ -713,7 +794,7 @@ class QuotePageControllerTest {
         when(flueLengthPricingService.getPrice(FlueLength.FOUR_TO_FIVE)).thenReturn(500);
         when(fluePositionPricingService.getPrice(FluePosition.UNDER_STRUCTURE)).thenReturn(50);
         when(flueClearancePricingService.getPrice(FlueClearance.LESS_THAN_THIRTY_CM)).thenReturn(150);
-        when(quoteOptionalExtraService.resolveSelectedExtras(any())).thenReturn(java.util.List.of(selectedExtra));
+        when(quoteOptionalExtraService.resolveSelectedExtras(any(), any())).thenReturn(java.util.List.of(selectedExtra));
         when(quoteOptionalExtraService.getTotalPriceGbp(any())).thenReturn(150);
 
         String view = controller.submitContactRequest(request, bindingResult, session, model, new RedirectAttributesModelMap());

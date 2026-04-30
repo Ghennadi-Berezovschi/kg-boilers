@@ -14,6 +14,7 @@ import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePropertyDistance;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
+import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
@@ -34,6 +35,8 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class QuoteSessionState implements Serializable {
@@ -46,6 +49,7 @@ public class QuoteSessionState implements Serializable {
     // =========================
 
     private String postcode;
+    private GasSafetyServiceType gasSafetyServiceType;
     private FuelType fuel;
     private OwnershipType ownership;
     private PropertyType propertyType;
@@ -53,6 +57,7 @@ public class QuoteSessionState implements Serializable {
 
     private BoilerType boilerType;
     private BoilerMake boilerMake;
+    private List<GasApplianceSelection> gasAppliances;
     private BoilerAge boilerAge;
     private HeatOnlyConversion heatOnlyConversion;
     private BoilerPosition boilerPosition;
@@ -93,6 +98,10 @@ public class QuoteSessionState implements Serializable {
         return fuel != null;
     }
 
+    public boolean hasGasSafetyServiceType() {
+        return gasSafetyServiceType != null;
+    }
+
     public boolean hasOwnership() {
         return ownership != null;
     }
@@ -111,6 +120,10 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasBoilerMake() {
         return boilerMake != null;
+    }
+
+    public boolean hasGasAppliances() {
+        return gasAppliances != null && !gasAppliances.isEmpty();
     }
 
     public boolean hasBoilerAge() {
@@ -381,6 +394,16 @@ public class QuoteSessionState implements Serializable {
         }
 
         return bathShowerCount.getValue();
+    }
+
+    public String getGasAppliancesSummary() {
+        if (!hasGasAppliances()) {
+            return "";
+        }
+
+        return gasAppliances.stream()
+                .map(GasApplianceSelection::getSummary)
+                .collect(Collectors.joining(", "));
     }
 
     // =========================

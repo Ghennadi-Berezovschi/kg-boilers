@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Property Ownership</title>
+    <title>Service Type</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -21,24 +21,42 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            Are you the <span style="color:#ff5a3c;">homeowner</span> or <span style="color:#ff5a3c;">landlord</span>?
+            Choose your <span style="color:#ff5a3c;">service</span>
         </h2>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectOwnership('homeowner')">
-                <div class="fuel-icon">🏠</div>
-                <h3 class="fuel-title">Homeowner</h3>
+            <article class="card fuel-card" onclick="selectServiceType('boiler-service')">
+                <div class="fuel-icon">🔧</div>
+                <h3 class="fuel-title">Boiler service</h3>
                 <div class="fuel-desc">
-                    You own and live in the property.
+                    Annual boiler service only.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectOwnership('landlord')">
+            <article class="card fuel-card" onclick="selectServiceType('boiler-service-and-gas-safety-certificate')">
                 <div class="fuel-icon">📄</div>
-                <h3 class="fuel-title">Landlord</h3>
+                <h3 class="fuel-title">Boiler service and gas safety certificate</h3>
                 <div class="fuel-desc">
-                    You rent this property to tenants.
+                    Boiler service plus certificate for all gas appliances.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectServiceType('gas-safety-certificate')">
+                <div class="fuel-icon">✅</div>
+                <h3 class="fuel-title">Gas safety certificate</h3>
+                <div class="fuel-desc">
+                    Certificate for all appliances.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectServiceType('something-else')">
+                <div class="fuel-icon" style="color:#ff5a3c;">❓</div>
+                <h3 class="fuel-title">Something else</h3>
+                <div class="fuel-desc">
+                    Select this if you are not sure which service you need.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
@@ -50,19 +68,20 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
 
-    async function selectOwnership(type) {
+    async function selectServiceType(serviceType) {
         clearError();
 
         try {
-            const response = await fetch("/quote/property-ownership", {
+            const response = await fetch(`${quoteApiBasePath}/service-type`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ ownership: type })
+                body: JSON.stringify({ serviceType })
             });
 
             const data = await response.json();
@@ -74,7 +93,7 @@
 
             window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Ownership error:", error);
+            console.error("Service type error:", error);
             showError("Something went wrong. Please try again.");
         }
     }

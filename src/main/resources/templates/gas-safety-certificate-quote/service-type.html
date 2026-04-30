@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Flue Property Distance</title>
+    <title>Service Type</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -21,37 +21,33 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            How close to <span style="color:#ff5a3c;">another property</span> is your flue?
+            Choose your <span style="color:#ff5a3c;">service</span>
         </h2>
-        <p class="section-subtitle">
-            Measure from the flue terminal to the nearest facing property.
-        </p>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectFluePropertyDistance('less-than-1m')">
-                <div class="fuel-icon">
-                    <img src="/images/flues/flue-property-distance-less-than-1m.svg"
-                         alt="Flue is less than one metre from another property"
-                         width="150"
-                         height="150">
-                </div>
-                <h3 class="fuel-title">Less than 1 metre</h3>
+            <article class="card fuel-card" onclick="selectServiceType('boiler-service')">
+                <div class="fuel-icon">🔧</div>
+                <h3 class="fuel-title">Boiler service</h3>
                 <div class="fuel-desc">
-                    The flue is less than 1 metre from the nearest facing property.
+                    Full boiler service for your gas boiler.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFluePropertyDistance('more-than-1m')">
-                <div class="fuel-icon">
-                    <img src="/images/flues/flue-property-distance-more-than-1m.svg"
-                         alt="Flue is more than one metre from another property"
-                         width="150"
-                         height="150">
-                </div>
-                <h3 class="fuel-title">More than 1 metre</h3>
+            <article class="card fuel-card" onclick="selectServiceType('boiler-service-and-gas-safety-certificate')">
+                <div class="fuel-icon">🔧📄</div>
+                <h3 class="fuel-title">Boiler service and gas safety certificate</h3>
                 <div class="fuel-desc">
-                    The flue is more than 1 metre from the nearest facing property.
+                    Boiler service plus certificate for all gas appliances.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectServiceType('gas-safety-certificate')">
+                <div class="fuel-icon">📄</div>
+                <h3 class="fuel-title">Gas safety certificate</h3>
+                <div class="fuel-desc">
+                    Certificate for all appliances.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
@@ -63,19 +59,20 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
 
-    async function selectFluePropertyDistance(fluePropertyDistance) {
+    async function selectServiceType(serviceType) {
         clearError();
 
         try {
-            const response = await fetch("/quote/flue-property-distance", {
+            const response = await fetch(`${quoteApiBasePath}/service-type`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ fluePropertyDistance: fluePropertyDistance })
+                body: JSON.stringify({ serviceType })
             });
 
             const data = await response.json();
@@ -85,9 +82,9 @@
                 return;
             }
 
-            window.location.href = data.nextStep.trim();
+            window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Flue property distance error:", error);
+            console.error("Service type error:", error);
             showError("Something went wrong. Please try again.");
         }
     }

@@ -5,6 +5,18 @@ spring:
     password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+
   jpa:
     hibernate:
       ddl-auto: none
@@ -19,6 +31,11 @@ spring:
       - classpath:catalog/boilers-combi.yml
       - classpath:catalog/boilers-system.yml
       - classpath:catalog/boilers-heat-only.yml
+
+server:
+  servlet:
+    session:
+      timeout: 2h
 
 # =========================
 # Resilience4j
@@ -120,6 +137,11 @@ kg:
     flue-position:
       under-structure: 50
       open-area: 0
+    flue-shape:
+      square: 200
+      round: 0
+      unsure: 0
+    heat-only-to-combi: 1000
 
   quote-offer:
     included-items:
@@ -132,12 +154,12 @@ kg:
       - "Integral Filling Link"
       - "Condensate pipework"
       - "Pipework installation, alterations and upgrades"
-      - "Sentinel Water Treatment"
       - "Electrical work"
-      - "Boiler Aftercare: 10 years warranty (on-site parts & labour)"
+
+
       - "To register the warranty & Building Control Certificate"
       - "Chemical Flush"
-      - "Fused Spur"
+      - 
       - "Boiler Fittings Pack"
     optional-extras:
       - id: "hive-thermostat-mini"
@@ -146,7 +168,48 @@ kg:
         price-gbp: 150
 
       - id: "chemical-power-flush"
-        title: "Chemical Power Flush"
-        description: "Clean your heating system with a chemical power flush to help improve circulation, protect your boiler and support long-term efficiency."
+        title: "Power flushing"
+        description: "Add a deep system clean to help improve heating circulation."
         price-gbp: 195
-        image: "/images/central-heating/power-flush-combined.jpg"
+        image: "/images/central-heating/power-flush-combined.jpg?v=20260424-1130"
+
+      - id: "heat-only-motorised-valves"
+        title: "Honeywell 3 Port Position Valve"
+        description: "Replace ageing zone valves that direct hot water between the cylinder and radiators, helping the heating and hot water respond correctly when called."
+        price-gbp: 145
+        image: "/images/central-heating/honeywell-3-port-position-valve-bes.png?v=20260424-1938"
+        applies-to-boiler-types:
+          - "heat-only"
+
+      - id: "heat-only-2-port-position-valve"
+        title: "Honeywell 2 Port Position Valve"
+        description: "Add 2-port zone valves where separate heating or hot water circuits need reliable open-and-close control."
+        price-gbp: 99
+        image: "/images/central-heating/honeywell-2-port-position-valve.jpg?v=20260424-1930"
+        repeatable: true
+        applies-to-boiler-types:
+          - "heat-only"
+
+      - id: "heat-only-grundfos-ups4-pump"
+        title: "Grundfos UPS4 Central Heating Pump"
+        description: "Upgrade the circulation pump so hot water moves around the heating system more reliably, improving radiator performance on older installations."
+        price-gbp: 195
+        image: "/images/central-heating/grundfos-ups4-pump.jpg?v=20260424-1315"
+        applies-to-boiler-types:
+          - "heat-only"
+
+      - id: "heat-only-sealed-system-kit-12-litre-vessel"
+        title: "Sealed System Kit with 12 Litre Expansion Vessel"
+        description: "Add a sealed system kit with a 12 litre expansion vessel, filling loop, gauge and safety components for suitable heat-only installations."
+        price-gbp: 199
+        image: "/images/central-heating/sealed-system-kit-12-litre-vessel.jpg?v=20260425-1458"
+        applies-to-boiler-types:
+          - "heat-only"
+
+      - id: "heat-only-honeywell-cylinder-thermostat"
+        title: "Honeywell Cylinder Thermostat"
+        description: "Add a cylinder thermostat to control stored hot water temperature more accurately and help the cylinder call for heat only when needed."
+        price-gbp: 99
+        image: "/images/central-heating/honeywell-cylinder-thermostat.jpg?v=20260424-1518"
+        applies-to-boiler-types:
+          - "heat-only"

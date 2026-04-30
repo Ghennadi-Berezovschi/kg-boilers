@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Boiler Condition</title>
+    <title>Property Type</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -21,50 +21,45 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            What is the <span style="color:#ff5a3c;">condition of your boiler</span>?
+            What type of <span style="color:#ff5a3c;">property</span> is it?
         </h2>
-        <p class="section-subtitle">
-            Tell us why you are replacing your boiler.
-        </p>
 
         <div class="grid fuel-grid">
-
-            <article class="card fuel-card" onclick="selectCondition('not-working')">
-                <div class="fuel-icon">❌</div>
-                <h3 class="fuel-title">Not working</h3>
+            <article class="card fuel-card" onclick="selectType('HOUSE')">
+                <div class="fuel-icon">🏠</div>
+                <h3 class="fuel-title">House</h3>
                 <div class="fuel-desc">
-                    Your boiler has completely stopped working.
+                    Detached, semi-detached, terraced, or end-of-terrace property
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectCondition('old-inefficient')">
-                <div class="fuel-icon">⚙️</div>
-                <h3 class="fuel-title">Old / Inefficient</h3>
+            <article class="card fuel-card" onclick="selectType('FLAT')">
+                <div class="fuel-icon">🏢</div>
+                <h3 class="fuel-title">Flat / Apartment</h3>
                 <div class="fuel-desc">
-                    Your boiler still works but is outdated or inefficient.
+                    A flat within a building
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectCondition('doesnt-meet-needs')">
-                <div class="fuel-icon">🚿</div>
-                <h3 class="fuel-title">Doesn't meet needs</h3>
+            <article class="card fuel-card" onclick="selectType('BUNGALOW')">
+                <div class="fuel-icon">🏡</div>
+                <h3 class="fuel-title">Bungalow</h3>
                 <div class="fuel-desc">
-                    Not enough hot water or pressure for your home.
+                    Single-floor house
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectCondition('other')">
-                <div class="fuel-icon">❓</div>
+            <article class="card fuel-card" onclick="selectType('OTHER')">
+                <div class="fuel-icon" style="color:#ff5a3c;">❓</div>
                 <h3 class="fuel-title">Other</h3>
                 <div class="fuel-desc">
-                    Another reason not listed above.
+                    Not sure or something different
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
-
         </div>
 
         <p id="result" class="quote-result" aria-live="polite"></p>
@@ -73,19 +68,20 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
 
-    async function selectCondition(condition) {
+    async function selectType(type) {
         clearError();
 
         try {
-            const response = await fetch("/quote/boiler-condition", {
+            const response = await fetch(`${quoteApiBasePath}/property-type`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ boilerCondition: condition })
+                body: JSON.stringify({ propertyType: type })
             });
 
             const data = await response.json();
@@ -95,9 +91,9 @@
                 return;
             }
 
-            window.location.href = data.nextStep.trim();
+            window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Boiler condition error:", error);
+            console.error("Property type error:", error);
             showError("Something went wrong. Please try again.");
         }
     }

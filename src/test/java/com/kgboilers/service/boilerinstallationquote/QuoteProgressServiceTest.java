@@ -2,6 +2,7 @@ package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.model.boilerinstallationquote.QuoteProgressView;
@@ -44,25 +45,25 @@ class QuoteProgressServiceTest {
 
     @Test
     void buildProgress_shouldMarkBookingStageWhenLeadIsSubmitted() {
-        QuoteProgressView progress = service.buildProgress(new QuoteSessionState(), QuoteStep.CONTACT, true);
+        QuoteProgressView progress = service.buildProgress(new QuoteSessionState(), QuoteStep.SUMMARY, true);
 
+        assertEquals(progress.totalSteps(), progress.currentStepNumber());
         assertEquals(100, progress.percentComplete());
+        assertEquals(0, progress.stepsRemaining());
         assertEquals("complete", progress.stages().get(2).state());
         assertEquals("active", progress.stages().get(3).state());
     }
 
     @Test
-    void buildProgress_shouldSkipBedroomsAndBoilerPositionForBoilerRepair() {
+    void buildProgress_shouldSkipHomeAndPropertyQuestionsForBoilerRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
         state.setFuel(com.kgboilers.model.boilerinstallation.enums.FuelType.GAS);
-        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
-        state.setPropertyType(com.kgboilers.model.boilerinstallation.enums.PropertyType.HOUSE);
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.BOILER_TYPE, false, "boiler-repair");
 
-        assertEquals(4, progress.currentStepNumber());
-        assertEquals(15, progress.totalSteps());
+        assertEquals(2, progress.currentStepNumber());
+        assertEquals(8, progress.totalSteps());
     }
 
     @Test
@@ -70,15 +71,13 @@ class QuoteProgressServiceTest {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
         state.setFuel(com.kgboilers.model.boilerinstallation.enums.FuelType.GAS);
-        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
-        state.setPropertyType(com.kgboilers.model.boilerinstallation.enums.PropertyType.HOUSE);
         state.setBoilerType(BoilerType.HEAT_ONLY);
         state.setBoilerMake(com.kgboilers.model.boilerinstallation.enums.BoilerMake.VAILLANT);
 
-        QuoteProgressView progress = service.buildProgress(state, QuoteStep.BOILER_LOCATION, false, "boiler-repair");
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.BOILER_AGE, false, "boiler-repair");
 
-        assertEquals(7, progress.currentStepNumber());
-        assertEquals(15, progress.totalSteps());
+        assertEquals(4, progress.currentStepNumber());
+        assertEquals(8, progress.totalSteps());
     }
 
     @Test
@@ -86,22 +85,42 @@ class QuoteProgressServiceTest {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
         state.setFuel(com.kgboilers.model.boilerinstallation.enums.FuelType.GAS);
-        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
-        state.setPropertyType(com.kgboilers.model.boilerinstallation.enums.PropertyType.HOUSE);
         state.setBoilerType(BoilerType.COMBI);
         state.setBoilerMake(com.kgboilers.model.boilerinstallation.enums.BoilerMake.VAILLANT);
         state.setBoilerAge(com.kgboilers.model.boilerrepair.enums.BoilerAge.TWO_TO_FIVE_YEARS);
-        state.setBoilerLocation(com.kgboilers.model.boilerinstallation.enums.BoilerLocation.KITCHEN);
-        state.setRadiatorCount(com.kgboilers.model.boilerinstallation.enums.RadiatorCount.SIX_TO_NINE);
-        state.setPowerFlushStatus(com.kgboilers.model.boilerrepair.enums.PowerFlushStatus.YES_DONE);
-        state.setMagneticFilterStatus(com.kgboilers.model.boilerrepair.enums.MagneticFilterStatus.YES_HAS);
         state.setRepairProblem(com.kgboilers.model.boilerrepair.enums.RepairProblem.HEATING);
-        state.setBoilerPressureStatus(com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus.YES_DROPPED_OR_DROPPING);
         state.setFaultCodeDisplayStatus(com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus.YES_SHOWING);
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FAULT_CODE_DETAILS, false, "boiler-repair");
 
-        assertEquals(14, progress.currentStepNumber());
-        assertEquals(16, progress.totalSteps());
+        assertEquals(7, progress.currentStepNumber());
+        assertEquals(9, progress.totalSteps());
+    }
+
+    @Test
+    void buildProgress_shouldStopGasSafetyCertificateFlowAfterPropertyType() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
+        state.setPropertyType(com.kgboilers.model.boilerinstallation.enums.PropertyType.HOUSE);
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.SUMMARY, false, "gas-safety-certificate");
+
+        assertEquals(4, progress.currentStepNumber());
+        assertEquals(5, progress.totalSteps());
+        assertEquals(80, progress.percentComplete());
+    }
+
+    @Test
+    void buildProgress_shouldIncludeBoilerTypeForBoilerServiceGasSafetyFlow() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE);
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.BOILER_TYPE, false, "gas-safety-certificate");
+
+        assertEquals(2, progress.currentStepNumber());
+        assertEquals(7, progress.totalSteps());
+        assertEquals(29, progress.percentComplete());
     }
 }

@@ -4,24 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Get a Quote</title>
-    <meta name="description" content="Get a free quote from K&G Boiler Services for boiler installation, replacement or repair in London.">
+    <title>Boiler Service and Gas Safety Certificate Quote</title>
+    <meta name="description" content="Get a quote for boiler service and gas safety certificate in London.">
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://kg-boilers.com/quote">
-    <meta property="og:title" th:content="${'Get a Free Boiler Quote - ' + company.name}" content="Get a Free Boiler Quote - K&G Boiler Services">
-    <meta property="og:description" content="Use our quick wizard to get a free estimate for boiler installation, replacement or repair in London.">
-    <meta property="og:image" content="https://kg-boilers.com/images/og-image.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://kg-boilers.com/quote">
-    <meta property="twitter:title" th:content="${'Get a Free Boiler Quote - ' + company.name}" content="Get a Free Boiler Quote - K&G Boiler Services">
-    <meta property="twitter:description" content="Use our quick wizard to get a free estimate for boiler installation, replacement or repair in London.">
-    <meta property="twitter:image" content="https://kg-boilers.com/images/og-image.jpg">
-
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -29,7 +15,7 @@
 
 <main class="container">
     <section class="section">
-        <h2 th:text="'Get a quote for ' + ${serviceTitle}">Get a quote</h2>
+        <h2>Get a quote for Boiler Service and Gas Safety Certificate</h2>
 
         <div class="card quote-card">
             <div class="quote-form-row">
@@ -58,7 +44,8 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/gas-safety-certificate-quote";
     const postcodeInput = document.getElementById("postcode");
     const checkButton = document.getElementById("checkBtn");
     const resultElement = document.getElementById("result");
@@ -86,7 +73,7 @@
         setLoading(true);
 
         try {
-            const response = await fetch("/quote/start", {
+            const response = await fetch(`${quoteApiBasePath}/start`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -128,10 +115,6 @@
                 showError(message || "Service temporarily unavailable. Please try again.");
                 break;
 
-            case "SESSION_EXPIRED":
-                showError(message || "Please start your quote again");
-                break;
-
             default:
                 showError(message || "Something went wrong. Please try again.");
         }
@@ -139,17 +122,15 @@
 
     function showError(message) {
         resultElement.textContent = "❌ " + message;
-        postcodeInput.classList.add("input-error");
     }
 
     function clearError() {
         resultElement.textContent = "";
-        postcodeInput.classList.remove("input-error");
     }
 
     function setLoading(isLoading) {
         checkButton.disabled = isLoading;
-        checkButton.textContent = isLoading ? "Checking..." : "Check availability →";
+        checkButton.textContent = isLoading ? "Checking..." : "Continue →";
     }
 </script>
 

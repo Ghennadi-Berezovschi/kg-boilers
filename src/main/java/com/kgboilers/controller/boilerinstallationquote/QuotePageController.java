@@ -5,7 +5,12 @@ import com.kgboilers.dto.boilerinstallationquote.BoilerContactRequestDto;
 import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
+import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
+import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
+import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
+import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
 import com.kgboilers.service.boilerinstallationquote.FlueClearancePricingService;
@@ -18,9 +23,12 @@ import com.kgboilers.service.boilerinstallationquote.QuoteProgressService;
 import com.kgboilers.service.boilerinstallationquote.RelocationPricingService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
 import com.kgboilers.service.boilerinstallationquote.QuoteWizardService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +49,20 @@ import java.util.Map;
 @RequestMapping("/quote")
 public class QuotePageController {
 
+    private static final String BOILER_INSTALLATION_SERVICE = "boiler-installation";
+    private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
+    private static final String GAS_SAFETY_CERTIFICATE_LABEL = "Boiler Service and Gas Safety Certificate";
+    private static final String QUOTE_SERVICE_COOKIE = "kg_quote_service";
+    private static final int QUOTE_SERVICE_COOKIE_MAX_AGE_SECONDS = 2 * 60 * 60;
+
     private final QuoteSessionService sessionService;
     private final QuoteWizardService wizardService;
     private final RelocationPricingService relocationPricingService;
     private final FlueLengthPricingService flueLengthPricingService;
     private final FlueClearancePricingService flueClearancePricingService;
     private final FluePositionPricingService fluePositionPricingService;
+    private final int squareFlueShapePriceGbp;
+    private final int heatOnlyToCombiPriceGbp;
     private final BoilerRecommendationService boilerRecommendationService;
     private final QuoteOptionalExtraService quoteOptionalExtraService;
     private final QuotePersistenceService quotePersistenceService;
@@ -59,6 +76,8 @@ public class QuotePageController {
                                FlueLengthPricingService flueLengthPricingService,
                                FlueClearancePricingService flueClearancePricingService,
                                FluePositionPricingService fluePositionPricingService,
+                               @Value("${kg.pricing.flue-shape.square:0}") int squareFlueShapePriceGbp,
+                               @Value("${kg.pricing.heat-only-to-combi:0}") int heatOnlyToCombiPriceGbp,
                                BoilerRecommendationService boilerRecommendationService,
                                QuoteOptionalExtraService quoteOptionalExtraService,
                                QuotePersistenceService quotePersistenceService,
@@ -71,6 +90,8 @@ public class QuotePageController {
         this.flueLengthPricingService = flueLengthPricingService;
         this.flueClearancePricingService = flueClearancePricingService;
         this.fluePositionPricingService = fluePositionPricingService;
+        this.squareFlueShapePriceGbp = squareFlueShapePriceGbp;
+        this.heatOnlyToCombiPriceGbp = heatOnlyToCombiPriceGbp;
         this.boilerRecommendationService = boilerRecommendationService;
         this.quoteOptionalExtraService = quoteOptionalExtraService;
         this.quotePersistenceService = quotePersistenceService;
@@ -101,13 +122,23 @@ public class QuotePageController {
     }
 
     @GetMapping
-    public String startPage(@RequestParam(defaultValue = "boiler-installation") String service,
+    public String startPage(@RequestParam(value = "service", required = false) String service,
                             Model model,
-                            HttpSession session) {
+                            HttpSession session,
+                            HttpServletRequest request,
+                            HttpServletResponse response) {
 
-        String normalizedService = normalizeService(service);
+        String normalizedService = normalizeService(service == null || service.isBlank()
+                ? getSelectedService(session, request)
+                : service);
 
         session.setAttribute("service", normalizedService);
+        rememberSelectedService(response, normalizedService);
+
+        if ((service == null || service.isBlank()) && !isDefaultInstallationService(normalizedService)) {
+            return "redirect:" + pathForService(QuoteStep.START, normalizedService);
+        }
+
         model.addAttribute("service", normalizedService);
         model.addAttribute("serviceTitle", formatServiceTitle(normalizedService));
 
@@ -127,6 +158,19 @@ public class QuotePageController {
         return "boiler-installation-quote/fuel-type";
     }
 
+    @GetMapping("/service-type")
+    public String serviceTypePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.SERVICE_TYPE, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.START, service));
+        return "boiler-installation-quote/service-type";
+    }
+
     @GetMapping("/property-ownership")
     public String ownershipPage(HttpSession session, Model model) {
         QuoteSessionState state = sessionService.getState(session);
@@ -136,7 +180,7 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        model.addAttribute("backUrl", pathForService(QuoteStep.PROPERTY_OWNERSHIP.previous(), service));
+        model.addAttribute("backUrl", getOwnershipBackUrl(state, service));
         return "boiler-installation-quote/property-ownership";
     }
 
@@ -175,8 +219,24 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_TYPE.previous(), service));
+        model.addAttribute("backUrl", isBoilerServiceAndGasSafety(service)
+                ? QuoteStep.SERVICE_TYPE.getPath()
+                : pathForService(QuoteStep.BOILER_TYPE.previous(), service));
         return "boiler-installation-quote/boiler-type";
+    }
+
+    @GetMapping("/boiler-make")
+    public String boilerMakePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.BOILER_MAKE, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", QuoteStep.BOILER_TYPE.getPath());
+        model.addAttribute("boilerMakeOptions", BoilerMake.values());
+        return "boiler-repair-quote/boiler-make";
     }
 
     @GetMapping("/boiler-conversion")
@@ -428,6 +488,11 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
+        if (isBoilerServiceAndGasSafety(service)) {
+            populateServiceSummaryModel(model, state);
+            return "boiler-installation-quote/summary";
+        }
+
         populateSummaryModel(session, model, state, selectedExtraIds);
 
         return "boiler-installation-quote/summary";
@@ -446,7 +511,7 @@ public class QuotePageController {
         }
 
         SummaryViewData summaryViewData = buildSummaryViewData(session, state, selectedExtraIds);
-        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, boilerLabel);
+        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, boilerLabel, service);
 
         if (selectedBoilerData == null) {
             return "redirect:/quote/summary";
@@ -481,7 +546,7 @@ public class QuotePageController {
         }
 
         SummaryViewData summaryViewData = buildSummaryViewData(session, state, contactRequest.getSelectedExtras());
-        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, contactRequest.getSelectedBoiler());
+        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, contactRequest.getSelectedBoiler(), service);
 
         if (selectedBoilerData == null) {
             return "redirect:/quote/summary";
@@ -503,6 +568,8 @@ public class QuotePageController {
                 summaryViewData.flueLengthPriceGbp(),
                 summaryViewData.fluePositionPriceGbp(),
                 summaryViewData.flueClearancePriceGbp(),
+                summaryViewData.horizontalFlueShapePriceGbp(),
+                summaryViewData.heatOnlyConversionPriceGbp(),
                 summaryViewData.selectedOptionalExtras(),
                 summaryViewData.optionalExtrasPriceGbp(),
                 contactRequest.getSelectedBoiler(),
@@ -523,6 +590,8 @@ public class QuotePageController {
                 summaryViewData.flueLengthPriceGbp(),
                 summaryViewData.fluePositionPriceGbp(),
                 summaryViewData.flueClearancePriceGbp(),
+                summaryViewData.horizontalFlueShapePriceGbp(),
+                summaryViewData.heatOnlyConversionPriceGbp(),
                 summaryViewData.selectedOptionalExtras(),
                 summaryViewData.optionalExtrasPriceGbp()
         );
@@ -541,7 +610,15 @@ public class QuotePageController {
         populateSummaryModel(model, state, buildSummaryViewData(session, state, selectedExtraIds));
     }
 
+    private void populateServiceSummaryModel(Model model, QuoteSessionState state) {
+        model.addAttribute("serviceSummaryOnly", true);
+        model.addAttribute("serviceSummaryTitle", GAS_SAFETY_CERTIFICATE_LABEL);
+        model.addAttribute("state", state);
+        model.addAttribute("backUrl", QuoteStep.PROPERTY_TYPE.getPath());
+    }
+
     private void populateSummaryModel(Model model, QuoteSessionState state, SummaryViewData summaryViewData) {
+        model.addAttribute("serviceSummaryOnly", false);
         model.addAttribute("state", state);
 
         if (state.getRelocationDistance() != null) {
@@ -556,16 +633,23 @@ public class QuotePageController {
         if (state.getFlueClearance() != null) {
             model.addAttribute("flueClearancePriceGbp", summaryViewData.flueClearancePriceGbp());
         }
+        if (summaryViewData.horizontalFlueShapePriceGbp() > 0) {
+            model.addAttribute("horizontalFlueShapePriceGbp", summaryViewData.horizontalFlueShapePriceGbp());
+        }
+        if (summaryViewData.heatOnlyConversionPriceGbp() > 0) {
+            model.addAttribute("heatOnlyConversionPriceGbp", summaryViewData.heatOnlyConversionPriceGbp());
+        }
 
         model.addAttribute("boilerRecommendation", summaryViewData.boilerRecommendation());
         model.addAttribute("backUrl", QuoteStep.SUMMARY.previous().getPath());
         model.addAttribute("recommendedBoilerFallbackImage", getRecommendedBoilerFallbackImage(summaryViewData.boilerRecommendation()));
         model.addAttribute("recommendedBoilerExtraPriceGbp", summaryViewData.extraPriceGbp());
-        model.addAttribute("quoteOptionalExtras", quoteOptionalExtraService.getAllOptionalExtras());
+        model.addAttribute("quoteOptionalExtras", quoteOptionalExtraService.getOptionalExtrasFor(getOptionalExtrasBoilerType(state)));
         model.addAttribute("quoteIncludedItems", quoteOfferProperties.getIncludedItems());
         model.addAttribute("selectedOptionalExtras", summaryViewData.selectedOptionalExtras());
         model.addAttribute("selectedOptionalExtrasPriceGbp", summaryViewData.optionalExtrasPriceGbp());
         model.addAttribute("selectedExtraIds", summaryViewData.selectedExtraIds());
+        model.addAttribute("selectedExtraQuantities", buildSelectedExtraQuantities(summaryViewData.selectedOptionalExtras()));
     }
 
     private void populateContactPageModel(Model model,
@@ -591,11 +675,14 @@ public class QuotePageController {
         int flueLengthPriceGbp = getFlueLengthPriceGbp(state);
         int fluePositionPriceGbp = getFluePositionPriceGbp(state);
         int flueClearancePriceGbp = getFlueClearancePriceGbp(state);
+        int horizontalFlueShapePriceGbp = getHorizontalFlueShapePriceGbp(state);
+        int heatOnlyConversionPriceGbp = getHeatOnlyConversionPriceGbp(state);
         BoilerRecommendationResult boilerRecommendation = sortBoilersForSummary(boilerRecommendationService.recommend(state));
-        List<QuoteOptionalExtra> selectedOptionalExtras = quoteOptionalExtraService.resolveSelectedExtras(selectedExtraIds);
+        List<QuoteOptionalExtra> selectedOptionalExtras = quoteOptionalExtraService.resolveSelectedExtras(selectedExtraIds, getOptionalExtrasBoilerType(state));
         int optionalExtrasPriceGbp = quoteOptionalExtraService.getTotalPriceGbp(selectedOptionalExtras);
         List<String> normalizedSelectedExtraIds = selectedOptionalExtras.stream()
-                .map(QuoteOptionalExtra::getId)
+                .flatMap(extra -> java.util.stream.IntStream.range(0, Math.max(1, extra.getQuantity() == null ? 1 : extra.getQuantity()))
+                        .mapToObj(index -> extra.getId()))
                 .toList();
 
         return new SummaryViewData(
@@ -603,13 +690,25 @@ public class QuotePageController {
                 flueLengthPriceGbp,
                 fluePositionPriceGbp,
                 flueClearancePriceGbp,
-                relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp,
+                horizontalFlueShapePriceGbp,
+                heatOnlyConversionPriceGbp,
+                relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp + horizontalFlueShapePriceGbp + heatOnlyConversionPriceGbp,
                 selectedOptionalExtras,
                 normalizedSelectedExtraIds,
                 optionalExtrasPriceGbp,
                 boilerRecommendation,
                 sessionService.getSavedQuoteId(session)
         );
+    }
+
+    private Map<String, Integer> buildSelectedExtraQuantities(List<QuoteOptionalExtra> selectedOptionalExtras) {
+        Map<String, Integer> quantities = new LinkedHashMap<>();
+        if (selectedOptionalExtras == null) {
+            return quantities;
+        }
+
+        selectedOptionalExtras.forEach(extra -> quantities.put(extra.getId(), Math.max(1, extra.getQuantity() == null ? 1 : extra.getQuantity())));
+        return quantities;
     }
 
     private BoilerRecommendationResult sortBoilersForSummary(BoilerRecommendationResult recommendation) {
@@ -641,11 +740,13 @@ public class QuotePageController {
     private QuoteStep resolveCurrentStep(String requestUri) {
         return switch (requestUri) {
             case "/quote" -> QuoteStep.START;
+            case "/quote/service-type" -> QuoteStep.SERVICE_TYPE;
             case "/quote/fuel-type" -> QuoteStep.FUEL_TYPE;
             case "/quote/property-ownership" -> QuoteStep.PROPERTY_OWNERSHIP;
             case "/quote/property-type" -> QuoteStep.PROPERTY_TYPE;
             case "/quote/bedrooms" -> QuoteStep.BEDROOMS;
             case "/quote/boiler-type" -> QuoteStep.BOILER_TYPE;
+            case "/quote/boiler-make" -> QuoteStep.BOILER_MAKE;
             case "/quote/boiler-conversion" -> QuoteStep.BOILER_CONVERSION;
             case "/quote/boiler-position" -> QuoteStep.BOILER_POSITION;
             case "/quote/boiler-location" -> QuoteStep.BOILER_LOCATION;
@@ -673,7 +774,21 @@ public class QuotePageController {
         return attributes != null && Boolean.TRUE.equals(attributes.get("contactSuccess"));
     }
 
-    private SelectedBoilerData getSelectedBoilerData(SummaryViewData summaryViewData, String boilerLabel) {
+    private SelectedBoilerData getSelectedBoilerData(SummaryViewData summaryViewData, String boilerLabel, String service) {
+        if (isBoilerServiceAndGasSafety(service) && GAS_SAFETY_CERTIFICATE_LABEL.equals(boilerLabel)) {
+            com.kgboilers.model.boilerinstallationquote.BoilerModel serviceSelection = new com.kgboilers.model.boilerinstallationquote.BoilerModel();
+            serviceSelection.setBrand("Service");
+            serviceSelection.setModel("Boiler Service and Gas Safety Certificate");
+            serviceSelection.setAveragePriceGbp(0);
+            serviceSelection.setImage("/images/boilers/combi.svg");
+            return new SelectedBoilerData(
+                    GAS_SAFETY_CERTIFICATE_LABEL,
+                    serviceSelection,
+                    0,
+                    serviceSelection.getImage()
+            );
+        }
+
         BoilerRecommendationResult recommendation = summaryViewData.boilerRecommendation();
         if (recommendation == null || recommendation.getBoilers() == null || boilerLabel == null || boilerLabel.isBlank()) {
             return null;
@@ -699,7 +814,7 @@ public class QuotePageController {
 
     private String normalizeService(String service) {
         if (service == null || service.isBlank()) {
-            return "boiler-installation";
+            return BOILER_INSTALLATION_SERVICE;
         }
 
         return service.trim().toLowerCase();
@@ -711,10 +826,54 @@ public class QuotePageController {
             return normalizeService(serviceValue);
         }
 
-        return "boiler-installation";
+        return BOILER_INSTALLATION_SERVICE;
+    }
+
+    private String getSelectedService(HttpSession session, HttpServletRequest request) {
+        Object service = session.getAttribute("service");
+        if (service instanceof String serviceValue && !serviceValue.isBlank()) {
+            return normalizeService(serviceValue);
+        }
+
+        String cookieService = getSelectedServiceFromCookie(request);
+        if (cookieService != null) {
+            return normalizeService(cookieService);
+        }
+
+        return BOILER_INSTALLATION_SERVICE;
+    }
+
+    private String getSelectedServiceFromCookie(HttpServletRequest request) {
+        if (request == null || request.getCookies() == null) {
+            return null;
+        }
+
+        for (Cookie cookie : request.getCookies()) {
+            if (QUOTE_SERVICE_COOKIE.equals(cookie.getName()) && cookie.getValue() != null && !cookie.getValue().isBlank()) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private void rememberSelectedService(HttpServletResponse response, String service) {
+        Cookie cookie = new Cookie(QUOTE_SERVICE_COOKIE, normalizeService(service));
+        cookie.setPath("/");
+        cookie.setMaxAge(QUOTE_SERVICE_COOKIE_MAX_AGE_SECONDS);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setAttribute("SameSite", "Lax");
+        response.addCookie(cookie);
     }
 
     private String pathForService(QuoteStep step, String service) {
+        if (step == QuoteStep.START && !isDefaultInstallationService(service)) {
+            return UriComponentsBuilder.fromPath(step.getPath())
+                    .queryParam("service", normalizeService(service))
+                    .toUriString();
+        }
+
         return step.getPath();
     }
 
@@ -723,21 +882,31 @@ public class QuotePageController {
     }
 
     private boolean canAccessStep(QuoteSessionState state, QuoteStep step, String service) {
-        return wizardService.canAccessStep(state, step);
+        return isDefaultInstallationService(service)
+                ? wizardService.canAccessStep(state, step)
+                : wizardService.canAccessStep(state, step, service);
     }
 
     private boolean isComplete(QuoteSessionState state, String service) {
-        return state != null && state.isComplete();
+        return isDefaultInstallationService(service)
+                ? state != null && state.isComplete()
+                : wizardService.isComplete(state, service);
     }
 
     private Object buildProgress(QuoteSessionState state,
                                  QuoteStep currentStep,
                                  boolean bookingComplete,
                                  String service) {
-        return quoteProgressService.buildProgress(state, currentStep, bookingComplete);
+        return isDefaultInstallationService(service)
+                ? quoteProgressService.buildProgress(state, currentStep, bookingComplete)
+                : quoteProgressService.buildProgress(state, currentStep, bookingComplete, service);
     }
 
     private String formatServiceTitle(String service) {
+        if (isBoilerServiceAndGasSafety(service)) {
+            return GAS_SAFETY_CERTIFICATE_LABEL;
+        }
+
         if ("central-heating".equals(service)) {
             return "Central Heating Installation & Repair";
         }
@@ -756,6 +925,33 @@ public class QuotePageController {
         }
 
         return title.toString().trim();
+    }
+
+    private boolean isDefaultInstallationService(String service) {
+        return BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean isBoilerServiceAndGasSafety(String service) {
+        return GAS_SAFETY_CERTIFICATE_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private String getOwnershipBackUrl(QuoteSessionState state, String service) {
+        if (!isBoilerServiceAndGasSafety(service)) {
+            return pathForService(QuoteStep.PROPERTY_OWNERSHIP.previous(), service);
+        }
+
+        return requiresBoilerTypeForGasSafety(state)
+                ? QuoteStep.BOILER_TYPE.getPath()
+                : QuoteStep.SERVICE_TYPE.getPath();
+    }
+
+    private boolean requiresBoilerTypeForGasSafety(QuoteSessionState state) {
+        return state != null && requiresBoilerTypeForGasSafety(state.getGasSafetyServiceType());
+    }
+
+    private boolean requiresBoilerTypeForGasSafety(GasSafetyServiceType serviceType) {
+        return serviceType == GasSafetyServiceType.BOILER_SERVICE
+                || serviceType == GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE;
     }
 
     private String getFlueLengthImage(QuoteSessionState state) {
@@ -803,10 +999,34 @@ public class QuotePageController {
                 : 0;
     }
 
+    private int getHeatOnlyConversionPriceGbp(QuoteSessionState state) {
+        return state != null && state.getHeatOnlyConversion() == HeatOnlyConversion.YES
+                ? heatOnlyToCombiPriceGbp
+                : 0;
+    }
+
+    private int getHorizontalFlueShapePriceGbp(QuoteSessionState state) {
+        return state != null && state.getHorizontalFlueShape() == HorizontalFlueShape.SQUARE
+                ? squareFlueShapePriceGbp
+                : 0;
+    }
+
+    private BoilerType getOptionalExtrasBoilerType(QuoteSessionState state) {
+        if (state != null
+                && state.getBoilerType() == BoilerType.HEAT_ONLY
+                && state.getHeatOnlyConversion() == HeatOnlyConversion.YES) {
+            return BoilerType.COMBI;
+        }
+
+        return state != null ? state.getBoilerType() : null;
+    }
+
     private record SummaryViewData(int relocationPriceGbp,
                                    int flueLengthPriceGbp,
                                    int fluePositionPriceGbp,
                                    int flueClearancePriceGbp,
+                                   int horizontalFlueShapePriceGbp,
+                                   int heatOnlyConversionPriceGbp,
                                    int extraPriceGbp,
                                    List<QuoteOptionalExtra> selectedOptionalExtras,
                                    List<String> selectedExtraIds,

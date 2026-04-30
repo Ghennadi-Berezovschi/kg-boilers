@@ -6,7 +6,7 @@
 
     <title>Boiler Contact Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260422-1934')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260429-2044')}">
 </head>
 <body>
 
@@ -15,7 +15,7 @@
 <main class="container">
     <section class="section">
 
-        <a th:if="${backUrl != null}"
+        <a th:if="${backUrl != null and !contactSuccess}"
            th:href="${backUrl}"
            class="back-link"
            aria-label="Go back">← Back</a>
@@ -29,7 +29,7 @@
             <article class="summary-boiler-card contact-selected-card">
                 <div class="summary-boiler-image-wrap">
                     <img class="summary-boiler-image"
-                         th:src="${selectedBoilerImage + '?v=20260422-1830'}"
+                         th:src="${selectedBoilerImage + '?v=20260424-1115'}"
                          th:alt="${selectedBoiler.brand + ' ' + selectedBoiler.model}">
                 </div>
 
@@ -48,10 +48,17 @@
 
             <div class="summary-panel contact-form-panel">
                 <div class="summary-success-banner" th:if="${contactSuccess}">
-                    Thanks, we received your request
-                    <strong th:if="${selectedBoilerLead != null}" th:text="${' for ' + selectedBoilerLead}">for your boiler</strong>.
-                    We will contact you soon.
+                    <p>
+                        Thanks, we received your request
+                        <strong th:if="${selectedBoilerLead != null}" th:text="${' for ' + selectedBoilerLead}">for your boiler</strong>.
+                        We will contact you soon.
+                    </p>
                 </div>
+                <a th:if="${contactSuccess}"
+                   th:href="@{/}"
+                   class="btn btn-phone summary-contact-submit summary-success-home-link">
+                    Return to main page
+                </a>
 
                 <div class="contact-form-panel-body" th:if="${!contactSuccess}">
                     <div class="summary-selected-boiler has-selection">
@@ -65,7 +72,7 @@
                         <div class="contact-selected-extra-list">
                             <div class="contact-selected-extra-item"
                                  th:each="extra : ${selectedOptionalExtras}">
-                                <span th:text="${extra.title}">Hive Thermostat Mini</span>
+                                <span th:text="${extra.title + (extra.quantity != null and extra.quantity > 1 ? ' x' + extra.quantity : '')}">Hive Thermostat Mini</span>
                                 <strong>£<span th:text="${extra.priceGbp}">150</span></strong>
                             </div>
                         </div>
@@ -143,6 +150,16 @@
 </main>
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:if="${contactSuccess}">
+    (function () {
+        window.history.replaceState({ leadSubmitted: true }, "", window.location.href);
+        window.history.pushState({ leadSubmitted: true }, "", window.location.href);
+        window.addEventListener("popstate", function () {
+            window.location.replace("/");
+        });
+    })();
+</script>
 
 </body>
 </html>

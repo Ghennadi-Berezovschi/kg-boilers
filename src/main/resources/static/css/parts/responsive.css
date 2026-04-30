@@ -13,18 +13,22 @@
     }
 
     .header-row{
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
+        align-items: center;
+        flex-direction: row;
+        gap: 8px;
         width: 100%;
+        padding: 8px 6px;
     }
 
     .brand{
-        width: 100%;
+        width: auto;
+        flex: 1 1 auto;
+        padding-left: 16px;
     }
 
     .brand-title{
-        font-size: 14px;
+        font-size: 15px;
+        line-height: 1.05;
     }
 
     .brand-subtitle{
@@ -32,12 +36,14 @@
     }
 
     .actions{
-        width: 100%;
+        width: auto;
         align-self: stretch;
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 5px;
+        gap: 6px;
         justify-content: stretch;
+        flex: 0 0 auto;
+        padding-right: 4px;
     }
 
     .actions > *{
@@ -48,9 +54,9 @@
     .btn{
         width: 100%;
         min-width: 0;
-        min-height: 38px;
-        padding: 8px 6px;
-        font-size: 10px;
+        min-height: 34px;
+        padding: 7px 9px;
+        font-size: 11px;
         text-align: center;
         white-space: normal;
         overflow-wrap: anywhere;
@@ -77,6 +83,11 @@
     }
 
     .btn-phone-number {
+        display: none;
+    }
+
+    .actions .btn-email,
+    .actions .btn-callback {
         display: none;
     }
 

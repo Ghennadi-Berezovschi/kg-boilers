@@ -1,8 +1,64 @@
 <footer class="site-footer" th:fragment="footer">
     <div class="container footer-row">
-        <div class="footer-line">© 2026 <span th:text="${company.name}">K&amp;G Boiler Services</span>. All rights reserved.</div>
+        <div class="footer-line">© 2026 <span th:text="${company.name}">Pro Boiler Services London</span>. All rights reserved.</div>
         <div class="footer-small">
             Boiler installation London • Boiler repair London • Gas engineer London • Central heating repair London
         </div>
     </div>
+    <script>
+        (function () {
+            const resultElement = document.getElementById("result");
+
+            if (!resultElement) {
+                return;
+            }
+
+            function startPath() {
+                const path = window.location.pathname;
+
+                if (path.startsWith("/boiler-repair-quote")) {
+                    return "/boiler-repair-quote";
+                }
+
+                if (path.startsWith("/central-heating-quote")) {
+                    return "/central-heating-quote";
+                }
+
+                return "/quote";
+            }
+
+            function enhanceStartAgainMessage() {
+                const message = resultElement.textContent || "";
+
+                if (!/start your quote again/i.test(message)) {
+                    return;
+                }
+
+                if (resultElement.querySelector(".quote-result-actions")) {
+                    return;
+                }
+
+                const actions = document.createElement("span");
+                actions.className = "quote-result-actions";
+
+                const continueLink = document.createElement("a");
+                continueLink.href = window.location.href;
+                continueLink.className = "quote-result-action quote-result-action-secondary";
+                continueLink.textContent = "Continue this quote";
+
+                const startLink = document.createElement("a");
+                startLink.href = startPath();
+                startLink.className = "quote-result-action";
+                startLink.textContent = "Start from beginning";
+
+                actions.appendChild(continueLink);
+                actions.appendChild(startLink);
+                resultElement.appendChild(actions);
+            }
+
+            enhanceStartAgainMessage();
+            new MutationObserver(enhanceStartAgainMessage)
+                .observe(resultElement, { childList: true, subtree: true, characterData: true });
+        })();
+    </script>
 </footer>

@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const checkboxes = Array.from(form.querySelectorAll(".js-optional-extra-checkbox"));
     const addButtons = Array.from(form.querySelectorAll(".js-optional-extra-toggle"));
+    const quantityInputs = Array.from(form.querySelectorAll(".js-extra-quantity"));
     const priceNodes = Array.from(form.querySelectorAll(".js-boiler-total, .js-featured-total"));
     const totalExtrasNode = form.querySelector(".js-total-selected-extras");
     const breakdownContainer = form.querySelector(".js-optional-extras-breakdown");
@@ -14,14 +15,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const baseExtrasTotal = Number(totalExtrasNode?.dataset.baseExtrasTotal || 0);
 
     const formatPrice = (value) => String(Math.max(0, Math.round(value)));
+    const getQuantityInput = (extraId) => quantityInputs.find((input) => input.dataset.extraId === extraId);
+    const getQuantity = (extraId) => {
+        const input = getQuantityInput(extraId);
+        if (!input) {
+            return 1;
+        }
+
+        const quantity = Math.max(1, Math.min(9, Number(input.value || 1)));
+        input.value = String(quantity);
+        return quantity;
+    };
 
     const getSelectedExtras = () => checkboxes
         .filter((checkbox) => checkbox.checked)
-        .map((checkbox) => ({
-            id: checkbox.value,
-            title: checkbox.dataset.extraTitle || "",
-            price: Number(checkbox.dataset.extraPrice || 0)
-        }));
+        .map((checkbox) => {
+            const quantity = checkbox.dataset.repeatable === "true" ? getQuantity(checkbox.value) : 1;
+            const unitPrice = Number(checkbox.dataset.extraPrice || 0);
+            return {
+                id: checkbox.value,
+                title: checkbox.dataset.extraTitle || "",
+                price: unitPrice * quantity,
+                quantity
+            };
+        });
 
     const syncCardState = (checkbox) => {
         const card = checkbox.closest(".js-optional-extra-card");
@@ -35,6 +52,23 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.dataset.selected = String(checkbox.checked);
     };
 
+    const syncRepeatableHiddenInputs = () => {
+        form.querySelectorAll(".js-repeatable-extra-hidden").forEach((input) => input.remove());
+
+        getSelectedExtras()
+            .filter((extra) => extra.quantity > 1)
+            .forEach((extra) => {
+                for (let index = 1; index < extra.quantity; index += 1) {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "selectedExtras";
+                    input.value = extra.id;
+                    input.className = "js-repeatable-extra-hidden";
+                    form.appendChild(input);
+                }
+            });
+    };
+
     const renderBreakdown = (selectedExtras) => {
         if (!breakdownContainer) {
             return;
@@ -45,13 +79,25 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedExtras.forEach((extra) => {
             const row = document.createElement("div");
             row.className = "summary-breakdown-row summary-breakdown-row-optional";
-            row.innerHTML = `
-                <div class="summary-breakdown-optional-copy">
-                    <span>${extra.title}</span>
-                    <button type="button" class="summary-remove-extra js-remove-extra" data-extra-id="${extra.id}">Remove</button>
-                </div>
-                <strong>£${formatPrice(extra.price)}</strong>
-            `;
+            const quantityLabel = extra.quantity > 1 ? ` x${extra.quantity}` : "";
+
+            const copy = document.createElement("div");
+            copy.className = "summary-breakdown-optional-copy";
+
+            const title = document.createElement("span");
+            title.textContent = `${extra.title}${quantityLabel}`;
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "summary-remove-extra js-remove-extra";
+            removeButton.dataset.extraId = extra.id;
+            removeButton.textContent = "Remove";
+
+            const price = document.createElement("strong");
+            price.textContent = `£${formatPrice(extra.price)}`;
+
+            copy.append(title, removeButton);
+            row.append(copy, price);
             breakdownContainer.appendChild(row);
         });
 
@@ -74,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
             totalExtrasNode.textContent = formatPrice(baseExtrasTotal + optionalExtrasTotal);
         }
 
+        syncRepeatableHiddenInputs();
         renderBreakdown(selectedExtras);
     };
 
@@ -99,6 +146,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    quantityInputs.forEach((input) => {
+        input.addEventListener("change", () => {
+            const checkbox = checkboxes.find((item) => item.value === input.dataset.extraId);
+            if (checkbox && !checkbox.checked) {
+                checkbox.checked = true;
+                syncCardState(checkbox);
+            }
+            updatePrices();
+        });
+    });
+
     if (breakdownContainer) {
         breakdownContainer.addEventListener("click", (event) => {
             const removeButton = event.target.closest(".js-remove-extra");
@@ -113,6 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             checkbox.checked = false;
+            const quantityInput = getQuantityInput(extraId);
+            if (quantityInput) {
+                quantityInput.value = "1";
+            }
             syncCardState(checkbox);
             updatePrices();
         });

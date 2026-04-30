@@ -60,26 +60,15 @@ public class BoilerRepairQuotePageService {
     }
 
     public void populateSummaryModel(Model model, QuoteSessionState state) {
-        QuoteStep backStep = state != null && state.requiresFaultCodeDetails()
-                ? QuoteStep.FAULT_CODE_DETAILS
-                : QuoteStep.FAULT_CODE_DISPLAY;
-
         model.addAttribute("state", state);
-        model.addAttribute("backUrl", pathForStep(backStep));
+        model.addAttribute("backUrl", pathForStep(QuoteStep.MAGNETIC_FILTER));
         model.addAttribute("requestTitle", "Boiler Repair");
         model.addAttribute("postcodeValue", defaultLine(state != null ? state.getPostcode() : null));
         model.addAttribute("fuelValue", formatSelection(state != null ? state.getFuel() : null));
-        model.addAttribute("ownershipValue", formatSelection(state != null ? state.getOwnership() : null));
-        model.addAttribute("propertyTypeValue", formatSelection(state != null ? state.getPropertyType() : null));
         model.addAttribute("boilerTypeValue", formatSelection(state != null ? state.getBoilerType() : null));
         model.addAttribute("boilerMakeValue", formatSelection(state != null ? state.getBoilerMake() : null));
         model.addAttribute("boilerAgeValue", defaultLine(state != null ? state.getBoilerAgeSummary() : null));
-        model.addAttribute("boilerLocationValue", formatSelection(state != null ? state.getBoilerLocation() : null));
-        model.addAttribute("radiatorCountValue", defaultLine(state != null ? state.getRadiatorCountSummary() : null));
-        model.addAttribute("powerFlushValue", defaultLine(state != null ? state.getPowerFlushSummary() : null));
-        model.addAttribute("magneticFilterValue", defaultLine(state != null ? state.getMagneticFilterSummary() : null));
         model.addAttribute("repairProblemValue", defaultLine(state != null ? state.getRepairProblemSummary() : null));
-        model.addAttribute("boilerPressureValue", defaultLine(state != null ? state.getBoilerPressureSummary() : null));
         model.addAttribute("faultCodeValue", defaultLine(state != null ? state.getFaultCodeDisplaySummary() : null));
         model.addAttribute("faultCodeDetailsValue", defaultLine(state != null ? state.getFaultCodeDetailsSummary() : null));
     }

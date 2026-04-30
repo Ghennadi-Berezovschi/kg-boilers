@@ -52,6 +52,48 @@
     color: #1f7a1f;
 }
 
+.quote-result-actions {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.quote-result-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #ff5a3c;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 10px 20px rgba(255, 90, 60, 0.18);
+}
+
+.quote-result-action:hover {
+    background: #e84f35;
+}
+
+.quote-result-action-secondary {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1f2f57;
+    box-shadow: none;
+}
+
+.quote-result-action-secondary:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -134,6 +176,14 @@
     gap: 20px;
 }
 
+.gas-appliance-grid {
+    margin: 24px auto 0;
+    max-width: 820px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
 /* =========================
    Card
 ========================= */
@@ -190,6 +240,73 @@
 
 .repair-problem-card-centered {
     grid-column: auto;
+}
+
+.gas-appliance-card {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 56px;
+    padding: 11px 14px;
+    text-align: left;
+    border-radius: 12px;
+}
+
+.gas-appliance-checkbox {
+    width: 17px;
+    height: 17px;
+    accent-color: #ff5a3c;
+}
+
+.gas-appliance-card .fuel-title {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+.gas-appliance-card .fuel-select {
+    position: static;
+    transform: none;
+    opacity: 1;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 12px;
+}
+
+.gas-appliance-card:has(.gas-appliance-checkbox:checked) {
+    border-color: #ff5a3c;
+    background: #fff5f2;
+}
+
+.gas-appliance-card:has(.gas-appliance-checkbox:checked) .fuel-select {
+    background: #ff5a3c;
+    color: #ffffff;
+}
+
+.gas-appliance-continue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    padding: 10px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #25345d;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.gas-appliance-continue:hover {
+    border-color: #ff5a3c;
+    background: #fff7f3;
+    color: #ff5a3c;
 }
 
 /* =========================
@@ -531,6 +648,16 @@
 .summary-breakdown-row strong {
     white-space: nowrap;
     color: #1f2f57;
+}
+
+.summary-breakdown-row-selected-boiler > span {
+    color: #1f2f57;
+    font-weight: 800;
+}
+
+.summary-breakdown-row-installation-extra > span {
+    color: #2563eb;
+    font-weight: 700;
 }
 
 .summary-breakdown-row-optional span {
@@ -1114,6 +1241,17 @@
 
 .boiler-repair-toggle-button {
     margin: 0;
+    background: #ffffff;
+    border-color: #ffb49f;
+    color: #ff7a59;
+    box-shadow: none;
+}
+
+.boiler-repair-toggle-button:hover {
+    background: #fff4ef;
+    border-color: #ff7a59;
+    color: #e85f42;
+    transform: translateY(-1px);
 }
 
 .boiler-repair-option-copy {
@@ -1491,14 +1629,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 92px;
+    min-height: 158px;
+    padding: 12px;
     border-radius: 16px;
     background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
 }
 
 .summary-optional-image {
-    max-width: 120px;
-    max-height: 72px;
+    max-width: min(220px, 100%);
+    max-height: 136px;
     object-fit: contain;
 }
 
@@ -1573,10 +1712,35 @@
     color: #ffffff;
 }
 
+.summary-extra-quantity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.summary-extra-quantity-input {
+    width: 72px;
+    min-height: 38px;
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    color: #1f2f57;
+    font: inherit;
+    text-align: center;
+}
+
 .contact-page-grid {
     margin-top: 28px;
     display: grid;
-    grid-template-columns: minmax(280px, 380px) minmax(320px, 1fr);
+    grid-template-columns: minmax(300px, 420px) minmax(320px, 1fr);
     gap: 24px;
     align-items: start;
 }
@@ -1584,16 +1748,29 @@
 .contact-selected-card {
     position: sticky;
     top: 20px;
+    grid-template-columns: minmax(0, 1fr) 220px;
     background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
 }
 
 .contact-selected-card .summary-boiler-body {
+    position: relative;
+    z-index: 1;
+    padding-right: 10px;
     background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
 }
 
 .contact-selected-card .summary-boiler-image-wrap {
+    overflow: hidden;
+    padding: 8px 0;
     background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
     border-left: none;
+}
+
+.contact-selected-card .summary-boiler-image {
+    width: 300px;
+    max-width: none;
+    height: 330px;
+    object-position: center center;
 }
 
 .contact-form-panel {
@@ -1612,6 +1789,30 @@
     background: #ecfdf3;
     color: #166534;
     font-weight: 600;
+}
+
+.summary-success-banner p {
+    margin: 0;
+}
+
+.summary-success-home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    width: 100%;
+    margin: 0 0 18px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #166534;
+    color: #ffffff;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.summary-success-home-link:hover {
+    background: #14532d;
+    color: #ffffff;
 }
 
 .summary-contact-lead h4 {
@@ -1748,6 +1949,47 @@
     color: #334155;
 }
 
+.gas-safety-extra-overview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #dbe3ec;
+    color: #2563eb;
+    font-weight: 800;
+}
+
+.gas-safety-extra-overview[hidden] {
+    display: none;
+}
+
+.gas-safety-extra-overview strong {
+    color: #1f2f57;
+}
+
+.gas-safety-extra-overview-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gas-safety-extra-remove {
+    border: 0;
+    background: transparent;
+    color: #ff5a3c;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.gas-safety-extra-remove:hover {
+    color: #d94127;
+}
+
 .central-heating-contact-note {
     margin: 0;
     color: #475569;
@@ -1801,6 +2043,17 @@
         font-size: 18px;
     }
 
+    .quote-result-actions {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        margin: 10px 0 0;
+    }
+
+    .quote-result-action {
+        flex: 1 1 150px;
+    }
+
     .card-cta {
         width: 100%;
     }
@@ -1808,29 +2061,77 @@
     .fuel-grid {
         grid-template-columns: 1fr;
         justify-content: stretch;
+        gap: 12px;
+        margin-top: 24px;
     }
 
     .fuel-card {
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr) auto;
+        grid-template-areas:
+            "icon title select"
+            "icon desc select";
+        align-items: center;
+        column-gap: 14px;
+        row-gap: 4px;
         width: 100%;
         max-width: 100%;
-        min-height: 240px;
-        padding: 24px 16px;
+        min-height: 84px;
+        padding: 16px 14px;
+        text-align: left;
+        border-radius: 12px;
+    }
+
+    .fuel-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .gas-appliance-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .gas-appliance-card {
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        grid-template-areas: none;
+        min-height: 54px;
+        padding: 10px 12px;
+    }
+
+    .gas-appliance-card .fuel-title {
+        grid-area: auto;
+        font-size: 16px;
+    }
+
+    .gas-appliance-card .fuel-select {
+        grid-area: auto;
     }
 
     .radiator-card {
         width: 100%;
-        max-width: 260px;
+        max-width: 100%;
+        min-height: 84px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "title select"
+            "desc select";
     }
 
     .bath-shower-card {
         width: 100%;
-        max-width: 260px;
+        max-width: 100%;
+        min-height: 84px;
     }
 
     .repair-problem-grid {
+        display: grid;
         grid-template-columns: 1fr;
-        max-width: 260px;
-        justify-content: center;
+        max-width: 100%;
+        gap: 12px;
+        justify-content: stretch;
     }
 
     .repair-problem-card-centered {
@@ -1838,32 +2139,132 @@
     }
 
     .fuel-card .fuel-title {
-        font-size: 23px;
+        grid-area: title;
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.15;
+    }
+
+    .fuel-card .fuel-desc {
+        grid-area: desc;
+        max-width: none;
+        font-size: 13px;
+        line-height: 1.3;
     }
 
     .fuel-icon {
-        font-size: 40px;
+        grid-area: icon;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        min-height: 58px;
+        margin: 0;
+        font-size: 34px;
+        overflow: visible;
+    }
+
+    .fuel-icon img,
+    .fuel-icon svg {
+        display: block;
+        width: 100%;
+        max-width: 72px;
+        height: auto;
+        max-height: 58px;
+        object-fit: contain;
     }
 
     .power-flush-photo {
-        width: 124px;
-        height: 124px;
+        grid-area: icon;
+        width: 72px;
+        height: 58px;
+        object-fit: contain;
+        border-radius: 12px;
     }
 
     .repair-problem-art,
     .repair-problem-art-wide {
-        width: 104px;
-        height: 104px;
+        grid-area: icon;
+        width: 72px;
+        height: 58px;
+        margin: 0;
+        object-fit: contain;
+    }
+
+    .repair-problem-art-question {
+        width: 58px;
+        height: 58px;
     }
 
     .range-value {
-        font-size: 50px;
-        margin-bottom: 22px;
+        grid-area: icon;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        min-height: 52px;
+        margin: 0;
+        font-size: 26px;
+    }
+
+    .radiator-card .range-value {
+        display: none;
     }
 
     .unit-count {
-        font-size: 38px;
-        margin-bottom: 16px;
+        grid-area: icon;
+        width: 52px;
+        margin: 0;
+        font-size: 28px;
+        text-align: center;
+    }
+
+    .unit-icons {
+        grid-area: icon;
+        width: 52px;
+        margin: 0;
+        gap: 2px;
+    }
+
+    .unit-icon {
+        font-size: 21px;
+    }
+
+    .fuel-select {
+        position: static;
+        grid-area: select;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid #cbd5e1;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #64748b;
+        font-size: 0;
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+    }
+
+    .fuel-select::before {
+        content: "›";
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 24px;
+        font-weight: 800;
+        font-family: inherit;
+        line-height: 1;
+    }
+
+    .fuel-card:hover .fuel-select,
+    .fuel-card.active .fuel-select {
+        opacity: 1;
+        transform: none;
+        background: #fff4ef;
+        border-color: #ff7a59;
+        color: #ff5a3c;
     }
 
     .summary-grid,
@@ -1873,18 +2274,39 @@
     }
 
     .quote-progress-card {
-        padding: 16px;
-        gap: 14px;
-        border-radius: 20px;
+        padding: 10px 14px;
+        gap: 8px;
+        border-radius: 18px;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
     }
 
     .quote-progress-copy {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
     }
 
     .quote-progress-percent {
-        font-size: 21px;
+        font-size: 18px;
+    }
+
+    .quote-progress-kicker {
+        margin-bottom: 2px;
+        font-size: 10px;
+    }
+
+    .quote-progress-remaining {
+        min-height: 30px;
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .quote-progress-track {
+        height: 6px;
+    }
+
+    .quote-progress-stages {
+        display: none;
     }
 
     .quote-progress-stage {
@@ -1918,6 +2340,30 @@
 
     .summary-offer-sidebar {
         position: static;
+        order: -1;
+    }
+
+    .summary-breakdown-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .summary-breakdown-eyebrow {
+        margin-bottom: 8px;
+        font-size: 10px;
+    }
+
+    .summary-breakdown-list {
+        gap: 8px;
+    }
+
+    .summary-breakdown-row {
+        padding-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .summary-breakdown-total strong {
+        font-size: 28px;
     }
 
     .summary-item {
@@ -1975,5 +2421,156 @@
 
     .summary-contact-fields {
         grid-template-columns: 1fr;
+    }
+}
+
+.gas-appliance-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    max-width: 620px;
+    margin: 20px 0 0;
+}
+
+.gas-appliance-card {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 54px;
+    padding: 10px 12px;
+    border: 1px solid #d7e2ee;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 8px 18px rgba(37, 52, 93, 0.05);
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.gas-appliance-card:hover {
+    border-color: #ff8a65;
+    box-shadow: 0 10px 22px rgba(255, 90, 60, 0.10);
+    transform: translateY(-1px);
+}
+
+.gas-appliance-card:hover .gas-appliance-pill {
+    background: #fff0e8;
+    color: #ff5a3c;
+}
+
+.gas-appliance-checkbox {
+    width: 17px;
+    height: 17px;
+    accent-color: #ff5a3c;
+}
+
+.gas-appliance-title {
+    color: #25345d;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.gas-appliance-pill {
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #edf4ff;
+    color: #2f4b7c;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.gas-appliance-quantity-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gas-appliance-quantity-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.gas-appliance-quantity {
+    width: 58px;
+    min-width: 58px;
+    padding: 5px 8px;
+    border: 1px solid #c8d6e6;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #25345d;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.gas-appliance-card:not(:has(.gas-appliance-checkbox:checked)) .gas-appliance-quantity {
+    opacity: 0.45;
+}
+
+.gas-appliance-card:has(.gas-appliance-checkbox:checked) {
+    border-color: #ff5a3c;
+    background: linear-gradient(180deg, #fff8f4 0%, #fff0e8 100%);
+    box-shadow: 0 10px 24px rgba(255, 90, 60, 0.12);
+}
+
+.gas-appliance-card:has(.gas-appliance-checkbox:checked) .gas-appliance-pill {
+    background: #ff5a3c;
+    color: #ffffff;
+}
+
+.gas-appliance-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 620px;
+    margin-top: 14px;
+    gap: 16px;
+}
+
+.gas-appliance-action-hint {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.gas-appliance-continue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 0;
+    padding: 11px 24px;
+    border: 0;
+    border-radius: 10px;
+    background: #4cae7a;
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(76, 174, 122, 0.22);
+    font: inherit;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.gas-appliance-continue:hover {
+    background: #41986a;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .gas-appliance-actions {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .gas-appliance-action-hint {
+        text-align: center;
+    }
+
+    .gas-appliance-continue {
+        width: 100%;
     }
 }

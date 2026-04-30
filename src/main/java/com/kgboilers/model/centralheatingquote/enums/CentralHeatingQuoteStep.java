@@ -53,17 +53,17 @@ public enum CentralHeatingQuoteStep {
     public CentralHeatingQuoteStep previous() {
         return switch (this) {
             case START -> START;
-            case PROPERTY_OWNERSHIP -> START;
+            case PROPERTY_OWNERSHIP -> RADIATOR_ISSUES;
             case PROPERTY_TYPE -> PROPERTY_OWNERSHIP;
             case BEDROOMS -> PROPERTY_TYPE;
-            case BOILER_TYPE -> BEDROOMS;
+            case BOILER_TYPE -> PROPERTY_TYPE;
             case FUEL_TYPE -> BOILER_TYPE;
-            case RADIATOR_COUNT -> FUEL_TYPE;
+            case RADIATOR_COUNT -> BOILER_TYPE;
             case TRV_VALVES -> RADIATOR_COUNT;
             case POWER_FLUSH -> TRV_VALVES;
             case MAGNETIC_FILTER -> POWER_FLUSH;
-            case RADIATOR_ISSUES -> MAGNETIC_FILTER;
-            case TRV_INSTALLATION_QUANTITY -> RADIATOR_ISSUES;
+            case RADIATOR_ISSUES -> START;
+            case TRV_INSTALLATION_QUANTITY -> MAGNETIC_FILTER;
             case INSTALLATION_ITEM -> TRV_INSTALLATION_QUANTITY;
             case INSTALLATION_POSITION -> INSTALLATION_ITEM;
             case INSTALLATION_MOVE_DISTANCE -> INSTALLATION_POSITION;

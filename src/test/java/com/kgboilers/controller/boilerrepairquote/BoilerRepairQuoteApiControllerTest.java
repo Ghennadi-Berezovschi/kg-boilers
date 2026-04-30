@@ -6,26 +6,18 @@ import com.kgboilers.dto.boilerinstallationquote.BoilerTypeRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.FuelRequestDto;
 import com.kgboilers.dto.boilerinstallationquote.QuoteRequestPostcodeDto;
 import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
-import com.kgboilers.dto.boilerinstallationquote.RadiatorCountRequestDto;
 import com.kgboilers.dto.boilerrepairquote.BoilerAgeRequestDto;
-import com.kgboilers.dto.boilerrepairquote.BoilerPressureRequestDto;
 import com.kgboilers.dto.boilerrepairquote.FaultCodeDetailsRequestDto;
 import com.kgboilers.dto.boilerrepairquote.FaultCodeDisplayRequestDto;
-import com.kgboilers.dto.boilerrepairquote.MagneticFilterRequestDto;
-import com.kgboilers.dto.boilerrepairquote.PowerFlushRequestDto;
 import com.kgboilers.dto.boilerrepairquote.RepairProblemRequestDto;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
-import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerrepair.enums.BoilerAge;
-import com.kgboilers.model.boilerrepair.enums.BoilerPressureStatus;
 import com.kgboilers.model.boilerrepair.enums.FaultCodeDisplayStatus;
-import com.kgboilers.model.boilerrepair.enums.MagneticFilterStatus;
-import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerrepair.enums.RepairProblem;
 import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
 import com.kgboilers.service.boilerinstallationquote.QuoteService;
@@ -89,13 +81,13 @@ class BoilerRepairQuoteApiControllerTest {
     }
 
     @Test
-    void setFuel_shouldReturnPropertyOwnershipForRepair() {
+    void setFuel_shouldReturnBoilerTypeForRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setCurrentStep(QuoteStep.FUEL_TYPE);
 
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.FUEL_TYPE, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateFuel(state, FuelType.ELECTRIC, "boiler-repair")).thenReturn(QuoteStep.PROPERTY_OWNERSHIP);
+        when(wizardService.updateFuel(state, FuelType.ELECTRIC, "boiler-repair")).thenReturn(QuoteStep.BOILER_TYPE);
 
         FuelRequestDto request = new FuelRequestDto();
         request.setFuel(FuelType.ELECTRIC);
@@ -103,7 +95,7 @@ class BoilerRepairQuoteApiControllerTest {
         ResponseEntity<QuoteResponseDto> response = controller.setFuel(request, session);
 
         assertEquals(200, response.getStatusCode().value());
-        assertEquals("/boiler-repair-quote/property-ownership", response.getBody().getNextStep());
+        assertEquals("/boiler-repair-quote/boiler-type", response.getBody().getNextStep());
     }
 
     @Test
@@ -143,13 +135,13 @@ class BoilerRepairQuoteApiControllerTest {
     }
 
     @Test
-    void setBoilerAge_shouldReturnBoilerLocationForRepair() {
+    void setBoilerAge_shouldReturnRepairProblemForRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setCurrentStep(QuoteStep.BOILER_AGE);
 
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.BOILER_AGE, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateBoilerAge(state, BoilerAge.TWO_TO_FIVE_YEARS, "boiler-repair")).thenReturn(QuoteStep.BOILER_LOCATION);
+        when(wizardService.updateBoilerAge(state, BoilerAge.TWO_TO_FIVE_YEARS, "boiler-repair")).thenReturn(QuoteStep.REPAIR_PROBLEM);
 
         BoilerAgeRequestDto request = new BoilerAgeRequestDto();
         request.setBoilerAge(BoilerAge.TWO_TO_FIVE_YEARS);
@@ -157,17 +149,17 @@ class BoilerRepairQuoteApiControllerTest {
         ResponseEntity<QuoteResponseDto> response = controller.setBoilerAge(request, session);
 
         assertEquals(200, response.getStatusCode().value());
-        assertEquals("/boiler-repair-quote/boiler-location", response.getBody().getNextStep());
+        assertEquals("/boiler-repair-quote/repair-problem", response.getBody().getNextStep());
     }
 
     @Test
-    void setBoilerLocation_shouldReturnRadiatorCountForRepair() {
+    void setBoilerLocation_shouldReturnRepairProblemForRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setCurrentStep(QuoteStep.BOILER_LOCATION);
 
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.BOILER_LOCATION, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateBoilerLocation(state, BoilerLocation.KITCHEN, "boiler-repair")).thenReturn(QuoteStep.RADIATOR_COUNT);
+        when(wizardService.updateBoilerLocation(state, BoilerLocation.KITCHEN, "boiler-repair")).thenReturn(QuoteStep.REPAIR_PROBLEM);
 
         BoilerLocationRequestDto request = new BoilerLocationRequestDto();
         request.setLocation(BoilerLocation.KITCHEN);
@@ -175,94 +167,22 @@ class BoilerRepairQuoteApiControllerTest {
         ResponseEntity<QuoteResponseDto> response = controller.setBoilerLocation(request, session);
 
         assertEquals(200, response.getStatusCode().value());
-        assertEquals("/boiler-repair-quote/radiator-count", response.getBody().getNextStep());
-    }
-
-    @Test
-    void setRadiatorCount_shouldReturnPowerFlushForRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
-
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.RADIATOR_COUNT, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateRadiatorCount(state, RadiatorCount.SIX_TO_NINE, "boiler-repair")).thenReturn(QuoteStep.POWER_FLUSH);
-
-        RadiatorCountRequestDto request = new RadiatorCountRequestDto();
-        request.setRadiatorCount(RadiatorCount.SIX_TO_NINE);
-
-        ResponseEntity<QuoteResponseDto> response = controller.setRadiatorCount(request, session);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("/boiler-repair-quote/power-flush", response.getBody().getNextStep());
-    }
-
-    @Test
-    void setPowerFlush_shouldReturnMagneticFilterForRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        state.setCurrentStep(QuoteStep.POWER_FLUSH);
-
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.POWER_FLUSH, "boiler-repair")).thenReturn(true);
-        when(wizardService.updatePowerFlush(state, PowerFlushStatus.YES_DONE, "boiler-repair")).thenReturn(QuoteStep.MAGNETIC_FILTER);
-
-        PowerFlushRequestDto request = new PowerFlushRequestDto();
-        request.setPowerFlushStatus(PowerFlushStatus.YES_DONE);
-
-        ResponseEntity<QuoteResponseDto> response = controller.setPowerFlush(request, session);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("/boiler-repair-quote/magnetic-filter", response.getBody().getNextStep());
-    }
-
-    @Test
-    void setMagneticFilter_shouldReturnRepairProblemForRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        state.setCurrentStep(QuoteStep.MAGNETIC_FILTER);
-
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.MAGNETIC_FILTER, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateMagneticFilter(state, MagneticFilterStatus.YES_HAS, "boiler-repair")).thenReturn(QuoteStep.REPAIR_PROBLEM);
-
-        MagneticFilterRequestDto request = new MagneticFilterRequestDto();
-        request.setMagneticFilterStatus(MagneticFilterStatus.YES_HAS);
-
-        ResponseEntity<QuoteResponseDto> response = controller.setMagneticFilter(request, session);
-
-        assertEquals(200, response.getStatusCode().value());
         assertEquals("/boiler-repair-quote/repair-problem", response.getBody().getNextStep());
     }
 
     @Test
-    void setRepairProblem_shouldReturnBoilerPressureForRepair() {
+    void setRepairProblem_shouldReturnFaultCodeForRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
 
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.REPAIR_PROBLEM, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateRepairProblem(state, RepairProblem.HEATING, "boiler-repair")).thenReturn(QuoteStep.BOILER_PRESSURE);
+        when(wizardService.updateRepairProblem(state, RepairProblem.HEATING, "boiler-repair")).thenReturn(QuoteStep.FAULT_CODE_DISPLAY);
 
         RepairProblemRequestDto request = new RepairProblemRequestDto();
         request.setRepairProblem(RepairProblem.HEATING);
 
         ResponseEntity<QuoteResponseDto> response = controller.setRepairProblem(request, session);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("/boiler-repair-quote/boiler-pressure", response.getBody().getNextStep());
-    }
-
-    @Test
-    void setBoilerPressure_shouldReturnFaultCodeForRepair() {
-        QuoteSessionState state = new QuoteSessionState();
-        state.setCurrentStep(QuoteStep.BOILER_PRESSURE);
-
-        when(sessionService.getState(session)).thenReturn(state);
-        when(wizardService.canAccessStep(state, QuoteStep.BOILER_PRESSURE, "boiler-repair")).thenReturn(true);
-        when(wizardService.updateBoilerPressure(state, BoilerPressureStatus.YES_DROPPED_OR_DROPPING, "boiler-repair")).thenReturn(QuoteStep.FAULT_CODE_DISPLAY);
-
-        BoilerPressureRequestDto request = new BoilerPressureRequestDto();
-        request.setBoilerPressureStatus(BoilerPressureStatus.YES_DROPPED_OR_DROPPING);
-
-        ResponseEntity<QuoteResponseDto> response = controller.setBoilerPressure(request, session);
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("/boiler-repair-quote/fault-code", response.getBody().getNextStep());

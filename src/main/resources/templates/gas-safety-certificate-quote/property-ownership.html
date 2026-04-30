@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Flue Position</title>
+    <title>Property Ownership</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -21,38 +21,24 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            Is your flue <span style="color:#ff5a3c;">sitting under a balcony or any structure</span>?
+            Are you the <span style="color:#ff5a3c;">homeowner</span> or <span style="color:#ff5a3c;">landlord</span>?
         </h2>
-        <p class="section-subtitle">
-            This helps us understand the clearance around the flue terminal.
-        </p>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectFluePosition('under-structure')">
-                <div class="fuel-icon">
-                    <img src="/images/flues/flue-under_balcony.svg"
-                         alt="Boiler and flue under a balcony"
-                         width="150"
-                         height="150">
-                </div>
-                <h3 class="fuel-title">YES</h3>
+            <article class="card fuel-card" onclick="selectOwnership('homeowner')">
+                <div class="fuel-icon">🏠</div>
+                <h3 class="fuel-title">Homeowner</h3>
                 <div class="fuel-desc">
-                    The boiler or flue terminal sits under a balcony or similar structure.
+                    You own and live in the property.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFluePosition('open-area')">
-                <div class="fuel-icon">
-                    <img src="/images/flues/flue-withaut_balcony.svg"
-                         alt="Boiler and flue not under a balcony"
-                         width="150"
-                         height="150">
-                </div>
-                <h3 class="fuel-title">NO</h3>
+            <article class="card fuel-card" onclick="selectOwnership('landlord')">
+                <div class="fuel-icon">📄</div>
+                <h3 class="fuel-title">Landlord</h3>
                 <div class="fuel-desc">
-                    The boiler or flue terminal is not under a balcony or any structure above it.
-                    Please do not count a roof canopy that extends less than 50 cm as a structure.
+                    You rent this property to tenants.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
@@ -64,19 +50,20 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
 
-    async function selectFluePosition(fluePosition) {
+    async function selectOwnership(type) {
         clearError();
 
         try {
-            const response = await fetch("/quote/flue-position", {
+            const response = await fetch(`${quoteApiBasePath}/property-ownership`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({fluePosition: fluePosition})
+                body: JSON.stringify({ ownership: type })
             });
 
             const data = await response.json();
@@ -86,9 +73,9 @@
                 return;
             }
 
-            window.location.href = data.nextStep.trim();
+            window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Flue position error:", error);
+            console.error("Ownership error:", error);
             showError("Something went wrong. Please try again.");
         }
     }

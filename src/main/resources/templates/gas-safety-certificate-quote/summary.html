@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Quote Summary</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260429-1938')}">
+    <script th:src="@{/js/summary-options.js(v='20260424-1915')}" defer></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null and !contactSuccess}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2 th:if="${serviceSummaryOnly}" th:text="${serviceSummaryTitle}">Boiler Service and Gas Safety Certificate</h2>
+        <p class="section-subtitle" th:if="${serviceSummaryOnly}">
+            Check the details below and leave your contact information. We’ll send a copy of this request to you and to our team.
+        </p>
+
+        <div class="summary-offer-layout central-heating-summary-layout" th:if="${serviceSummaryOnly}">
+            <div class="summary-offer-main">
+                <section class="summary-panel">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Requested work</h3>
+                            <p class="summary-empty-copy">
+                                Here is everything selected for this boiler service and gas safety request.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="central-heating-summary-stack">
+                        <div class="summary-item">
+                            <span class="summary-label">Service</span>
+                            <span class="summary-value"
+                                  th:text="${state != null and state.gasSafetyServiceType != null ? state.gasSafetyServiceType.label : serviceSummaryTitle}">
+                                Boiler Service and Gas Safety Certificate
+                            </span>
+                        </div>
+                        <div class="summary-item" th:if="${state != null and state.hasGasAppliances()}">
+                            <span class="summary-label">Gas appliances</span>
+                            <span class="summary-value" th:text="${state.gasAppliancesSummary}">
+                                Gas cooker x1
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-panel">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Property and system details</h3>
+                        </div>
+                    </div>
+
+                    <div class="central-heating-summary-stack">
+                        <div class="summary-item" th:if="${state != null and state.postcode != null}">
+                            <span class="summary-label">Postcode</span>
+                            <span class="summary-value" th:text="${state.postcode}">E16 4JJ</span>
+                        </div>
+                        <div class="summary-item" th:if="${state != null and state.ownership != null}">
+                            <span class="summary-label">Ownership</span>
+                            <span class="summary-value" th:text="${state.ownership.value}">Homeowner</span>
+                        </div>
+                        <div class="summary-item" th:if="${state != null and state.propertyType != null}">
+                            <span class="summary-label">Property</span>
+                            <span class="summary-value" th:text="${state.propertyType.value}">House</span>
+                        </div>
+                        <div class="summary-item" th:if="${state != null and state.boilerType != null}">
+                            <span class="summary-label">Boiler type</span>
+                            <span class="summary-value" th:text="${#strings.capitalize(state.boilerType.value)}">Combi</span>
+                        </div>
+                        <div class="summary-item" th:if="${state != null and state.boilerMake != null}">
+                            <span class="summary-label">Boiler make</span>
+                            <span class="summary-value" th:text="${state.boilerMake.label}">Vaillant</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-optional-section">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Optional extras</h3>
+                            <p class="summary-empty-copy">
+                                Add anything extra you’d like with the visit.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="summary-optional-grid">
+                        <article class="summary-optional-card js-service-extra-card"
+                                 th:classappend="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Power flushing')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Power flushing')) ? ' is-selected' : ''}">
+                            <input class="summary-optional-checkbox js-service-extra-checkbox"
+                                   type="checkbox"
+                                   name="selectedExtras"
+                                   value="Power flushing"
+                                   form="gasSafetyContactForm"
+                                   th:checked="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Power flushing')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Power flushing'))}">
+
+                            <div class="summary-optional-media">
+                                <img class="summary-optional-image"
+                                     th:src="@{/images/central-heating/power-flush-combined.jpg(v='20260424-1130')}"
+                                     alt="Power flushing">
+                            </div>
+
+                            <div class="summary-optional-body">
+                                <h4 class="summary-optional-title">Power flushing</h4>
+                                <p class="summary-optional-desc">
+                                    Add a deep system clean to help improve heating circulation.
+                                </p>
+                                <button type="button"
+                                        class="summary-boxt-btn boiler-repair-toggle-button"
+                                        data-toggle-target="power-flushing-included"
+                                        aria-expanded="false"
+                                        aria-controls="power-flushing-included">
+                                    What's included
+                                </button>
+                                <div class="summary-optional-footer">
+                                    <strong class="summary-optional-price">+£195</strong>
+                                    <button type="button"
+                                            class="summary-optional-toggle js-service-extra-toggle">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="summary-optional-card js-service-extra-card"
+                                 th:classappend="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Magnetic filter')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Magnetic filter')) ? ' is-selected' : ''}">
+                            <input class="summary-optional-checkbox js-service-extra-checkbox"
+                                   type="checkbox"
+                                   name="selectedExtras"
+                                   value="Magnetic filter"
+                                   form="gasSafetyContactForm"
+                                   th:checked="${(contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Magnetic filter')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Magnetic filter'))}">
+
+                            <div class="summary-optional-media">
+                                <img class="summary-optional-image"
+                                     th:src="@{/images/central-heating/magnetic-filter.jpg(v='20260424-1130')}"
+                                     alt="Magnetic filter">
+                            </div>
+
+                            <div class="summary-optional-body">
+                                <h4 class="summary-optional-title">Magnetic filter</h4>
+                                <p class="summary-optional-desc">
+                                    Add a filter to help catch magnetic sludge before it reaches the boiler.
+                                </p>
+                                <button type="button"
+                                        class="summary-boxt-btn boiler-repair-toggle-button"
+                                        data-toggle-target="magnetic-filter-included"
+                                        aria-expanded="false"
+                                        aria-controls="magnetic-filter-included">
+                                    What's included
+                                </button>
+                                <div class="summary-optional-footer">
+                                    <strong class="summary-optional-price">+£145</strong>
+                                    <button type="button"
+                                            class="summary-optional-toggle js-service-extra-toggle">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <section class="boiler-repair-reassurance" id="power-flushing-included" hidden>
+                        <h4 class="boiler-repair-reassurance-title">What's included with Power flushing?</h4>
+                        <p class="boiler-repair-reassurance-copy">
+                            Power flushing is a deep clean of your central heating system. It pushes cleaning chemicals
+                            through the radiators and pipework to help remove sludge, dirty water and debris that can
+                            build up inside the system over time.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            It can help improve circulation, make radiators heat more evenly and reduce strain on the
+                            boiler. If a dirty system is left untreated, radiators may stay cold in places, the boiler
+                            can become noisy or less efficient, and sludge can block boiler components, causing the
+                            boiler to fault or stop working properly after a service.
+                        </p>
+                    </section>
+
+                    <section class="boiler-repair-reassurance" id="magnetic-filter-included" hidden>
+                        <h4 class="boiler-repair-reassurance-title">What's included with Magnetic filter?</h4>
+                        <p class="boiler-repair-reassurance-copy">
+                            A magnetic filter is fitted on the heating pipework to help capture black iron oxide sludge
+                            and small metal particles moving around the system.
+                        </p>
+                        <p class="boiler-repair-reassurance-copy">
+                            It helps protect the boiler, pump and valves from dirt build-up. Without a filter, sludge can
+                            circulate back into the boiler, reduce efficiency and make heating faults more likely to return.
+                        </p>
+                    </section>
+                </section>
+            </div>
+
+            <aside class="summary-offer-sidebar">
+                <div class="summary-breakdown-card summary-boxt-sidebar">
+                    <span class="summary-breakdown-eyebrow">Gas safety request</span>
+                    <h3 class="summary-panel-title">Leave your details</h3>
+
+                    <div class="summary-success-banner" th:if="${contactSuccess}">
+                        <p>Thanks, we received your request. We will contact you soon.</p>
+                    </div>
+                    <a th:if="${contactSuccess}"
+                       th:href="@{/}"
+                       class="btn btn-phone summary-contact-submit summary-success-home-link">
+                        Return to main page
+                    </a>
+
+                    <div class="contact-form-panel-body" th:if="${!contactSuccess}">
+                        <div class="summary-selected-boiler has-selection">
+                            <span class="summary-selected-label">Service</span>
+                            <strong th:text="${state != null and state.gasSafetyServiceType != null ? state.gasSafetyServiceType.label : serviceSummaryTitle}">
+                                Boiler Service and Gas Safety Certificate
+                            </strong>
+                        </div>
+
+                        <div class="summary-selected-boiler" th:if="${state != null and state.hasGasAppliances()}">
+                            <span class="summary-selected-label">Request overview</span>
+                            <div class="central-heating-request-meta">
+                                <span th:text="${state.gasAppliancesSummary}">Gas cooker x1</span>
+                                <span class="gas-safety-extra-overview js-service-extra-overview"
+                                      data-extra-value="Power flushing"
+                                      th:hidden="${!((contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Power flushing')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Power flushing')))}">
+                                    <span>Power flushing</span>
+                                    <span class="gas-safety-extra-overview-actions">
+                                        <strong>£195</strong>
+                                        <button type="button"
+                                                class="gas-safety-extra-remove js-service-extra-remove">
+                                            Remove
+                                        </button>
+                                    </span>
+                                </span>
+                                <span class="gas-safety-extra-overview js-service-extra-overview"
+                                      data-extra-value="Magnetic filter"
+                                      th:hidden="${!((contactRequest != null and contactRequest.selectedExtras != null and contactRequest.selectedExtras.contains('Magnetic filter')) or (selectedServiceExtras != null and selectedServiceExtras.contains('Magnetic filter')))}">
+                                    <span>Magnetic filter</span>
+                                    <span class="gas-safety-extra-overview-actions">
+                                        <strong>£145</strong>
+                                        <button type="button"
+                                                class="gas-safety-extra-remove js-service-extra-remove">
+                                            Remove
+                                        </button>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="central-heating-contact-note">
+                            We’ll use your name, email and phone number to contact you about this request and send a copy to your inbox.
+                        </p>
+
+                        <form th:action="@{/gas-safety-certificate-quote/contact}"
+                              th:object="${contactRequest}"
+                              method="post"
+                              id="gasSafetyContactForm"
+                              class="summary-contact-form">
+                            <input type="hidden" th:field="*{selectedBoiler}">
+
+                            <div class="summary-contact-fields">
+                                <label class="summary-contact-field">
+                                    <span>Name</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="text"
+                                           th:field="*{name}"
+                                           placeholder="Your name">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('name')}"
+                                          th:errors="*{name}">Please enter your name.</span>
+                                </label>
+
+                                <label class="summary-contact-field">
+                                    <span>Email</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="email"
+                                           th:field="*{email}"
+                                           placeholder="name@example.com">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('email')}"
+                                          th:errors="*{email}">Please enter a valid email.</span>
+                                </label>
+
+                                <label class="summary-contact-field">
+                                    <span>Phone</span>
+                                    <input class="quote-input summary-contact-input"
+                                           type="tel"
+                                           th:field="*{phone}"
+                                           placeholder="+44 7700 900123">
+                                    <span class="summary-field-error"
+                                          th:if="${#fields.hasErrors('phone')}"
+                                          th:errors="*{phone}">Please enter a valid phone.</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-phone summary-contact-submit">
+                                Send my details
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <h2 th:unless="${serviceSummaryOnly}">Choose your new boiler</h2>
+        <p class="section-subtitle" th:unless="${serviceSummaryOnly}">
+            Based on your answers, here are the boiler models from the current catalog that fit best. These prices already include your selected installation requirements.
+        </p>
+
+        <form th:if="${!serviceSummaryOnly and boilerRecommendation != null}"
+              th:action="@{/quote/contact}"
+              method="get"
+              class="summary-selection-form js-summary-selection-form">
+        <div class="summary-offer-layout">
+            <div class="summary-offer-main" th:if="${boilerRecommendation != null}">
+                <div class="summary-recommendation-head">
+                    <div>
+                        <h3 class="summary-panel-title"
+                            th:text="${boilerRecommendation.exactMatch ? 'Recommended boilers' : 'Closest boiler matches'}">
+                            Recommended boilers
+                        </h3>
+                    </div>
+                </div>
+
+                <p class="summary-empty-copy"
+                   th:if="${!boilerRecommendation.exactMatch and !#lists.isEmpty(boilerRecommendation.boilers)}">
+                    No exact catalog match was found, so these are the closest available options.
+                </p>
+
+                <p class="summary-empty-copy"
+                   th:if="${#lists.isEmpty(boilerRecommendation.boilers)}">
+                    No boiler from the current catalog matches these answers yet.
+                </p>
+
+                <div class="summary-boiler-grid" th:if="${!#lists.isEmpty(boilerRecommendation.boilers)}">
+                    <article class="summary-boiler-card"
+                             th:classappend="${boilerStat.index == 0 ? ' summary-boiler-card-featured' : ''}"
+                             th:each="boiler, boilerStat : ${boilerRecommendation.boilers}">
+                        <div class="summary-boiler-badge" th:if="${boilerStat.index == 0}">Top match</div>
+
+                        <div class="summary-boiler-image-wrap">
+                            <img class="summary-boiler-image"
+                                 th:src="${(#strings.isEmpty(boiler.image) ? (recommendedBoilerFallbackImage != null ? recommendedBoilerFallbackImage : '/images/boilers/combi.svg') : boiler.image) + '?v=20260424-1115'}"
+                                 th:alt="${boiler.brand + ' ' + boiler.model}">
+                        </div>
+
+                        <div class="summary-boiler-body">
+                            <p class="summary-boiler-brand" th:text="${boiler.brand}">Brand</p>
+                            <h4 class="summary-boiler-title" th:text="${boiler.model}">Boiler model</h4>
+
+                            <div class="summary-boiler-price-block">
+                                <span class="summary-boiler-price-label">Boiler price installation</span>
+                                <strong class="summary-boiler-price-value">£<span class="js-boiler-total"
+                                                                                  th:attr="data-base-price=${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
+                                                                                  th:text="${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">1000</span></strong>
+                            </div>
+
+                            <div class="summary-boiler-meta">
+                                <span th:if="${boiler.dimensions != null}">
+                                    Dimensions: <strong th:text="${boiler.dimensions}">W 390mm x D 295mm x H 702mm</strong>
+                                </span>
+                                <span th:if="${boiler.hotWaterFlowRate != null}">
+                                    Hot water flow: <strong th:text="${boiler.hotWaterFlowRate}">10.4 litres/min</strong>
+                                </span>
+                                <span th:if="${boiler.warrantyYears != null}">
+                                    Warranty: <strong th:text="${boiler.warrantyYears + ' years'}">10 years</strong>
+                                </span>
+                                <span th:if="${boiler.dimensions == null and boiler.hotWaterFlowRate == null and boiler.warrantyYears == null}">
+                                    Output: <strong th:text="${boiler.powerKw + ' kW'}">24 kW</strong>
+                                </span>
+                            </div>
+
+                            <div class="summary-boiler-actions">
+                                <button type="submit"
+                                        name="boiler"
+                                        th:value="${boiler.brand + ' ' + boiler.model}"
+                                        class="summary-boxt-btn summary-boxt-btn-primary summary-choose-btn">
+                                    Choose
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <section class="summary-optional-section" th:if="${!#lists.isEmpty(quoteOptionalExtras)}">
+                    <div class="summary-recommendation-head">
+                        <div>
+                            <h3 class="summary-panel-title">Optional extras</h3>
+                            <p class="summary-empty-copy">
+                                Add anything extra you’d like with your installation. These are completely optional.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="summary-optional-grid">
+                        <article class="summary-optional-card js-optional-extra-card"
+                                 th:each="extra : ${quoteOptionalExtras}"
+                                 th:classappend="${selectedExtraIds.contains(extra.id) ? ' is-selected' : ''}">
+                            <input class="summary-optional-checkbox js-optional-extra-checkbox"
+                                   type="checkbox"
+                                   name="selectedExtras"
+                                   th:value="${extra.id}"
+                                   th:checked="${selectedExtraIds.contains(extra.id)}"
+                                   th:attr="data-extra-title=${extra.title},data-extra-price=${extra.priceGbp},data-repeatable=${extra.repeatable}">
+
+                            <div class="summary-optional-media">
+                                <img th:if="${extra.image != null and !#strings.isEmpty(extra.image)}"
+                                     class="summary-optional-image"
+                                     th:src="${extra.image}"
+                                     th:alt="${extra.title}">
+                                <span th:if="${extra.image == null or #strings.isEmpty(extra.image)}"
+                                      class="summary-optional-fallback">
+                                    Extra
+                                </span>
+                            </div>
+
+                            <div class="summary-optional-body">
+                                <h4 class="summary-optional-title" th:text="${extra.title}">Hive Thermostat Mini</h4>
+                                <p class="summary-optional-desc" th:text="${extra.description}">
+                                    Optional extra description
+                                </p>
+                                <div class="summary-optional-footer">
+                                    <strong class="summary-optional-price">+£<span th:text="${extra.priceGbp}">150</span></strong>
+                                    <button type="button"
+                                            class="summary-optional-toggle js-optional-extra-toggle"
+                                            th:attr="data-extra-id=${extra.id},data-selected=${selectedExtraIds.contains(extra.id)}"
+                                            th:text="${selectedExtraIds.contains(extra.id) ? 'Added' : 'Add'}">Add</button>
+                                </div>
+                                <label class="summary-extra-quantity"
+                                       th:if="${extra.repeatable}">
+                                    <span>Quantity</span>
+                                    <select class="summary-extra-quantity-input js-extra-quantity"
+                                            th:attr="data-extra-id=${extra.id}">
+                                        <option th:each="quantity : ${#numbers.sequence(1, 9)}"
+                                                th:value="${quantity}"
+                                                th:text="${quantity}"
+                                                th:selected="${quantity == (selectedExtraQuantities != null and selectedExtraQuantities.containsKey(extra.id) ? selectedExtraQuantities.get(extra.id) : 1)}">
+                                            1
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="summary-offer-sidebar"
+                   th:with="featuredBoiler=${boilerRecommendation != null and !#lists.isEmpty(boilerRecommendation.boilers) ? boilerRecommendation.boilers[0] : null}">
+                <div class="summary-breakdown-card summary-boxt-sidebar">
+                    <span class="summary-breakdown-eyebrow">Installation quote</span>
+                    <h3 class="summary-panel-title">Your price including installation:</h3>
+                    <div class="summary-sidebar-featured" th:if="${featuredBoiler != null}">
+                        <p class="summary-sidebar-model"
+                           th:text="${featuredBoiler.brand + ' ' + featuredBoiler.model}">
+                            Vaillant ecoTEC Plus 28kW Combi
+                        </p>
+                        <div class="summary-sidebar-price-row">
+                            <strong>£<span class="js-featured-total"
+                                            th:attr="data-base-price=${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
+                                            th:text="${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">3000</span></strong>
+                        </div>
+                    </div>
+
+                    <p class="summary-empty-copy summary-sidebar-copy">
+                        Choose the boiler you want and we’ll use your selected installation requirements to prepare your final booking.
+                    </p>
+
+                    <div class="summary-breakdown-list">
+                        <div class="summary-breakdown-row summary-breakdown-row-selected-boiler"
+                             th:if="${featuredBoiler != null}">
+                            <span th:text="${featuredBoiler.brand + ' ' + featuredBoiler.model}">
+                                Vaillant ecoTEC Plus 28kW Combi
+                            </span>
+                            <strong>Included</strong>
+                        </div>
+
+                        <div class="summary-breakdown-row"
+                             th:each="includedItem : ${quoteIncludedItems}">
+                            <span th:text="${includedItem}">Programmable Room Thermostat</span>
+                            <strong>Included</strong>
+                        </div>
+
+                        <div class="summary-breakdown-divider"></div>
+
+                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${heatOnlyConversionPriceGbp != null and heatOnlyConversionPriceGbp > 0}">
+                            <span>Heat Only to Combi conversion</span>
+                            <strong>£<span th:text="${heatOnlyConversionPriceGbp}">1000</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${horizontalFlueShapePriceGbp != null and horizontalFlueShapePriceGbp > 0}">
+                            <span>Square flue terminal adjustment</span>
+                            <strong>£<span th:text="${horizontalFlueShapePriceGbp}">200</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${relocationPriceGbp != null and relocationPriceGbp > 0}">
+                            <span>Moving boiler</span>
+                            <strong>£<span th:text="${relocationPriceGbp}">400</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${flueLengthPriceGbp != null and flueLengthPriceGbp > 0}">
+                            <span>Flue extension pack</span>
+                            <strong>£<span th:text="${flueLengthPriceGbp}">900</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${fluePositionPriceGbp != null and fluePositionPriceGbp > 0}">
+                            <span>Balcony or structure flue adjustment</span>
+                            <strong>£<span th:text="${fluePositionPriceGbp}">50</span></strong>
+                        </div>
+                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${flueClearancePriceGbp != null and flueClearancePriceGbp > 0}">
+                            <span>Flue clearance adjustment</span>
+                            <strong>£<span th:text="${flueClearancePriceGbp}">150</span></strong>
+                        </div>
+
+                        <div class="summary-breakdown-divider js-optional-extras-divider"
+                             th:hidden="${#lists.isEmpty(selectedOptionalExtras)}"></div>
+
+                        <div class="js-optional-extras-breakdown"
+                             th:hidden="${#lists.isEmpty(selectedOptionalExtras)}">
+                            <div class="summary-breakdown-row summary-breakdown-row-optional"
+                                 th:each="extra : ${selectedOptionalExtras}">
+                                <div class="summary-breakdown-optional-copy">
+                                    <span th:text="${extra.title + (extra.quantity != null and extra.quantity > 1 ? ' x' + extra.quantity : '')}">Hive Thermostat Mini</span>
+                                    <button type="button"
+                                            class="summary-remove-extra js-remove-extra"
+                                            th:attr="data-extra-id=${extra.id}">
+                                        Remove
+                                    </button>
+                                </div>
+                                <strong>£<span th:text="${extra.priceGbp}">150</span></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-breakdown-total">
+                        <span>Total selected extras</span>
+                        <strong>£<span class="js-total-selected-extras"
+                                        th:attr="data-base-extras-total=${recommendedBoilerExtraPriceGbp}"
+                                        th:text="${recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">0</span></strong>
+                    </div>
+
+                    <p class="summary-breakdown-note">
+                        The boiler prices shown on this page include your selected installation requirements and any optional extras you add.
+                    </p>
+                </div>
+            </aside>
+
+        </div>
+        </form>
+
+        <div class="summary-panel" th:if="${!serviceSummaryOnly and boilerRecommendation == null}">
+            <h3 class="summary-panel-title">Recommended boilers</h3>
+            <p class="summary-empty-copy">
+                Your answers were saved, but the recommendation block is not available in the current app instance yet.
+                Refresh the page after restarting the application to load boiler matches and real photos.
+            </p>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:if="${serviceSummaryOnly}">
+    (function () {
+        document.querySelectorAll(".js-service-extra-card").forEach(function (card) {
+            const checkbox = card.querySelector(".js-service-extra-checkbox");
+            const toggle = card.querySelector(".js-service-extra-toggle");
+
+            if (!checkbox || !toggle) {
+                return;
+            }
+
+            const overview = document.querySelector('.js-service-extra-overview[data-extra-value="' + checkbox.value + '"]');
+            const remove = overview ? overview.querySelector(".js-service-extra-remove") : null;
+
+            function sync() {
+                card.classList.toggle("is-selected", checkbox.checked);
+                toggle.textContent = checkbox.checked ? "Added" : "Add";
+                if (overview) {
+                    overview.hidden = !checkbox.checked;
+                }
+            }
+
+            toggle.addEventListener("click", function () {
+                checkbox.checked = !checkbox.checked;
+                sync();
+            });
+
+            if (remove) {
+                remove.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    checkbox.checked = false;
+                    sync();
+                });
+            }
+
+            card.addEventListener("click", function (event) {
+                if (event.target.closest(".js-service-extra-toggle")
+                        || event.target.closest("[data-toggle-target]")) {
+                    return;
+                }
+
+                checkbox.checked = !checkbox.checked;
+                sync();
+            });
+
+            sync();
+        });
+    })();
+</script>
+
+<script th:if="${serviceSummaryOnly}">
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-toggle-target]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+
+                const targetId = button.getAttribute('data-toggle-target');
+                const target = document.getElementById(targetId);
+
+                if (!target) {
+                    return;
+                }
+
+                const willOpen = target.hasAttribute('hidden');
+                if (willOpen) {
+                    target.removeAttribute('hidden');
+                    target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    target.setAttribute('hidden', '');
+                }
+
+                button.setAttribute('aria-expanded', String(willOpen));
+            });
+        });
+    });
+</script>
+
+<script th:if="${contactSuccess}">
+    (function () {
+        window.history.replaceState({ leadSubmitted: true }, "", window.location.href);
+        window.history.pushState({ leadSubmitted: true }, "", window.location.href);
+        window.addEventListener("popstate", function () {
+            window.location.replace("/");
+        });
+    })();
+</script>
+
+</body>
+</html>

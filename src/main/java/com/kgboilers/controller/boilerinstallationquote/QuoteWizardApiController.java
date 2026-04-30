@@ -14,12 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
 @RequestMapping("/quote")
 public class QuoteWizardApiController {
+
+    private static final String BOILER_INSTALLATION_SERVICE = "boiler-installation";
 
     private final QuoteService quoteService;
     private final QuoteWizardService wizardService;
@@ -38,15 +41,19 @@ public class QuoteWizardApiController {
 
     @PostMapping("/start")
     public ResponseEntity<QuoteResponseDto> startQuote(@RequestBody @Valid QuoteRequestPostcodeDto request,
+                                                       @RequestParam(value = "service", required = false) String requestedService,
                                                        HttpSession session) {
-        String service = getSelectedService(session);
+        String service = normalizeService(requestedService == null || requestedService.isBlank()
+                ? getSelectedService(session)
+                : requestedService);
 
         String postcode = request.getPostcode().trim().toUpperCase();
         quoteService.startQuote(postcode, service);
 
         sessionService.clearState(session);
+        session.setAttribute("service", service);
         QuoteSessionState state = sessionService.getOrCreateState(session);
-        QuoteStep nextStep = wizardService.startWizard(state, postcode);
+        QuoteStep nextStep = wizardService.startWizard(state, postcode, service);
         sessionService.saveState(session, state);
 
         log.info("Quote started");
@@ -57,56 +64,100 @@ public class QuoteWizardApiController {
     private String getSelectedService(HttpSession session) {
         Object service = session.getAttribute("service");
         if (service instanceof String serviceValue && !serviceValue.isBlank()) {
-            return serviceValue;
+            return normalizeService(serviceValue);
         }
 
-        return "boiler-installation";
+        return BOILER_INSTALLATION_SERVICE;
+    }
+
+    private String normalizeService(String service) {
+        if (service == null || service.isBlank()) {
+            return BOILER_INSTALLATION_SERVICE;
+        }
+
+        return service.trim().toLowerCase();
+    }
+
+    private boolean isDefaultInstallationService(String service) {
+        return BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean canAccessStep(QuoteSessionState state, QuoteStep step, String service) {
-        return wizardService.canAccessStep(state, step);
+        return isDefaultInstallationService(service)
+                ? wizardService.canAccessStep(state, step)
+                : wizardService.canAccessStep(state, step, service);
     }
 
     private QuoteStep updatePropertyType(QuoteSessionState state,
                                          PropertyTypeRequestDto request,
                                          String service) {
-        return wizardService.updatePropertyType(state, request.getPropertyType());
+        return isDefaultInstallationService(service)
+                ? wizardService.updatePropertyType(state, request.getPropertyType())
+                : wizardService.updatePropertyType(state, request.getPropertyType(), service);
     }
 
     private QuoteStep updateBoilerType(QuoteSessionState state,
                                        BoilerTypeRequestDto request,
                                        String service) {
-        return wizardService.updateBoilerType(state, request.getBoilerType());
+        return isDefaultInstallationService(service)
+                ? wizardService.updateBoilerType(state, request.getBoilerType())
+                : wizardService.updateBoilerType(state, request.getBoilerType(), service);
     }
 
     private QuoteStep updateBoilerConversion(QuoteSessionState state,
                                              BoilerConversionRequestDto request,
                                              String service) {
-        return wizardService.updateBoilerConversion(state, request.getConversion());
+        return isDefaultInstallationService(service)
+                ? wizardService.updateBoilerConversion(state, request.getConversion())
+                : wizardService.updateBoilerConversion(state, request.getConversion(), service);
     }
 
     private QuoteStep updateBoilerFloorLevel(QuoteSessionState state,
                                              BoilerFloorLevelRequestDto request,
                                              String service) {
-        return wizardService.updateBoilerFloorLevel(state, request.getFloorLevel());
+        return isDefaultInstallationService(service)
+                ? wizardService.updateBoilerFloorLevel(state, request.getFloorLevel())
+                : wizardService.updateBoilerFloorLevel(state, request.getFloorLevel(), service);
     }
 
     private QuoteStep updateBoilerLocation(QuoteSessionState state,
                                            BoilerLocationRequestDto request,
                                            String service) {
-        return wizardService.updateBoilerLocation(state, request.getLocation());
+        return isDefaultInstallationService(service)
+                ? wizardService.updateBoilerLocation(state, request.getLocation())
+                : wizardService.updateBoilerLocation(state, request.getLocation(), service);
     }
 
     private QuoteStep updateRadiatorCount(QuoteSessionState state,
                                           RadiatorCountRequestDto request,
                                           String service) {
-        return wizardService.updateRadiatorCount(state, request.getRadiatorCount());
+        return isDefaultInstallationService(service)
+                ? wizardService.updateRadiatorCount(state, request.getRadiatorCount())
+                : wizardService.updateRadiatorCount(state, request.getRadiatorCount(), service);
     }
 
     private QuoteStep updateFuel(QuoteSessionState state,
                                  FuelRequestDto request,
                                  String service) {
-        return wizardService.updateFuel(state, request.getFuel());
+        return isDefaultInstallationService(service)
+                ? wizardService.updateFuel(state, request.getFuel())
+                : wizardService.updateFuel(state, request.getFuel(), service);
+    }
+
+    @PostMapping("/service-type")
+    public ResponseEntity<QuoteResponseDto> setServiceType(@RequestBody @Valid ServiceTypeRequestDto request,
+                                                           HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.SERVICE_TYPE, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updateGasSafetyServiceType(state, request.getServiceType());
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
     }
 
     @PostMapping("/fuel")
@@ -185,6 +236,22 @@ public class QuoteWizardApiController {
         }
 
         QuoteStep nextStep = updateBoilerType(state, request, service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/boiler-make")
+    public ResponseEntity<QuoteResponseDto> setBoilerMake(@RequestBody @Valid BoilerMakeRequestDto request,
+                                                          HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.BOILER_MAKE, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updateBoilerMake(state, request.getBoilerMake(), service);
         sessionService.saveState(session, state);
         return success(nextStep, service);
     }

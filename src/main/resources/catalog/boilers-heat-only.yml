@@ -6,89 +6,118 @@ kg:
         model: "Eco Compact 15kW"
         powerKw: 15
         radiatorsMin: 1
-        radiatorsMax: 8
+        radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 900
+        averagePriceGbp: 2600
         image: "/images/boilers/catalog/main-heat-only.png"
+        dimensions: "W 370mm x D 270mm x H 625mm"
+        warrantyYears: 5
         enabled: true
 
       - brand: "Main"
         model: "Eco Compact 18kW"
         powerKw: 18
         radiatorsMin: 6
-        radiatorsMax: 10
+        radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 950
+        averagePriceGbp: 2700
         image: "/images/boilers/catalog/main-heat-only.png"
+        dimensions: "W 370mm x D 270mm x H 625mm"
+        warrantyYears: 5
         enabled: true
 
       - brand: "Main"
         model: "Eco Compact 24kW"
         powerKw: 24
-        radiatorsMin: 9
-        radiatorsMax: 12
+        radiatorsMin: 10
+        radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1000
+        averagePriceGbp: 2800
         image: "/images/boilers/catalog/main-heat-only.png"
+        dimensions: "W 370mm x D 270mm x H 625mm"
+        warrantyYears: 5
         enabled: true
 
 
-      # Vaillant heat-only (system boilers)
+      # Vaillant heat-only boilers
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 12kW System"
+        model: "ecoTEC Plus 12kW Heat Only"
         powerKw: 12
         radiatorsMin: 1
-        radiatorsMax: 6
+        radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1400
+        averagePriceGbp: 2700
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 15kW System"
+        model: "ecoTEC Plus 15kW Heat Only"
         powerKw: 15
-        radiatorsMin: 4
-        radiatorsMax: 8
+        radiatorsMin: 0
+        radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1500
+        averagePriceGbp: 2800
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 18kW System"
+        model: "ecoTEC Plus 18kW Heat Only"
         powerKw: 18
         radiatorsMin: 6
-        radiatorsMax: 10
+        radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1600
+        averagePriceGbp: 2850
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 24kW System"
+        model: "ecoTEC Plus 24kW Heat Only"
         powerKw: 24
-        radiatorsMin: 9
-        radiatorsMax: 14
+        radiatorsMin: 10
+        radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 3
-        averagePriceGbp: 1750
+        averagePriceGbp: 2900
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 30kW System"
+        model: "ecoTEC Plus 30kW Heat Only"
         powerKw: 30
-        radiatorsMin: 12
-        radiatorsMax: 18
+        radiatorsMin: 14
+        radiatorsMax: 16
         bathroomsMin: 2
         bathroomsMax: 3
-        averagePriceGbp: 1900
+        averagePriceGbp: 3000
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoFIT Pure 435 35kW Heat Only"
+        powerKw: 35
+        radiatorsMin: 14
+        radiatorsMax: 20
+        bathroomsMin: 2
+        bathroomsMax: 4
+        averagePriceGbp: 3500
+        image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
+        dimensions: "W 375mm x D 295mm x H 602mm"
+        warrantyYears: 10
         enabled: true

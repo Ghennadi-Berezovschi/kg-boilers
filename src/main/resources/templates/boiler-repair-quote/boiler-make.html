@@ -58,7 +58,8 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/boiler-repair-quote";
     const resultElement = document.getElementById("result");
     const searchInput = document.getElementById("boilerMakeSearch");
     const makeButtons = Array.from(document.querySelectorAll(".boiler-make-option"));
@@ -80,7 +81,7 @@
         setLoading(button, true);
 
         try {
-            const response = await fetch("/boiler-repair-quote/boiler-make", {
+            const response = await fetch(`${quoteApiBasePath}/boiler-make`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

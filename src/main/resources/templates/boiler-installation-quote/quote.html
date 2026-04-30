@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Get a Quote</title>
-    <meta name="description" content="Get a free boiler installation or replacement quote in London from K&G Boiler Services.">
+    <meta name="description" content="Get a free boiler installation or replacement quote in London from Pro Boiler Services London.">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kg-boilers.com/quote">
-    <meta property="og:title" th:content="${'Get a Free Boiler Quote - ' + company.name}" content="Get a Free Boiler Quote - K&G Boiler Services">
+    <meta property="og:title" th:content="${'Get a Free Boiler Quote - ' + company.name}" content="Get a Free Boiler Quote - Pro Boiler Services London">
     <meta property="og:description" content="Use our quick wizard to get a free estimate for your new boiler installation or replacement in London.">
     <meta property="og:image" content="https://kg-boilers.com/images/og-image.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://kg-boilers.com/quote">
-    <meta property="twitter:title" th:content="${'Get a Free Boiler Quote - ' + company.name}" content="Get a Free Boiler Quote - K&G Boiler Services">
+    <meta property="twitter:title" th:content="${'Get a Free Boiler Quote - ' + company.name}" content="Get a Free Boiler Quote - Pro Boiler Services London">
     <meta property="twitter:description" content="Use our quick wizard to get a free estimate for your new boiler installation or replacement in London.">
     <meta property="twitter:image" content="https://kg-boilers.com/images/og-image.jpg">
 
@@ -58,7 +58,8 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
+    const selectedService = /*[[${service}]]*/ "boiler-installation";
     const postcodeInput = document.getElementById("postcode");
     const checkButton = document.getElementById("checkBtn");
     const resultElement = document.getElementById("result");
@@ -86,7 +87,7 @@
         setLoading(true);
 
         try {
-            const response = await fetch("/quote/start", {
+            const response = await fetch(`/quote/start?service=${encodeURIComponent(selectedService)}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

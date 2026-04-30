@@ -90,12 +90,12 @@ class QuoteWizardApiControllerTest {
     void startQuote_shouldReturnSuccessResponse_andSavePostcodeInSession() {
         when(quoteService.startQuote(anyString(), anyString())).thenReturn(QuoteStep.FUEL_TYPE);
         when(sessionService.getOrCreateState(session)).thenReturn(new QuoteSessionState());
-        when(wizardService.startWizard(any(), anyString())).thenReturn(QuoteStep.FUEL_TYPE);
+        when(wizardService.startWizard(any(), anyString(), eq("boiler-installation"))).thenReturn(QuoteStep.FUEL_TYPE);
 
         QuoteRequestPostcodeDto request = new QuoteRequestPostcodeDto();
         request.setPostcode("E16 4JJ");
 
-        ResponseEntity<QuoteResponseDto> response = controller.startQuote(request, session);
+        ResponseEntity<QuoteResponseDto> response = controller.startQuote(request, null, session);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());

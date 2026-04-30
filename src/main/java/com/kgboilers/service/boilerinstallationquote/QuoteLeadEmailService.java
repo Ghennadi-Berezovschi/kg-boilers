@@ -10,6 +10,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class QuoteLeadEmailService {
         this.companyProperties = companyProperties;
     }
 
+    @Async("leadEmailTaskExecutor")
     public void sendLeadEmails(QuoteSessionState state,
                                String serviceType,
                                String selectedBoiler,
@@ -44,6 +46,8 @@ public class QuoteLeadEmailService {
                                int flueLengthPriceGbp,
                                int fluePositionPriceGbp,
                                int flueClearancePriceGbp,
+                               int horizontalFlueShapePriceGbp,
+                               int heatOnlyConversionPriceGbp,
                                List<QuoteOptionalExtra> selectedOptionalExtras,
                                int optionalExtrasPriceGbp) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
@@ -62,6 +66,8 @@ public class QuoteLeadEmailService {
                         flueLengthPriceGbp,
                         fluePositionPriceGbp,
                         flueClearancePriceGbp,
+                        horizontalFlueShapePriceGbp,
+                        heatOnlyConversionPriceGbp,
                         selectedOptionalExtras,
                         optionalExtrasPriceGbp));
 
@@ -80,16 +86,20 @@ public class QuoteLeadEmailService {
                             flueLengthPriceGbp,
                             fluePositionPriceGbp,
                             flueClearancePriceGbp,
+                            horizontalFlueShapePriceGbp,
+                            heatOnlyConversionPriceGbp,
                             selectedOptionalExtras,
                             optionalExtrasPriceGbp));
         }
     }
 
+    @Async("leadEmailTaskExecutor")
     public void sendRepairLeadEmails(QuoteSessionState state,
                                      String serviceType,
                                      String clientName,
                                      String clientEmail,
-                                     String clientPhone) {
+                                     String clientPhone,
+                                     List<String> selectedExtras) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         if (mailSender == null) {
             log.warn("Boiler repair lead email was skipped because JavaMailSender is not configured");
@@ -105,7 +115,63 @@ public class QuoteLeadEmailService {
             sendSafely(mailSender,
                     contactProperties.getEmail(),
                     "New boiler repair lead",
-                    buildRepairBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone));
+                    buildRepairBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone, selectedExtras));
+        }
+    }
+
+    @Async("leadEmailTaskExecutor")
+    public void sendServiceLeadEmails(QuoteSessionState state,
+                                      String serviceTitle,
+                                      String clientName,
+                                      String clientEmail,
+                                      String clientPhone,
+                                      List<String> selectedExtras) {
+        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
+        if (mailSender == null) {
+            log.warn("Service lead email was skipped because JavaMailSender is not configured");
+            return;
+        }
+
+        String clientBody = """
+                Hi %s,
+
+                Thanks, we received your request for %s.
+
+                We will review your details and contact you soon.
+
+                %s
+                """.formatted(clientName, serviceTitle, companyProperties.getName());
+
+        String businessBody = """
+                New service lead
+
+                Service: %s
+                Name: %s
+                Email: %s
+                Phone: %s
+                Postcode: %s
+                Gas appliances: %s
+                Optional extras: %s
+                """.formatted(
+                serviceTitle,
+                clientName,
+                clientEmail,
+                clientPhone,
+                state == null ? "" : state.getPostcode(),
+                state == null ? "" : state.getGasAppliancesSummary(),
+                formatServiceExtras(selectedExtras)
+        );
+
+        sendSafely(mailSender,
+                clientEmail,
+                "Your " + companyProperties.getName() + " request",
+                clientBody);
+
+        if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+            sendSafely(mailSender,
+                    contactProperties.getEmail(),
+                    "New service lead: " + serviceTitle,
+                    businessBody);
         }
     }
 
@@ -116,12 +182,24 @@ public class QuoteLeadEmailService {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                message.setFrom(contactProperties.getEmail());
+                message.setReplyTo(contactProperties.getEmail());
+            }
             message.setSubject(subject);
             message.setText(body);
             mailSender.send(message);
         } catch (MailException ex) {
             log.error("Failed to send quote lead email", ex);
         }
+    }
+
+    private String formatServiceExtras(List<String> selectedExtras) {
+        if (selectedExtras == null || selectedExtras.isEmpty()) {
+            return "-";
+        }
+
+        return String.join(", ", selectedExtras);
     }
 
     private String buildRepairClientEmailBody(QuoteSessionState state,
@@ -146,7 +224,8 @@ public class QuoteLeadEmailService {
                                                 String serviceType,
                                                 String clientName,
                                                 String clientEmail,
-                                                String clientPhone) {
+                                                String clientPhone,
+                                                List<String> selectedExtras) {
         return """
                 New boiler repair lead received.
 
@@ -164,19 +243,13 @@ public class QuoteLeadEmailService {
                 Client answers:
                 Postcode: %s
                 Fuel: %s
-                Ownership: %s
-                Property: %s
                 Boiler type: %s
                 Boiler make: %s
                 Boiler age: %s
-                Boiler location: %s
-                Radiators: %s
-                Power flushed in last 5 years: %s
-                Magnetic filter: %s
                 Not working: %s
-                Boiler pressure: %s
                 Fault code / message / signal: %s
                 Fault code details: %s
+                Optional extras: %s
                 """.formatted(
                 stateSafe(serviceType),
                 stateSafe(clientName),
@@ -184,19 +257,13 @@ public class QuoteLeadEmailService {
                 clientPhone,
                 stateSafe(state.getPostcode()),
                 formatRepairValue(state.getFuel()),
-                formatRepairValue(state.getOwnership()),
-                formatRepairValue(state.getPropertyType()),
                 formatRepairValue(state.getBoilerType()),
                 formatRepairValue(state.getBoilerMake()),
                 defaultLine(state.getBoilerAgeSummary(), "-"),
-                formatRepairValue(state.getBoilerLocation()),
-                defaultLine(state.getRadiatorCountSummary(), "-"),
-                defaultLine(state.getPowerFlushSummary(), "-"),
-                defaultLine(state.getMagneticFilterSummary(), "-"),
                 defaultLine(state.getRepairProblemSummary(), "-"),
-                defaultLine(state.getBoilerPressureSummary(), "-"),
                 defaultLine(state.getFaultCodeDisplaySummary(), "-"),
-                defaultLine(state.getFaultCodeDetailsSummary(), "-")
+                defaultLine(state.getFaultCodeDetailsSummary(), "-"),
+                formatServiceExtras(selectedExtras)
         );
     }
 
@@ -207,6 +274,8 @@ public class QuoteLeadEmailService {
                                         int flueLengthPriceGbp,
                                         int fluePositionPriceGbp,
                                         int flueClearancePriceGbp,
+                                        int horizontalFlueShapePriceGbp,
+                                        int heatOnlyConversionPriceGbp,
                                         List<QuoteOptionalExtra> selectedOptionalExtras,
                                         int optionalExtrasPriceGbp) {
         return """
@@ -214,7 +283,7 @@ public class QuoteLeadEmailService {
 
                 Thank you for choosing %s.
 
-                Your fixed price including installation:
+                Your price including installation:
                 %s
 
                 Boiler price installation:
@@ -239,9 +308,9 @@ public class QuoteLeadEmailService {
                 selectedBoiler,
                 totalPriceGbp,
                 buildIncludedItemsSection(),
-                buildSelectedExtrasSection(relocationPriceGbp, flueLengthPriceGbp, fluePositionPriceGbp, flueClearancePriceGbp),
+                buildSelectedExtrasSection(relocationPriceGbp, flueLengthPriceGbp, fluePositionPriceGbp, flueClearancePriceGbp, horizontalFlueShapePriceGbp, heatOnlyConversionPriceGbp),
                 buildOptionalExtrasSection(selectedOptionalExtras),
-                relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp + optionalExtrasPriceGbp
+                relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp + horizontalFlueShapePriceGbp + heatOnlyConversionPriceGbp + optionalExtrasPriceGbp
         );
     }
 
@@ -256,6 +325,8 @@ public class QuoteLeadEmailService {
                                           int flueLengthPriceGbp,
                                           int fluePositionPriceGbp,
                                           int flueClearancePriceGbp,
+                                          int horizontalFlueShapePriceGbp,
+                                          int heatOnlyConversionPriceGbp,
                                           List<QuoteOptionalExtra> selectedOptionalExtras,
                                           int optionalExtrasPriceGbp) {
         return """
@@ -294,6 +365,7 @@ public class QuoteLeadEmailService {
                 Relocation price: £%d
                 Flue type: %s
                 Horizontal flue shape: %s
+                Horizontal flue shape price: £%d
                 Flue length: %s
                 Roof position: %s
                 Flue length price: £%d
@@ -301,6 +373,7 @@ public class QuoteLeadEmailService {
                 Flue position price: £%d
                 Flue clearance: %s
                 Flue clearance price: £%d
+                Heat Only to Combi conversion price: £%d
                 Flue property distance: %s
                 Radiators: %s
                 Baths and showers: %s
@@ -328,6 +401,7 @@ public class QuoteLeadEmailService {
                 relocationPriceGbp,
                 state.getFlueSummary(),
                 state.getHorizontalFlueShapeSummary(),
+                horizontalFlueShapePriceGbp,
                 state.getFlueLengthSummary(),
                 state.getSlopedRoofPositionSummary(),
                 flueLengthPriceGbp,
@@ -335,6 +409,7 @@ public class QuoteLeadEmailService {
                 fluePositionPriceGbp,
                 state.getFlueClearanceSummary(),
                 flueClearancePriceGbp,
+                heatOnlyConversionPriceGbp,
                 state.getFluePropertyDistanceSummary(),
                 state.getRadiatorCountSummary(),
                 state.getBathShowerCountSummary(),
@@ -346,9 +421,13 @@ public class QuoteLeadEmailService {
     private String buildSelectedExtrasSection(int relocationPriceGbp,
                                               int flueLengthPriceGbp,
                                               int fluePositionPriceGbp,
-                                              int flueClearancePriceGbp) {
+                                              int flueClearancePriceGbp,
+                                              int horizontalFlueShapePriceGbp,
+                                              int heatOnlyConversionPriceGbp) {
         StringBuilder extras = new StringBuilder();
 
+        appendExtra(extras, "Heat Only to Combi conversion", heatOnlyConversionPriceGbp);
+        appendExtra(extras, "Square flue terminal adjustment", horizontalFlueShapePriceGbp);
         appendExtra(extras, "Moving boiler", relocationPriceGbp);
         appendExtra(extras, "Flue extension pack", flueLengthPriceGbp);
         appendExtra(extras, "Balcony or structure flue adjustment", fluePositionPriceGbp);
@@ -386,6 +465,7 @@ public class QuoteLeadEmailService {
         for (QuoteOptionalExtra extra : selectedOptionalExtras) {
             optionalExtras.append("- ")
                     .append(extra.getTitle())
+                    .append(formatQuantity(extra))
                     .append(": £")
                     .append(extra.getPriceGbp())
                     .append("\n");
@@ -400,9 +480,14 @@ public class QuoteLeadEmailService {
         }
 
         return selectedOptionalExtras.stream()
-                .map(extra -> extra.getTitle() + " (£" + extra.getPriceGbp() + ")")
+                .map(extra -> extra.getTitle() + formatQuantity(extra) + " (£" + extra.getPriceGbp() + ")")
                 .reduce((left, right) -> left + ", " + right)
                 .orElse("None");
+    }
+
+    private String formatQuantity(QuoteOptionalExtra extra) {
+        int quantity = extra.getQuantity() == null ? 1 : extra.getQuantity();
+        return quantity > 1 ? " x" + quantity : "";
     }
 
     private void appendExtra(StringBuilder extras, String label, int priceGbp) {

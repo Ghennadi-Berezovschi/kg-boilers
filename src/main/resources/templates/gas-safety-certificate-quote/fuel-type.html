@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Property Type</title>
+    <title>Fuel Type</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260416-0805')}">
 </head>
 <body>
 
@@ -21,42 +21,42 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            What type of <span style="color:#ff5a3c;">property</span> is it?
+            What type of <span style="color:#ff5a3c;">fuel</span> does your boiler use?
         </h2>
 
         <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectType('HOUSE')">
-                <div class="fuel-icon">🏠</div>
-                <h3 class="fuel-title">House</h3>
+            <article class="card fuel-card" onclick="selectFuel('gas')">
+                <div class="fuel-icon">🔥</div>
+                <h3 class="fuel-title">Gas</h3>
                 <div class="fuel-desc">
-                    Detached, semi-detached, terraced, or end-of-terrace property
+                    If you have a gas meter, your boiler usually runs on gas.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectType('FLAT')">
-                <div class="fuel-icon">🏢</div>
-                <h3 class="fuel-title">Flat / Apartment</h3>
+            <article class="card fuel-card" onclick="selectFuel('electric')">
+                <div class="fuel-icon">⚡</div>
+                <h3 class="fuel-title">Electric</h3>
                 <div class="fuel-desc">
-                    A flat within a building
+                    Choose this if the boiler is powered by electricity only.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectType('BUNGALOW')">
-                <div class="fuel-icon">🏡</div>
-                <h3 class="fuel-title">Bungalow</h3>
+            <article class="card fuel-card" onclick="selectFuel('lpg')">
+                <div class="fuel-icon">🔥</div>
+                <h3 class="fuel-title">LPG</h3>
                 <div class="fuel-desc">
-                    Single-floor house
+                    LPG is usually supplied from a storage tank outside the property.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectType('OTHER')">
-                <div class="fuel-icon">❓</div>
-                <h3 class="fuel-title">Other</h3>
+            <article class="card fuel-card" onclick="selectFuel('oil')">
+                <div class="fuel-icon">💧</div>
+                <h3 class="fuel-title">Oil</h3>
                 <div class="fuel-desc">
-                    Not sure or something different
+                    Common in homes with an external oil tank.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
@@ -68,19 +68,20 @@
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     const resultElement = document.getElementById("result");
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/gas-safety-certificate-quote";
 
-    async function selectType(type) {
+    async function selectFuel(fuelType) {
         clearError();
 
         try {
-            const response = await fetch("/quote/property-type", {
+            const response = await fetch(`${quoteApiBasePath}/fuel`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ propertyType: type })
+                body: JSON.stringify({ fuel: fuelType })
             });
 
             const data = await response.json();
@@ -92,14 +93,25 @@
 
             window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Property type error:", error);
+            console.error("Fuel selection error:", error);
             showError("Something went wrong. Please try again.");
         }
     }
 
     function handleError(data) {
+        const errorCode = data?.errorCode;
         const message = data?.message;
-        showError(message || "Something went wrong. Please try again.");
+
+        switch (errorCode) {
+            case "UNSUPPORTED_FUEL":
+                showError(message || "Sorry, this fuel type is not supported");
+                break;
+            case "SESSION_EXPIRED":
+                showError(message || "Please start your quote again");
+                break;
+            default:
+                showError(message || "Something went wrong. Please try again.");
+        }
     }
 
     function showError(message) {

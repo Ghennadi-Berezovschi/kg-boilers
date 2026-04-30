@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gas Appliances</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260428-2004')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            What type of <span style="color:#ff5a3c;">gas appliances</span> do you have?
+        </h2>
+        <p class="section-subtitle">Select all that apply.</p>
+
+        <div class="gas-appliance-grid">
+            <label class="gas-appliance-card"
+                   th:each="appliance : ${gasApplianceOptions}">
+                <input class="gas-appliance-checkbox"
+                       type="checkbox"
+                       name="appliances"
+                       th:value="${appliance.value}">
+                <span class="gas-appliance-title" th:text="${appliance.label}">Gas boiler</span>
+                <span class="gas-appliance-quantity-wrap">
+                    <span class="gas-appliance-quantity-label">Qty</span>
+                    <select class="gas-appliance-quantity"
+                            aria-label="Quantity"
+                            onclick="event.stopPropagation()">
+                        <option th:each="quantity : ${#numbers.sequence(1, 9)}"
+                                th:value="${quantity}"
+                                th:text="${quantity}">1</option>
+                    </select>
+                </span>
+                <span class="gas-appliance-pill">Add</span>
+            </label>
+        </div>
+
+        <div class="gas-appliance-actions">
+            <span class="gas-appliance-action-hint">Select all that apply</span>
+            <button type="button"
+                    class="gas-appliance-continue"
+                    onclick="submitGasAppliances()">
+                Continue
+            </button>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/gas-safety-certificate-quote";
+    const resultElement = document.getElementById("result");
+
+    async function submitGasAppliances() {
+        clearError();
+
+        const appliances = Array.from(document.querySelectorAll(".gas-appliance-checkbox:checked"))
+            .map(input => {
+                const card = input.closest(".gas-appliance-card");
+                const quantityInput = card?.querySelector(".gas-appliance-quantity");
+                const quantity = Number.parseInt(quantityInput?.value || "1", 10);
+
+                return {
+                    appliance: input.value,
+                    quantity: Math.min(Math.max(quantity, 1), 9)
+                };
+            });
+
+        if (appliances.length === 0) {
+            showError("Please select at least one gas appliance.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${quoteApiBasePath}/gas-appliances`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ appliances })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Gas appliances error:", error);
+            showError("Something went wrong. Please try again.");
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+</script>
+
+</body>
+</html>

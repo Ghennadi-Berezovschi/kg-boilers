@@ -9,6 +9,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -27,11 +28,13 @@ public class CentralHeatingLeadEmailService {
         this.companyProperties = companyProperties;
     }
 
+    @Async("leadEmailTaskExecutor")
     public void sendLeadEmails(CentralHeatingQuoteSessionState state,
                                String serviceType,
                                String clientName,
                                String clientEmail,
-                               String clientPhone) {
+                               String clientPhone,
+                               java.util.List<String> selectedExtras) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         if (mailSender == null) {
             log.warn("Central heating lead email was skipped because JavaMailSender is not configured");
@@ -50,7 +53,7 @@ public class CentralHeatingLeadEmailService {
                     mailSender,
                     contactProperties.getEmail(),
                     "New central heating lead",
-                    buildBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone)
+                    buildBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone, selectedExtras)
             );
         }
     }
@@ -62,6 +65,10 @@ public class CentralHeatingLeadEmailService {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                message.setFrom(contactProperties.getEmail());
+                message.setReplyTo(contactProperties.getEmail());
+            }
             message.setSubject(subject);
             message.setText(body);
             mailSender.send(message);
@@ -106,7 +113,8 @@ public class CentralHeatingLeadEmailService {
                                           String serviceType,
                                           String clientName,
                                           String clientEmail,
-                                          String clientPhone) {
+                                          String clientPhone,
+                                          java.util.List<String> selectedExtras) {
         return """
                 New central heating lead received.
 
@@ -125,9 +133,7 @@ public class CentralHeatingLeadEmailService {
                 Postcode: %s
                 Ownership: %s
                 Property: %s
-                Bedrooms: %s
                 Boiler type: %s
-                Fuel: %s
                 Radiators: %s
                 TRV valves: %s
                 Power flush: %s
@@ -137,6 +143,7 @@ public class CentralHeatingLeadEmailService {
                 Other radiator issue: %s
                 Installation items:
                 %s
+                Optional extras: %s
                 """.formatted(
                 safe(serviceType),
                 safe(clientName),
@@ -145,9 +152,7 @@ public class CentralHeatingLeadEmailService {
                 safe(state.getPostcode()),
                 safe(state.getOwnership()),
                 safe(state.getPropertyType()),
-                safe(state.getBedrooms()),
                 safe(state.getBoilerType()),
-                safe(state.getFuel()),
                 safe(state.getRadiatorCountSummary()),
                 safe(state.getTrvValveStatusSummary()),
                 state.getPowerFlushStatus() != null ? state.getPowerFlushStatus().getLabel() : "-",
@@ -155,8 +160,17 @@ public class CentralHeatingLeadEmailService {
                 safe(state.getRadiatorIssuesSummary()),
                 defaultLine(state.getTrvInstallationQuantitySummary(), "-"),
                 defaultLine(state.getOtherRadiatorIssueDetails(), "-"),
-                buildInstallationItemsSection(state)
+                buildInstallationItemsSection(state),
+                formatServiceExtras(selectedExtras)
         );
+    }
+
+    private String formatServiceExtras(java.util.List<String> selectedExtras) {
+        if (selectedExtras == null || selectedExtras.isEmpty()) {
+            return "-";
+        }
+
+        return String.join(", ", selectedExtras);
     }
 
     private String buildRadiatorIssuesSection(CentralHeatingQuoteSessionState state) {

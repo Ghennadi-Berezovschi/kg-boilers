@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum RadiatorIssueType {
 
     CLEAN_HEATING_SYSTEM_WITH_CHEMICAL("clean-heating-system-with-chemical", "Clean your heating system with a chemical"),
+    MAGNETIC_FILTER_INSTALLATION("magnetic-filter-installation", "Magnetic filter installation"),
     INSTALL_RADIATOR_OR_TOWEL_RAIL("install-radiator-or-towel-rail", "Install a radiator or towel rail"),
     INSTALL_TRV_VALVES("install-trv-valves", "Install TRV valves, Lockshield valves, Towel rail valves"),
     ALL_RADIATORS_ARE_COLD("all-radiators-are-cold", "All radiators are cold"),

@@ -46,16 +46,14 @@ public class CentralHeatingQuoteProgressService {
                                                            CentralHeatingQuoteStep currentStep) {
         List<CentralHeatingQuoteStep> flow = new ArrayList<>();
         flow.add(CentralHeatingQuoteStep.START);
+        flow.add(CentralHeatingQuoteStep.RADIATOR_ISSUES);
         flow.add(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP);
         flow.add(CentralHeatingQuoteStep.PROPERTY_TYPE);
-        flow.add(CentralHeatingQuoteStep.BEDROOMS);
         flow.add(CentralHeatingQuoteStep.BOILER_TYPE);
-        flow.add(CentralHeatingQuoteStep.FUEL_TYPE);
         flow.add(CentralHeatingQuoteStep.RADIATOR_COUNT);
         flow.add(CentralHeatingQuoteStep.TRV_VALVES);
         flow.add(CentralHeatingQuoteStep.POWER_FLUSH);
         flow.add(CentralHeatingQuoteStep.MAGNETIC_FILTER);
-        flow.add(CentralHeatingQuoteStep.RADIATOR_ISSUES);
 
         if (shouldIncludeTrvInstallationQuantity(state, currentStep)) {
             flow.add(CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY);
