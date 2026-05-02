@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Quote #' + ${quote.id}">Quote detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="admin-page">
+<div th:replace="~{admin/_admin_header :: adminHeader}"></div>
+
+<main class="admin-shell">
+    <div class="admin-topbar">
+        <div>
+            <a class="admin-back-link" th:href="@{/admin/quotes}">Back to quotes</a>
+            <p class="admin-eyebrow" th:text="${quote.serviceType}">Boiler Installation</p>
+            <h1 th:text="'Quote #' + ${quote.id}">Quote #1</h1>
+        </div>
+    </div>
+
+    <div class="admin-alert admin-alert-success" th:if="${message}" th:text="${message}"></div>
+    <div class="admin-alert admin-alert-error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="admin-detail-layout">
+        <div class="admin-main-stack">
+            <article class="admin-card">
+                <h2>Customer and request</h2>
+                <dl class="admin-detail-list">
+                    <div><dt>Status</dt><dd><span class="admin-status" th:text="${quote.status}">NEW_LEAD</span></dd></div>
+                    <div><dt>Created</dt><dd th:text="${quote.createdAt}">Date</dd></div>
+                    <div><dt>Contact sent</dt><dd th:text="${quote.contactRequestedAt}">Date</dd></div>
+                    <div><dt>Name</dt><dd th:text="${quote.clientName ?: 'Not sent yet'}">Name</dd></div>
+                    <div><dt>Phone</dt><dd th:text="${quote.clientPhone ?: 'Not sent yet'}">Phone</dd></div>
+                    <div><dt>Email</dt><dd th:text="${quote.clientEmail ?: 'Not sent yet'}">Email</dd></div>
+                    <div><dt>Postcode</dt><dd th:text="${quote.postcode}">Postcode</dd></div>
+                    <div><dt>Selected work</dt><dd th:text="${quote.selectedWork}">Work</dd></div>
+                    <div><dt>Total price</dt><dd th:text="${quote.totalPriceGbp != null ? '£' + quote.totalPriceGbp : 'Not priced'}">Price</dd></div>
+                </dl>
+
+                <form class="admin-status-form" th:action="@{/admin/quotes/{id}/status(id=${quote.id})}" method="post">
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <label for="status">Update status</label>
+                    <select id="status" name="status">
+                        <option value="NEW_LEAD" th:selected="${quote.status == 'NEW_LEAD'}">New lead</option>
+                        <option value="CONTACTED" th:selected="${quote.status == 'CONTACTED'}">Contacted</option>
+                        <option value="COMPLETED" th:selected="${quote.status == 'COMPLETED'}">Completed</option>
+                        <option value="CANCELLED" th:selected="${quote.status == 'CANCELLED'}">Cancelled</option>
+                    </select>
+                    <button type="submit" class="admin-primary-button">Save status</button>
+                </form>
+            </article>
+
+            <article class="admin-card">
+                <h2>Answers</h2>
+                <dl class="admin-detail-list admin-answers-list">
+                    <div th:if="${quote.answers.isEmpty()}">
+                        <dt>Answers</dt>
+                        <dd>No saved answers.</dd>
+                    </div>
+                    <div th:each="answer : ${quote.answers}">
+                        <dt th:text="${answer.label}">Question</dt>
+                        <dd th:text="${answer.value}">Answer</dd>
+                    </div>
+                </dl>
+            </article>
+        </div>
+
+        <aside class="admin-side-stack">
+            <article class="admin-card" th:if="${!quote.extras.isEmpty()}">
+                <h2>Optional extras</h2>
+                <dl class="admin-detail-list">
+                    <div th:each="extra : ${quote.extras}">
+                        <dt th:text="${extra.title}">Extra</dt>
+                        <dd>
+                            <span th:if="${extra.quantity != null}" th:text="'Qty ' + ${extra.quantity}">Qty 1</span>
+                            <span th:if="${extra.priceGbp != null}" th:text="' £' + ${extra.priceGbp}">£0</span>
+                        </dd>
+                    </div>
+                </dl>
+            </article>
+
+            <article class="admin-card" th:if="${!quote.uploadedPictures.isEmpty()}">
+                <h2>Customer pictures</h2>
+                <div class="admin-picture-list">
+                    <a class="admin-picture-link"
+                       th:each="picture : ${quote.uploadedPictures}"
+                       th:href="${picture.url}"
+                       target="_blank"
+                       rel="noopener">
+                        <img th:src="${picture.url}" th:alt="${picture.label}">
+                        <span th:text="${picture.label}">Picture</span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="admin-card">
+                <h2>Job photos</h2>
+                <form class="admin-upload-form"
+                      th:action="@{/admin/quotes/{id}/job-photos(id=${quote.id})}"
+                      method="post"
+                      enctype="multipart/form-data">
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <label class="admin-upload-field">
+                        <span>Add photos after the job</span>
+                        <input type="file"
+                               name="pictures"
+                               accept="image/jpeg,image/png,image/webp"
+                               multiple>
+                    </label>
+                    <p class="admin-muted">Up to 3 JPG, PNG or WebP photos per upload.</p>
+                    <button type="submit" class="admin-primary-button">Upload job photos</button>
+                </form>
+
+                <div class="admin-picture-list admin-job-picture-list" th:if="${!quote.jobPictures.isEmpty()}">
+                    <a class="admin-picture-link"
+                       th:each="picture : ${quote.jobPictures}"
+                       th:href="${picture.url}"
+                       target="_blank"
+                       rel="noopener">
+                        <img th:src="${picture.url}" th:alt="${picture.label}">
+                        <span th:text="${picture.label}">Job photo</span>
+                    </a>
+                </div>
+            </article>
+        </aside>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+</body>
+</html>

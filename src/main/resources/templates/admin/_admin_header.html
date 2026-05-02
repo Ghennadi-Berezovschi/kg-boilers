@@ -1,0 +1,21 @@
+<th:block th:fragment="adminHeader">
+    <header class="admin-header">
+        <div class="admin-header-inner">
+            <a class="admin-brand" th:href="@{/admin/quotes}">
+                <span th:text="${company.name}">Pro Boiler Services London</span>
+                <small>Admin dashboard</small>
+            </a>
+
+            <div class="admin-header-actions">
+                <a class="admin-header-link" th:href="@{/admin/quotes}">Quotes</a>
+                <form th:action="@{/admin/logout}" method="post">
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <button type="submit" class="admin-secondary-button">Sign out</button>
+                </form>
+            </div>
+        </div>
+    </header>
+</th:block>

@@ -47,6 +47,14 @@
                     <span>Boiler make</span>
                     <strong th:text="${state.boilerMake.label}">Vaillant</strong>
                 </div>
+                <div class="summary-breakdown-row" th:if="${state != null and state.hotWaterAvailable != null}">
+                    <span>Hot water</span>
+                    <strong th:text="${state.hotWaterAvailable ? 'Yes' : 'No'}">Yes</strong>
+                </div>
+                <div class="summary-breakdown-row" th:if="${state != null and state.hasProblemDetails()}">
+                    <span>Problem</span>
+                    <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
+                </div>
                 <div class="summary-breakdown-row" th:if="${state != null and state.ownership != null}">
                     <span>Customer type</span>
                     <strong th:text="${state.ownership.value}">Homeowner</strong>
@@ -181,7 +189,7 @@
                                         data-toggle-target="installation-power-flushing-included"
                                         aria-expanded="false"
                                         aria-controls="installation-power-flushing-included">
-                                    What's included
+                                    About Power flushing
                                 </button>
                                 <div class="summary-optional-footer">
                                     <strong class="summary-optional-price">+£<span th:text="${extra.priceGbp}">150</span></strong>

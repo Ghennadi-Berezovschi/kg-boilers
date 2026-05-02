@@ -55,6 +55,18 @@ class QuoteProgressServiceTest {
     }
 
     @Test
+    void buildProgress_shouldSkipFuelForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.PROPERTY_OWNERSHIP, false, "hot-water-cylinder");
+
+        assertEquals(1, progress.currentStepNumber());
+        assertEquals(7, progress.totalSteps());
+        assertEquals(14, progress.percentComplete());
+    }
+
+    @Test
     void buildProgress_shouldSkipHomeAndPropertyQuestionsForBoilerRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");

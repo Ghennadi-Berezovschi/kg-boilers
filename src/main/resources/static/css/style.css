@@ -5,9 +5,10 @@
 @import url("parts/layout.css");
 @import url("parts/header.css?v=20260424-1105");
 @import url("parts/buttons.css");
-@import url("parts/hero.css?v=20260422-1347");
-@import url("parts/cards.css?v=20260428-1208");
+@import url("parts/hero.css?v=20260430-1145");
+@import url("parts/cards.css?v=20260430-1138");
 @import url("parts/sections.css");
 @import url("parts/footer.css");
 @import url("parts/quote.css?v=20260429-2044");
+@import url("parts/admin.css?v=20260430-1338");
 @import url("parts/responsive.css");

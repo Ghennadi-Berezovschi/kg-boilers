@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin quotes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="admin-page">
+<div th:replace="~{admin/_admin_header :: adminHeader}"></div>
+
+<main class="admin-shell">
+    <div class="admin-topbar">
+        <div>
+            <p class="admin-eyebrow">Admin dashboard</p>
+            <h1>Customer quote requests</h1>
+        </div>
+    </div>
+
+    <section class="admin-card">
+        <form class="admin-filter-form" th:action="@{/admin/quotes}" method="get">
+            <label class="admin-filter-field admin-filter-search">
+                <span>Search</span>
+                <input type="search"
+                       name="q"
+                       th:value="${filters.query}"
+                       placeholder="Name, phone, email, postcode or quote #">
+            </label>
+
+            <label class="admin-filter-field">
+                <span>Service</span>
+                <select name="service">
+                    <option value="">All services</option>
+                    <option th:each="service : ${serviceOptions}"
+                            th:value="${service}"
+                            th:selected="${filters.serviceType == service}"
+                            th:text="${#strings.capitalizeWords(#strings.replace(service, '-', ' '))}">
+                        Boiler repair
+                    </option>
+                </select>
+            </label>
+
+            <label class="admin-filter-field">
+                <span>Status</span>
+                <select name="status">
+                    <option value="">All statuses</option>
+                    <option th:each="statusOption : ${statusOptions}"
+                            th:value="${statusOption}"
+                            th:selected="${filters.status == statusOption}"
+                            th:text="${statusOption}">
+                        NEW_LEAD
+                    </option>
+                </select>
+            </label>
+
+            <label class="admin-filter-field">
+                <span>From</span>
+                <input type="date" name="from" th:value="${filters.dateFrom}">
+            </label>
+
+            <label class="admin-filter-field">
+                <span>To</span>
+                <input type="date" name="to" th:value="${filters.dateTo}">
+            </label>
+
+            <div class="admin-filter-actions">
+                <button type="submit" class="admin-primary-button">Search</button>
+                <a class="admin-secondary-button" th:href="@{/admin/quotes}">Clear</a>
+            </div>
+        </form>
+
+        <p class="admin-filter-summary"
+           th:if="${filters.hasActiveFilters()}"
+           th:text="${quotes.size() + ' matching quote' + (quotes.size() == 1 ? '' : 's')}">
+            1 matching quote
+        </p>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Service</th>
+                    <th>Customer</th>
+                    <th>Contact</th>
+                    <th>Postcode</th>
+                    <th>Selected work</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${quotes.isEmpty()}">
+                    <td colspan="9" class="admin-empty">No quote requests yet.</td>
+                </tr>
+                <tr th:each="quote : ${quotes}">
+                    <td th:text="${quote.createdAt}">30 Apr 2026, 12:00</td>
+                    <td th:text="${quote.serviceType}">Boiler Installation</td>
+                    <td th:text="${quote.clientName ?: 'Not sent yet'}">Client</td>
+                    <td>
+                        <span th:text="${quote.clientPhone ?: 'No phone'}">Phone</span><br>
+                        <span class="admin-muted" th:text="${quote.clientEmail ?: 'No email'}">Email</span>
+                    </td>
+                    <td th:text="${quote.postcode}">E16 4JJ</td>
+                    <td th:text="${quote.selectedWork}">Selected boiler</td>
+                    <td th:text="${quote.totalPriceGbp != null ? '£' + quote.totalPriceGbp : '-'}">£0</td>
+                    <td><span class="admin-status" th:text="${quote.status}">NEW_LEAD</span></td>
+                    <td>
+                        <a class="admin-open-link" th:href="@{/admin/quotes/{id}(id=${quote.id})}">Open details</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+</body>
+</html>

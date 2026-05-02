@@ -115,6 +115,53 @@ class QuoteLeadEmailServiceTest {
     }
 
     @Test
+    void sendLeadEmails_shouldUseHotWaterCylinderCopyForCylinderService() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBoilerType(com.kgboilers.model.boilerinstallation.enums.BoilerType.SYSTEM);
+        state.setBoilerMake(com.kgboilers.model.boilerinstallation.enums.BoilerMake.VAILLANT);
+        state.setHotWaterAvailable(false);
+        state.setProblemDetails("Cylinder is leaking");
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "hot-water-cylinder",
+                "Hot Water Cylinder Installation & Repair",
+                0,
+                "Jane Smith",
+                "client@example.com",
+                "+44 7700 900123",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(),
+                0
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+        SimpleMailMessage businessMessage = messageCaptor.getAllValues().get(1);
+
+        assertEquals("Your K&G Boiler Services hot water cylinder request", clientMessage.getSubject());
+        assertTrue(clientMessage.getText().contains("hot water cylinder request"));
+        assertFalse(clientMessage.getText().contains("Boiler price installation"));
+
+        assertEquals("New hot water cylinder lead", businessMessage.getSubject());
+        assertTrue(businessMessage.getText().contains("New hot water cylinder lead received."));
+        assertTrue(businessMessage.getText().contains("Service:\nHot Water Cylinder Installation & Repair"));
+        assertTrue(businessMessage.getText().contains("Hot water: No"));
+        assertTrue(businessMessage.getText().contains("Problem: Cylinder is leaking"));
+        assertFalse(businessMessage.getText().contains("New boiler lead received."));
+    }
+
+    @Test
     void sendLeadEmails_shouldSkipWhenMailSenderIsUnavailable() {
         when(mailSenderProvider.getIfAvailable()).thenReturn(null);
 

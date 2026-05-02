@@ -19,6 +19,7 @@ public class QuoteProgressService {
 
     private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
     private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
+    private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
 
     private static final List<String> STAGE_LABELS = List.of(
             "1.Your home",
@@ -73,7 +74,7 @@ public class QuoteProgressService {
             return flow;
         }
 
-        if (!isBoilerServiceAndGasSafety(service)) {
+        if (!isBoilerServiceAndGasSafety(service) && !shouldSkipFuel(service)) {
             flow.add(QuoteStep.FUEL_TYPE);
         }
         if (!isBoilerRepair(service)) {
@@ -84,6 +85,17 @@ public class QuoteProgressService {
             flow.add(QuoteStep.BEDROOMS);
         }
         flow.add(QuoteStep.BOILER_TYPE);
+
+        if (isHotWaterCylinder(service)) {
+            if (shouldIncludeHotWaterCylinderBoilerMake(state, currentStep)) {
+                flow.add(QuoteStep.BOILER_MAKE);
+            }
+            flow.add(QuoteStep.HOT_WATER);
+            flow.add(QuoteStep.PROBLEM_DETAILS);
+            flow.add(QuoteStep.CONTACT);
+            return flow;
+        }
+
         if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
             flow.add(QuoteStep.BOILER_MAKE);
             flow.add(QuoteStep.BOILER_AGE);
@@ -153,7 +165,7 @@ public class QuoteProgressService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service);
+        return isBoilerRepair(service) || isHotWaterCylinder(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
@@ -162,6 +174,23 @@ public class QuoteProgressService {
 
     private boolean shouldSkipRepairDetails(String service) {
         return isBoilerRepair(service);
+    }
+
+    private boolean shouldSkipFuel(String service) {
+        return isHotWaterCylinder(service);
+    }
+
+    private boolean isHotWaterCylinder(String service) {
+        return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldIncludeHotWaterCylinderBoilerMake(QuoteSessionState state, QuoteStep currentStep) {
+        if (currentStep == QuoteStep.BOILER_MAKE) {
+            return true;
+        }
+        return state == null
+                || !state.hasBoilerType()
+                || state.getBoilerType() != BoilerType.OTHER;
     }
 
     private boolean isBoilerRepair(String service) {
@@ -257,6 +286,8 @@ public class QuoteProgressService {
                  FAULT_CODE_DISPLAY,
                  FAULT_CODE_DETAILS,
                  BATH_SHOWER_COUNT,
+                 HOT_WATER,
+                 PROBLEM_DETAILS,
                  SUMMARY -> 2;
             default -> 1;
         };

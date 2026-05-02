@@ -5,6 +5,7 @@ import com.kgboilers.config.properties.ContactProperties;
 import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
+import com.kgboilers.model.boilerinstallationquote.UploadedPicture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.MailException;
@@ -18,6 +19,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class QuoteLeadEmailService {
+
+    private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
+    private static final String HOT_WATER_CYLINDER_TITLE = "Hot Water Cylinder Installation & Repair";
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
@@ -56,6 +60,21 @@ public class QuoteLeadEmailService {
             return;
         }
 
+        if (isHotWaterCylinder(serviceType)) {
+            sendSafely(mailSender,
+                    clientEmail,
+                    "Your " + companyProperties.getName() + " hot water cylinder request",
+                    buildHotWaterCylinderClientEmailBody(state, clientName));
+
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                sendSafely(mailSender,
+                        contactProperties.getEmail(),
+                        "New hot water cylinder lead",
+                        buildHotWaterCylinderBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone));
+            }
+            return;
+        }
+
         sendSafely(mailSender,
                 clientEmail,
                 "Your " + companyProperties.getName() + " quote request",
@@ -91,6 +110,67 @@ public class QuoteLeadEmailService {
                             selectedOptionalExtras,
                             optionalExtrasPriceGbp));
         }
+    }
+
+    private String buildHotWaterCylinderClientEmailBody(QuoteSessionState state, String clientName) {
+        return """
+                Hello %s,
+
+                Thank you for choosing %s.
+
+                We received your hot water cylinder request.
+                We will review your details and call you back to confirm the right option.
+
+                %s
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                companyProperties.getName()
+        );
+    }
+
+    private String buildHotWaterCylinderBusinessEmailBody(QuoteSessionState state,
+                                                          String serviceType,
+                                                          String clientName,
+                                                          String clientEmail,
+                                                          String clientPhone) {
+        return """
+                New hot water cylinder lead received.
+
+                Status:
+                NEW_LEAD
+
+                Service:
+                %s
+
+                Client contact:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Client answers:
+                Postcode: %s
+                Ownership: %s
+                Property: %s
+                Boiler type: %s
+                Boiler make: %s
+                Hot water: %s
+                Problem: %s
+                Uploaded pictures: %s
+                """.formatted(
+                HOT_WATER_CYLINDER_TITLE,
+                stateSafe(clientName),
+                clientEmail,
+                clientPhone,
+                stateSafe(state == null ? null : state.getPostcode()),
+                stateSafe(state == null ? null : state.getOwnership()),
+                stateSafe(state == null ? null : state.getPropertyType()),
+                stateSafe(state == null ? null : state.getBoilerType()),
+                stateSafe(state == null ? null : state.getBoilerMake()),
+                formatHotWaterAnswer(state),
+                state == null ? "" : state.getProblemDetailsSummary(),
+                formatUploadedPictures(state)
+        );
     }
 
     @Async("leadEmailTaskExecutor")
@@ -152,6 +232,7 @@ public class QuoteLeadEmailService {
                 Postcode: %s
                 Gas appliances: %s
                 Optional extras: %s
+                Uploaded pictures: %s
                 """.formatted(
                 serviceTitle,
                 clientName,
@@ -159,7 +240,8 @@ public class QuoteLeadEmailService {
                 clientPhone,
                 state == null ? "" : state.getPostcode(),
                 state == null ? "" : state.getGasAppliancesSummary(),
-                formatServiceExtras(selectedExtras)
+                formatServiceExtras(selectedExtras),
+                formatUploadedPictures(state)
         );
 
         sendSafely(mailSender,
@@ -250,6 +332,7 @@ public class QuoteLeadEmailService {
                 Fault code / message / signal: %s
                 Fault code details: %s
                 Optional extras: %s
+                Uploaded pictures: %s
                 """.formatted(
                 stateSafe(serviceType),
                 stateSafe(clientName),
@@ -263,7 +346,8 @@ public class QuoteLeadEmailService {
                 defaultLine(state.getRepairProblemSummary(), "-"),
                 defaultLine(state.getFaultCodeDisplaySummary(), "-"),
                 defaultLine(state.getFaultCodeDetailsSummary(), "-"),
-                formatServiceExtras(selectedExtras)
+                formatServiceExtras(selectedExtras),
+                formatUploadedPictures(state)
         );
     }
 
@@ -379,6 +463,7 @@ public class QuoteLeadEmailService {
                 Baths and showers: %s
                 Optional extras: %s
                 Optional extras price: £%d
+                Uploaded pictures: %s
                 """.formatted(
                 stateSafe(serviceType),
                 selectedBoiler,
@@ -414,8 +499,31 @@ public class QuoteLeadEmailService {
                 state.getRadiatorCountSummary(),
                 state.getBathShowerCountSummary(),
                 buildBusinessOptionalExtrasLine(selectedOptionalExtras),
-                optionalExtrasPriceGbp
+                optionalExtrasPriceGbp,
+                formatUploadedPictures(state)
         );
+    }
+
+    private String formatUploadedPictures(QuoteSessionState state) {
+        if (state == null || state.getUploadedPictures() == null || state.getUploadedPictures().isEmpty()) {
+            return "-";
+        }
+
+        return state.getUploadedPictures().stream()
+                .map(this::formatUploadedPicture)
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("-");
+    }
+
+    private String formatUploadedPicture(UploadedPicture picture) {
+        if (picture == null) {
+            return "-";
+        }
+
+        String label = picture.getOriginalFilename() == null || picture.getOriginalFilename().isBlank()
+                ? "picture"
+                : picture.getOriginalFilename();
+        return label + " (" + picture.getUrl() + ")";
     }
 
     private String buildSelectedExtrasSection(int relocationPriceGbp,
@@ -548,6 +656,18 @@ public class QuoteLeadEmailService {
         }
 
         return result.toString();
+    }
+
+    private boolean isHotWaterCylinder(String serviceType) {
+        return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
+    }
+
+    private String formatHotWaterAnswer(QuoteSessionState state) {
+        if (state == null || state.getHotWaterAvailable() == null) {
+            return "";
+        }
+
+        return state.getHotWaterAvailable() ? "Yes" : "No";
     }
 
     private String stateSafe(Object value) {

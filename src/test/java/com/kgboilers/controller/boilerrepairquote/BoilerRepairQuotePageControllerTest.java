@@ -178,7 +178,7 @@ class BoilerRepairQuotePageControllerTest {
         assertEquals("redirect:/boiler-repair-quote/summary", view);
         assertEquals(true, redirectAttributes.getFlashAttributes().get("contactSuccess"));
         verify(sessionService).saveSavedQuoteId(session, 99L);
-        verify(quoteLeadEmailService).sendRepairLeadEmails(state, "boiler-repair", "Alex", "alex@example.com", "+447700900123");
+        verify(quoteLeadEmailService).sendRepairLeadEmails(state, "boiler-repair", "Alex", "alex@example.com", "+447700900123", java.util.List.of());
     }
 
     private QuoteSessionState completedRepairState() {

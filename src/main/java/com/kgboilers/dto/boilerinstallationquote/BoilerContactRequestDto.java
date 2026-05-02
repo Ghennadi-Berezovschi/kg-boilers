@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,4 +30,6 @@ public class BoilerContactRequestDto {
     private String phone;
 
     private List<String> selectedExtras = new ArrayList<>();
+
+    private List<MultipartFile> pictures = new ArrayList<>();
 }

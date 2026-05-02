@@ -14,6 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class QuoteWizardInterceptor implements HandlerInterceptor {
 
     private static final String BOILER_INSTALLATION_SERVICE = "boiler-installation";
+    private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
 
     private final QuoteWizardService wizardService;
 
@@ -43,6 +44,11 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
         }
 
         if (uri.equals("/quote/fuel-type")) {
+            if (shouldSkipFuel(service) && canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, service)) {
+                response.sendRedirect("/quote/property-ownership");
+                return false;
+            }
+
             if (!canAccessStep(state, QuoteStep.FUEL_TYPE, service)) {
                 response.sendRedirect("/quote");
                 return false;
@@ -77,6 +83,20 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
             }
         }
 
+        if (uri.equals("/quote/hot-water")) {
+            if (!canAccessStep(state, QuoteStep.HOT_WATER, service)) {
+                response.sendRedirect("/quote");
+                return false;
+            }
+        }
+
+        if (uri.equals("/quote/problem-details")) {
+            if (!canAccessStep(state, QuoteStep.PROBLEM_DETAILS, service)) {
+                response.sendRedirect("/quote");
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -97,5 +117,9 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
 
     private boolean isDefaultInstallationService(String service) {
         return BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldSkipFuel(String service) {
+        return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 }

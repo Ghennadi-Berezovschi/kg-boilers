@@ -83,6 +83,9 @@ public class QuoteSessionState implements Serializable {
     private FaultCodeDisplayStatus faultCodeDisplayStatus;
     private String faultCodeDetails;
     private BathShowerCount bathShowerCount;
+    private Boolean hotWaterAvailable;
+    private String problemDetails;
+    private List<UploadedPicture> uploadedPictures = List.of();
 
     private QuoteStep currentStep = QuoteStep.START;
 
@@ -208,6 +211,18 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasBathShowerCount() {
         return bathShowerCount != null;
+    }
+
+    public boolean hasHotWaterAvailable() {
+        return hotWaterAvailable != null;
+    }
+
+    public boolean hasProblemDetails() {
+        return problemDetails != null && !problemDetails.isBlank();
+    }
+
+    public boolean hasUploadedPictures() {
+        return uploadedPictures != null && !uploadedPictures.isEmpty();
     }
 
     public boolean hasPowerFlushStatus() {
@@ -386,6 +401,14 @@ public class QuoteSessionState implements Serializable {
         }
 
         return faultCodeDetails.trim();
+    }
+
+    public String getProblemDetailsSummary() {
+        if (!hasProblemDetails()) {
+            return "";
+        }
+
+        return problemDetails.trim();
     }
 
     public String getBathShowerCountSummary() {

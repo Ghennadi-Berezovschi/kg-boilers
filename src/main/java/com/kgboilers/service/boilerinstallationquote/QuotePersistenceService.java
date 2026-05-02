@@ -327,6 +327,8 @@ public class QuotePersistenceService {
         answers.put("bedrooms", enumName(state.getBedrooms()));
         answers.put("boilerType", enumName(state.getBoilerType()));
         answers.put("boilerMake", enumName(state.getBoilerMake()));
+        answers.put("hotWaterAvailable", state.getHotWaterAvailable());
+        answers.put("problemDetails", state.getProblemDetailsSummary());
         answers.put("boilerAge", state.getBoilerAgeSummary());
         answers.put("boilerPosition", enumName(state.getBoilerPosition()));
         answers.put("boilerLocation", enumName(state.getBoilerLocation()));
@@ -351,6 +353,7 @@ public class QuotePersistenceService {
         answers.put("radiatorCount", state.getRadiatorCountSummary());
         answers.put("bathShowerCount", state.getBathShowerCountSummary());
         snapshot.put("answers", answers);
+        snapshot.put("uploadedPictures", state.getUploadedPictures() == null ? List.of() : state.getUploadedPictures());
 
         Map<String, Object> pricing = new LinkedHashMap<>();
         pricing.put("relocationPriceGbp", relocationPriceGbp);

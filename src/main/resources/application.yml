@@ -32,6 +32,11 @@ spring:
       - classpath:catalog/boilers-system.yml
       - classpath:catalog/boilers-heat-only.yml
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 16MB
+
 server:
   servlet:
     session:
@@ -85,6 +90,10 @@ logging:
 
 kg:
 
+  admin:
+    username: ${ADMIN_USERNAME:}
+    password: ${ADMIN_PASSWORD:}
+
   company:
     name: "Pro Boiler Services London"
 
@@ -96,6 +105,9 @@ kg:
     phone: "+447709023018"
     phone-display: "+44 7709 023018"
     whatsapp: "https://wa.me/447709023018"
+
+  uploads:
+    quote-pictures-dir: ${QUOTE_PICTURES_DIR:${UPLOADS_DIR:uploads/quote-pictures}}
 
   location:
     postcode: "E16 4JJ"
@@ -172,6 +184,10 @@ kg:
         description: "Add a deep system clean to help improve heating circulation."
         price-gbp: 195
         image: "/images/central-heating/power-flush-combined.jpg?v=20260424-1130"
+        applies-to-boiler-types:
+          - "combi"
+          - "system"
+          - "heat-only"
 
       - id: "heat-only-motorised-valves"
         title: "Honeywell 3 Port Position Valve"
@@ -180,6 +196,7 @@ kg:
         image: "/images/central-heating/honeywell-3-port-position-valve-bes.png?v=20260424-1938"
         applies-to-boiler-types:
           - "heat-only"
+          - "system"
 
       - id: "heat-only-2-port-position-valve"
         title: "Honeywell 2 Port Position Valve"
@@ -189,6 +206,7 @@ kg:
         repeatable: true
         applies-to-boiler-types:
           - "heat-only"
+          - "system"
 
       - id: "heat-only-grundfos-ups4-pump"
         title: "Grundfos UPS4 Central Heating Pump"

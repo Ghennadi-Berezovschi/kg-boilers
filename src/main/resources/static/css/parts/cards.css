@@ -65,8 +65,9 @@
 ========================= */
 
 .card h3 {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 21px;
+    line-height: 1.18;
+    font-weight: 800;
 
     color: var(--blue-main);
 }
@@ -130,7 +131,7 @@
     }
 
     .card h3 {
-        font-size: 15px;
+        font-size: 20px;
     }
 
     .card p {

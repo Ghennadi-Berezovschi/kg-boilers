@@ -20,13 +20,18 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2>Choose your boiler and leave your details</h2>
-        <p class="section-subtitle">
+        <h2 th:text="${serviceContactSummary} ? 'Leave your contact details' : 'Choose your boiler and leave your details'">
+            Choose your boiler and leave your details
+        </h2>
+        <p class="section-subtitle" th:unless="${serviceContactSummary}">
             We’ll use your name, email and phone number to contact you about the selected boiler.
+        </p>
+        <p class="section-subtitle" th:if="${serviceContactSummary}">
+            Leave your name and phone number, and we will call you back to confirm the right option.
         </p>
 
         <div class="contact-page-grid">
-            <article class="summary-boiler-card contact-selected-card">
+            <article class="summary-boiler-card contact-selected-card" th:unless="${serviceContactSummary}">
                 <div class="summary-boiler-image-wrap">
                     <img class="summary-boiler-image"
                          th:src="${selectedBoilerImage + '?v=20260424-1115'}"
@@ -46,6 +51,44 @@
                 </div>
             </article>
 
+            <article class="summary-panel contact-selected-card" th:if="${serviceContactSummary}">
+                <h3 class="summary-panel-title">Quote summary</h3>
+                <div class="summary-breakdown-list">
+                    <div class="summary-breakdown-row">
+                        <span>Service</span>
+                        <strong th:text="${serviceSummaryTitle}">Hot Water Cylinder Installation &amp; Repair</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.postcode != null}">
+                        <span>Postcode</span>
+                        <strong th:text="${state.postcode}">E16 4JJ</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.boilerType != null}">
+                        <span>Boiler type</span>
+                        <strong th:text="${#strings.capitalize(state.boilerType.value)}">System</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.boilerMake != null}">
+                        <span>Boiler make</span>
+                        <strong th:text="${state.boilerMake.label}">Vaillant</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.hotWaterAvailable != null}">
+                        <span>Hot water</span>
+                        <strong th:text="${state.hotWaterAvailable ? 'Yes' : 'No'}">Yes</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.hasProblemDetails()}">
+                        <span>Problem</span>
+                        <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.ownership != null}">
+                        <span>Customer type</span>
+                        <strong th:text="${state.ownership.value}">Homeowner</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.propertyType != null}">
+                        <span>Property type</span>
+                        <strong th:text="${state.propertyType.value}">House</strong>
+                    </div>
+                </div>
+            </article>
+
             <div class="summary-panel contact-form-panel">
                 <div class="summary-success-banner" th:if="${contactSuccess}">
                     <p>
@@ -61,7 +104,7 @@
                 </a>
 
                 <div class="contact-form-panel-body" th:if="${!contactSuccess}">
-                    <div class="summary-selected-boiler has-selection">
+                    <div class="summary-selected-boiler has-selection" th:unless="${serviceContactSummary}">
                         <span class="summary-selected-label">Selected boiler</span>
                         <strong th:text="${selectedBoilerLabel}">Vaillant ecoTEC Plus 828 28kW Combi</strong>
                     </div>
@@ -85,6 +128,7 @@
                     <form th:action="@{/quote/contact}"
                           th:object="${contactRequest}"
                           method="post"
+                          enctype="multipart/form-data"
                           class="summary-contact-form">
                         <input type="hidden" th:field="*{selectedBoiler}">
                         <input type="hidden"
@@ -138,6 +182,21 @@
                                 </span>
                             </label>
                         </div>
+
+                        <label class="summary-contact-field summary-upload-field">
+                            <span>Upload pictures <small>Optional</small></span>
+                            <input class="summary-picture-input"
+                                   type="file"
+                                   th:field="*{pictures}"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   multiple>
+                            <span class="summary-upload-help">You can leave this empty and still send your request. Add up to 3 JPG, PNG or WebP pictures only if you want.</span>
+                            <span class="summary-field-error"
+                                  th:if="${#fields.hasErrors('pictures')}"
+                                  th:errors="*{pictures}">
+                                Please upload JPG, PNG or WebP pictures only.
+                            </span>
+                        </label>
 
                         <button type="submit" class="btn btn-phone summary-contact-submit">
                             Send my details

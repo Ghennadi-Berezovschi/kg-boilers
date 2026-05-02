@@ -256,6 +256,38 @@ public class QuoteWizardApiController {
         return success(nextStep, service);
     }
 
+    @PostMapping("/hot-water")
+    public ResponseEntity<QuoteResponseDto> setHotWater(@RequestBody @Valid HotWaterRequestDto request,
+                                                        HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.HOT_WATER, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updateHotWater(state, request.getHotWaterAvailable(), service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/problem-details")
+    public ResponseEntity<QuoteResponseDto> setProblemDetails(@RequestBody @Valid ProblemDetailsRequestDto request,
+                                                              HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.PROBLEM_DETAILS, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updateProblemDetails(state, request.getProblemDetails(), service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
     @PostMapping("/boiler-conversion")
     public ResponseEntity<QuoteResponseDto> setBoilerConversion(@RequestBody @Valid BoilerConversionRequestDto request,
                                                                 HttpSession session) {

@@ -62,6 +62,11 @@ public class QuoteRequestSizeFilter extends OncePerRequestFilter {
     }
 
     private boolean isRequestTooLarge(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
+            return false;
+        }
+
         long contentLength = request.getContentLengthLong();
         return contentLength > 0 && contentLength > requestLimitsProperties.maxContentLengthBytes();
     }

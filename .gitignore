@@ -1,4 +1,5 @@
 target/
+uploads/
 *.log
 *.class
 .idea/

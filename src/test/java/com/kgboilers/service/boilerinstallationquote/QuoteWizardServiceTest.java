@@ -54,6 +54,27 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void startWizard_shouldSkipFuelForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.startWizard(state, "E16 4JJ", "hot-water-cylinder");
+
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertNull(state.getFuel());
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
+        assertEquals("E16 4JJ", state.getPostcode());
+    }
+
+    @Test
+    void canAccessStep_shouldAllowOwnershipWithoutFuelForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        assertEquals(false, service.canAccessStep(state, QuoteStep.FUEL_TYPE, "hot-water-cylinder"));
+        assertEquals(true, service.canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, "hot-water-cylinder"));
+    }
+
+    @Test
     void updateFuel_shouldSetFuelAndReturnNextStep() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
@@ -117,6 +138,17 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updatePropertyType_shouldSkipBedroomsForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updatePropertyType(state, PropertyType.HOUSE, "hot-water-cylinder");
+
+        assertEquals(QuoteStep.BOILER_TYPE, nextStep);
+        assertEquals(PropertyType.HOUSE, state.getPropertyType());
+        assertNull(state.getBedrooms());
+    }
+
+    @Test
     void updateGasSafetyServiceType_shouldAskBoilerTypeForBoilerService() {
         QuoteSessionState state = new QuoteSessionState();
         state.setOwnership(OwnershipType.HOMEOWNER);
@@ -161,6 +193,93 @@ class QuoteWizardServiceTest {
 
         assertEquals(QuoteStep.BOILER_POSITION, nextStep);
         assertEquals(BoilerType.COMBI, state.getBoilerType());
+    }
+
+    @Test
+    void updateBoilerType_shouldReturnBoilerMakeForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.SYSTEM, "hot-water-cylinder");
+
+        assertEquals(QuoteStep.BOILER_MAKE, nextStep);
+        assertEquals(BoilerType.SYSTEM, state.getBoilerType());
+        assertEquals(QuoteStep.BOILER_MAKE, state.getCurrentStep());
+        assertEquals(false, service.isComplete(state, "hot-water-cylinder"));
+        assertEquals(true, service.canAccessStep(state, QuoteStep.BOILER_MAKE, "hot-water-cylinder"));
+        assertEquals(false, service.canAccessStep(state, QuoteStep.BOILER_POSITION, "hot-water-cylinder"));
+    }
+
+    @Test
+    void updateBoilerMake_shouldReturnHotWaterForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBoilerType(BoilerType.SYSTEM);
+
+        QuoteStep nextStep = service.updateBoilerMake(state, BoilerMake.VAILLANT, "hot-water-cylinder");
+
+        assertEquals(QuoteStep.HOT_WATER, nextStep);
+        assertEquals(BoilerMake.VAILLANT, state.getBoilerMake());
+        assertEquals(QuoteStep.HOT_WATER, state.getCurrentStep());
+        assertEquals(false, service.isComplete(state, "hot-water-cylinder"));
+        assertEquals(true, service.canAccessStep(state, QuoteStep.HOT_WATER, "hot-water-cylinder"));
+    }
+
+    @Test
+    void updateBoilerType_shouldReturnHotWaterForHotWaterCylinderWithoutGasBoiler() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.OTHER, "hot-water-cylinder");
+
+        assertEquals(QuoteStep.HOT_WATER, nextStep);
+        assertEquals(BoilerType.OTHER, state.getBoilerType());
+        assertEquals(QuoteStep.HOT_WATER, state.getCurrentStep());
+        assertEquals(false, service.isComplete(state, "hot-water-cylinder"));
+        assertEquals(true, service.canAccessStep(state, QuoteStep.HOT_WATER, "hot-water-cylinder"));
+        assertEquals(false, service.canAccessStep(state, QuoteStep.BOILER_MAKE, "hot-water-cylinder"));
+    }
+
+    @Test
+    void updateHotWater_shouldReturnProblemDetailsForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBoilerType(BoilerType.SYSTEM);
+        state.setBoilerMake(BoilerMake.VAILLANT);
+
+        QuoteStep nextStep = service.updateHotWater(state, true, "hot-water-cylinder");
+
+        assertEquals(QuoteStep.PROBLEM_DETAILS, nextStep);
+        assertEquals(true, state.getHotWaterAvailable());
+        assertEquals(QuoteStep.PROBLEM_DETAILS, state.getCurrentStep());
+        assertEquals(false, service.isComplete(state, "hot-water-cylinder"));
+        assertEquals(true, service.canAccessStep(state, QuoteStep.PROBLEM_DETAILS, "hot-water-cylinder"));
+    }
+
+    @Test
+    void updateProblemDetails_shouldReturnContactForHotWaterCylinder() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBoilerType(BoilerType.SYSTEM);
+        state.setBoilerMake(BoilerMake.VAILLANT);
+        state.setHotWaterAvailable(true);
+
+        QuoteStep nextStep = service.updateProblemDetails(state, "Cylinder is leaking", "hot-water-cylinder");
+
+        assertEquals(QuoteStep.CONTACT, nextStep);
+        assertEquals("Cylinder is leaking", state.getProblemDetailsSummary());
+        assertEquals(QuoteStep.CONTACT, state.getCurrentStep());
+        assertEquals(true, service.isComplete(state, "hot-water-cylinder"));
     }
 
     @Test

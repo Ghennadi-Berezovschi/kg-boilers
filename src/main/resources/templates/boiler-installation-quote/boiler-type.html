@@ -20,11 +20,83 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2>
+        <h2 th:if="${hotWaterCylinderService}" id="hotWaterCylinderGasQuestion">
+            Do you have a <span style="color:#ff5a3c;">Gas Boiler</span>?
+        </h2>
+
+        <h2 th:if="${hotWaterCylinderService}" id="hotWaterCylinderBoilerTypeQuestion" hidden>
             What type of <span style="color:#ff5a3c;">boiler</span> do you have?
         </h2>
 
-        <div class="grid fuel-grid">
+        <h2 th:unless="${hotWaterCylinderService}">
+            What type of <span style="color:#ff5a3c;">boiler</span> do you have?
+        </h2>
+
+        <div class="grid fuel-grid" th:if="${hotWaterCylinderService}" id="hotWaterCylinderGasOptions">
+            <article class="card fuel-card" onclick="showHotWaterCylinderBoilerTypes()">
+                <div class="fuel-icon">🔥</div>
+                <h3 class="fuel-title">Yes</h3>
+                <div class="fuel-desc">
+                    The cylinder is heated by the boiler.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectBoilerType('other')">
+                <div class="fuel-icon" style="color:#ff5a3c;">✖</div>
+                <h3 class="fuel-title">No</h3>
+                <div class="fuel-desc">
+                    The cylinder is not heated by the boiler.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <div class="grid fuel-grid" th:if="${hotWaterCylinderService}" id="hotWaterCylinderBoilerTypeOptions" style="display: none;">
+            <article class="card fuel-card" onclick="selectBoilerType('combi')">
+                <div class="fuel-icon">
+                    <img src="/images/boilers/combi.svg"
+                         alt="Combi boiler diagram"
+                         width="120"
+                         height="120">
+                </div>
+                <h3 class="fuel-title">Combi boiler</h3>
+                <div class="fuel-desc">
+                    A compact boiler that provides heating and hot water directly from one unit.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectBoilerType('system')">
+                <div class="fuel-icon">
+                    <img src="/images/boilers/system.svg"
+                         alt="System boiler diagram"
+                         width="120"
+                         height="120">
+                </div>
+                <h3 class="fuel-title">System boiler</h3>
+                <div class="fuel-desc">
+                    Hot water comes from a cylinder.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectBoilerType('heat-only')">
+                <div class="fuel-icon">
+                    <img src="/images/boilers/heat-only.svg"
+                         alt="Heat only boiler diagram"
+                         width="120"
+                         height="120">
+                </div>
+                <h3 class="fuel-title">Heat-only boiler</h3>
+                <div class="fuel-desc">
+                    Hot water comes from a cylinder, and there is always a small expansion tank in the loft or elsewhere in the house.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <div class="grid fuel-grid" th:unless="${hotWaterCylinderService}">
             <article class="card fuel-card" onclick="selectBoilerType('combi')">
                 <div class="fuel-icon">
                     <img src="/images/boilers/combi.svg"
@@ -90,11 +162,12 @@
 <script th:inline="javascript">
     const resultElement = document.getElementById("result");
     const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
+    const hotWaterCylinderService = /*[[${hotWaterCylinderService}]]*/ false;
 
     async function selectBoilerType(boilerType) {
         clearError();
 
-        if (boilerType === "other") {
+        if (boilerType === "other" && !hotWaterCylinderService) {
             showError("Please send us a photo of your boiler via WhatsApp or give us a call — we’ll help you identify which boiler you have.");
             return;
         }
@@ -129,6 +202,14 @@
 
     function showError(message) {
         resultElement.textContent = "❌ " + message;
+    }
+
+    function showHotWaterCylinderBoilerTypes() {
+        clearError();
+        document.getElementById("hotWaterCylinderGasQuestion").hidden = true;
+        document.getElementById("hotWaterCylinderGasOptions").style.display = "none";
+        document.getElementById("hotWaterCylinderBoilerTypeQuestion").hidden = false;
+        document.getElementById("hotWaterCylinderBoilerTypeOptions").style.display = "";
     }
 
     function clearError() {

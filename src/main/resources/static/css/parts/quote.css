@@ -1895,6 +1895,33 @@
     width: 100%;
 }
 
+.summary-upload-field {
+    padding: 14px;
+    border: 1px solid #dbe4f0;
+    border-radius: 8px;
+    background: #f8fbff;
+}
+
+.summary-upload-field small {
+    margin-left: 6px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.summary-picture-input {
+    width: 100%;
+    color: #334155;
+    font-weight: 600;
+}
+
+.summary-upload-help {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
 .summary-field-error {
     display: block;
     margin: 0;
