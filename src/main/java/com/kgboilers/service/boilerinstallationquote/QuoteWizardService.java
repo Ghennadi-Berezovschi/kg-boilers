@@ -34,6 +34,7 @@ public class QuoteWizardService {
     private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
     private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
+    private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
 
     // =========================
     // START
@@ -133,7 +134,9 @@ public class QuoteWizardService {
 
             case PROPERTY_TYPE -> state.hasOwnership();
 
-            case BEDROOMS -> state.hasPropertyType() && !skipBedrooms;
+            case BEDROOMS -> state.hasPropertyType()
+                    && !skipBedrooms
+                    && (!isGasPipework(service) || state.hasGasAppliances());
 
             case BOILER_TYPE -> isBoilerRepair(service)
                     ? state.hasFuel()
@@ -146,9 +149,9 @@ public class QuoteWizardService {
 
             case HOT_WATER -> false;
 
-            case PROBLEM_DETAILS -> false;
+            case PROBLEM_DETAILS -> isGasPipework(service) && state.hasGasAppliances();
 
-            case GAS_APPLIANCES -> false;
+            case GAS_APPLIANCES -> isGasPipework(service) && state.hasPropertyType();
 
             case BOILER_AGE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && state.hasBoilerMake();
@@ -176,9 +179,12 @@ public class QuoteWizardService {
                 yield state.hasBoilerPosition();
             }
 
-            case BOILER_FLOOR_LEVEL -> !skipRepairDetails && state.hasBoilerLocation();
+            case BOILER_FLOOR_LEVEL -> !skipRepairDetails
+                    && state.hasBoilerLocation()
+                    && !shouldSkipBoilerFloorLevel(state);
 
-            case BOILER_CONDITION -> !skipRepairDetails && state.hasBoilerFloorLevel();
+            case BOILER_CONDITION -> !skipRepairDetails
+                    && (state.hasBoilerFloorLevel() || shouldSkipBoilerFloorLevel(state));
 
             case RELOCATION -> !skipRepairDetails && state.hasBoilerCondition();
 
@@ -267,8 +273,9 @@ public class QuoteWizardService {
         }
 
         boolean electricAllowed = selectedFuel == FuelType.ELECTRIC;
+        boolean unknownOtherAllowed = selectedFuel == FuelType.UNKNOWN_OTHER;
 
-        if (selectedFuel != FuelType.GAS && !electricAllowed) {
+        if (selectedFuel != FuelType.GAS && !electricAllowed && !unknownOtherAllowed) {
             throw new UnsupportedFuelException("Unsupported fuel: " + selectedFuel.getValue());
         }
 
@@ -349,6 +356,12 @@ public class QuoteWizardService {
             state.setBedrooms(null);
             state.setCurrentStep(QuoteStep.SUMMARY);
             return QuoteStep.SUMMARY;
+        }
+
+        if (isGasPipework(service)) {
+            state.setGasAppliances(null);
+            state.setCurrentStep(QuoteStep.GAS_APPLIANCES);
+            return QuoteStep.GAS_APPLIANCES;
         }
 
         if (shouldSkipBedrooms(service)) {
@@ -487,7 +500,9 @@ public class QuoteWizardService {
 
     public QuoteStep updateProblemDetails(QuoteSessionState state, String problemDetails, String service) {
         if (!isHotWaterCylinder(service)) {
-            throw new IllegalArgumentException("Problem details are only supported for hot water cylinder");
+            if (!isGasPipework(service)) {
+                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder and gas pipework");
+            }
         }
 
         if (problemDetails == null || problemDetails.isBlank()) {
@@ -505,6 +520,10 @@ public class QuoteWizardService {
     }
 
     public QuoteStep updateGasAppliances(QuoteSessionState state, List<GasApplianceSelection> appliances) {
+        return updateGasAppliances(state, appliances, null);
+    }
+
+    public QuoteStep updateGasAppliances(QuoteSessionState state, List<GasApplianceSelection> appliances, String service) {
         if (appliances == null || appliances.isEmpty()) {
             throw new IllegalArgumentException("Select at least one gas appliance");
         }
@@ -519,6 +538,12 @@ public class QuoteWizardService {
         }
 
         state.setGasAppliances(appliances);
+        if (isGasPipework(service)) {
+            state.setProblemDetails(null);
+            state.setCurrentStep(QuoteStep.PROBLEM_DETAILS);
+            return QuoteStep.PROBLEM_DETAILS;
+        }
+
         state.setOwnership(null);
         state.setPropertyType(null);
         state.setCurrentStep(QuoteStep.PROPERTY_OWNERSHIP);
@@ -606,6 +631,13 @@ public class QuoteWizardService {
             state.setCurrentStep(QuoteStep.REPAIR_PROBLEM);
             return QuoteStep.REPAIR_PROBLEM;
         }
+
+        if (shouldSkipBoilerFloorLevel(state)) {
+            state.setBoilerFloorLevel(null);
+            state.setCurrentStep(QuoteStep.BOILER_CONDITION);
+            return QuoteStep.BOILER_CONDITION;
+        }
+
         state.setCurrentStep(QuoteStep.BOILER_FLOOR_LEVEL);
         return QuoteStep.BOILER_FLOOR_LEVEL;
     }
@@ -748,15 +780,24 @@ public class QuoteWizardService {
                     && state.hasProblemDetails();
         }
 
+        if (isGasPipework(service)) {
+            return state.hasPostcode()
+                    && state.hasOwnership()
+                    && state.hasPropertyType()
+                    && state.hasGasAppliances()
+                    && state.hasProblemDetails();
+        }
+
         return state.hasPostcode()
                 && (shouldSkipFuel(service) || state.hasFuel())
                 && state.hasOwnership()
                 && state.hasPropertyType()
+                && (!isGasPipework(service) || state.hasGasAppliances())
                 && (shouldSkipBedrooms(service) || state.hasBedrooms())
                 && state.hasBoilerType()
                 && (shouldSkipBoilerPosition(service) || state.hasBoilerPosition())
                 && state.hasBoilerLocation()
-                && state.hasBoilerFloorLevel()
+                && (state.hasBoilerFloorLevel() || shouldSkipBoilerFloorLevel(state))
                 && state.hasBoilerCondition()
                 && state.hasRelocation()
                 && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
@@ -770,11 +811,15 @@ public class QuoteWizardService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service) || isHotWaterCylinder(service);
+        return isBoilerRepair(service) || isHotWaterCylinder(service) || isGasPipework(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
         return isBoilerRepair(service);
+    }
+
+    public boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
+        return state != null && state.getBoilerLocation() == BoilerLocation.LOFT_OR_ATTIC;
     }
 
     private boolean shouldSkipRepairDetails(String service) {
@@ -782,7 +827,13 @@ public class QuoteWizardService {
     }
 
     private boolean shouldSkipFuel(String service) {
-        return isHotWaterCylinder(service);
+        String normalizedService = service == null ? "" : service.trim();
+        return isHotWaterCylinder(normalizedService)
+                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService);
+    }
+
+    private boolean isGasPipework(String service) {
+        return GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isHotWaterCylinder(String service) {

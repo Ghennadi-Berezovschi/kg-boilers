@@ -95,6 +95,7 @@ class QuoteLeadEmailServiceTest {
 
         assertEquals("client@example.com", clientMessage.getTo()[0]);
         assertTrue(clientMessage.getText().contains("Hello Jane Smith,"));
+        assertTrue(clientMessage.getText().contains("We will call you back as soon as possible."));
         assertTrue(clientMessage.getText().contains("Your price including installation:"));
         assertTrue(clientMessage.getText().contains("Boiler installation"));
         assertTrue(clientMessage.getText().contains("Programmable Room Thermostat"));
@@ -102,6 +103,7 @@ class QuoteLeadEmailServiceTest {
         assertTrue(clientMessage.getText().contains("Selected installation extras:"));
         assertTrue(clientMessage.getText().contains("Optional extras:"));
         assertTrue(clientMessage.getText().contains("Hive Thermostat Mini"));
+        assertFalse(clientMessage.getText().contains("Total selected extras:"));
         assertFalse(clientMessage.getText().contains("Client answers:"));
         assertFalse(clientMessage.getText().contains("Email: client@example.com"));
 
@@ -151,6 +153,7 @@ class QuoteLeadEmailServiceTest {
 
         assertEquals("Your K&G Boiler Services hot water cylinder request", clientMessage.getSubject());
         assertTrue(clientMessage.getText().contains("hot water cylinder request"));
+        assertTrue(clientMessage.getText().contains("We will call you back as soon as possible."));
         assertFalse(clientMessage.getText().contains("Boiler price installation"));
 
         assertEquals("New hot water cylinder lead", businessMessage.getSubject());

@@ -37,6 +37,7 @@ import com.kgboilers.service.boilerinstallationquote.FluePositionPricingService;
 import com.kgboilers.service.boilerinstallationquote.QuoteLeadEmailService;
 import com.kgboilers.service.boilerinstallationquote.QuoteOptionalExtraService;
 import com.kgboilers.service.boilerinstallationquote.QuotePersistenceService;
+import com.kgboilers.service.boilerinstallationquote.QuotePictureStorageService;
 import com.kgboilers.service.boilerinstallationquote.QuoteProgressService;
 import com.kgboilers.service.boilerinstallationquote.RelocationPricingService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
@@ -67,6 +68,7 @@ class QuotePageControllerTest {
     private BoilerRecommendationService boilerRecommendationService;
     private QuoteOptionalExtraService quoteOptionalExtraService;
     private QuotePersistenceService quotePersistenceService;
+    private QuotePictureStorageService quotePictureStorageService;
     private QuoteLeadEmailService quoteLeadEmailService;
     private QuoteOfferProperties quoteOfferProperties;
     private QuoteProgressService quoteProgressService;
@@ -87,6 +89,7 @@ class QuotePageControllerTest {
         boilerRecommendationService = mock(BoilerRecommendationService.class);
         quoteOptionalExtraService = mock(QuoteOptionalExtraService.class);
         quotePersistenceService = mock(QuotePersistenceService.class);
+        quotePictureStorageService = mock(QuotePictureStorageService.class);
         quoteLeadEmailService = mock(QuoteLeadEmailService.class);
         quoteProgressService = mock(QuoteProgressService.class);
         quoteOfferProperties = new QuoteOfferProperties();
@@ -121,6 +124,7 @@ class QuotePageControllerTest {
                 boilerRecommendationService,
                 quoteOptionalExtraService,
                 quotePersistenceService,
+                quotePictureStorageService,
                 quoteLeadEmailService,
                 quoteOfferProperties,
                 quoteProgressService
@@ -237,6 +241,19 @@ class QuotePageControllerTest {
     }
 
     @Test
+    void boilerFloorLevelPage_shouldRedirectToConditionWhenFloorLevelIsSkipped() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL)).thenReturn(false);
+        when(wizardService.shouldSkipBoilerFloorLevel(state)).thenReturn(true);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_CONDITION)).thenReturn(true);
+
+        String view = controller.boilerFloorLevelPage(session, model);
+
+        assertEquals("redirect:/quote/boiler-condition", view);
+    }
+
+    @Test
     void bedroomsPage_shouldReturnBedroomsPage_whenStepAccessible() {
         when(sessionService.getState(session)).thenReturn(new QuoteSessionState());
         when(wizardService.canAccessStep(any(), eq(QuoteStep.BEDROOMS))).thenReturn(true);
@@ -256,6 +273,19 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/boiler-condition", view);
         verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-floor-level"));
+    }
+
+    @Test
+    void boilerConditionPage_shouldUseLocationBackUrlWhenFloorLevelIsSkipped() {
+        QuoteSessionState state = new QuoteSessionState();
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, QuoteStep.BOILER_CONDITION)).thenReturn(true);
+        when(wizardService.shouldSkipBoilerFloorLevel(state)).thenReturn(true);
+
+        String view = controller.boilerConditionPage(session, model);
+
+        assertEquals("boiler-installation-quote/boiler-condition", view);
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-location"));
     }
 
     @Test

@@ -43,23 +43,15 @@
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFuel('lpg')">
-                <div class="fuel-icon">🔥</div>
-                <h3 class="fuel-title">LPG</h3>
+            <article class="card fuel-card" onclick="selectFuel('unknown-other')">
+                <div class="fuel-icon" style="color:#ff5a3c;">?</div>
+                <h3 class="fuel-title">I don't know / Other</h3>
                 <div class="fuel-desc">
-                    LPG is usually supplied from a storage tank outside the property.
+                    Choose this if you are not sure or the boiler uses another fuel.
                 </div>
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFuel('oil')">
-                <div class="fuel-icon">💧</div>
-                <h3 class="fuel-title">Oil</h3>
-                <div class="fuel-desc">
-                    Common in homes with an external oil tank.
-                </div>
-                <div class="fuel-select">Select</div>
-            </article>
         </div>
 
         <p id="result" class="quote-result" aria-live="polite"></p>

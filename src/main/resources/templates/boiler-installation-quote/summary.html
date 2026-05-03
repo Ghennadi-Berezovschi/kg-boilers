@@ -114,9 +114,8 @@
 
                             <div class="summary-boiler-price-block">
                                 <span class="summary-boiler-price-label">Boiler price installation</span>
-                                <strong class="summary-boiler-price-value">£<span class="js-boiler-total"
-                                                                                  th:attr="data-base-price=${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
-                                                                                  th:text="${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">1000</span></strong>
+                                <strong class="summary-boiler-price-value">£<span
+                                        th:text="${boiler.averagePriceGbp}">1000</span></strong>
                             </div>
 
                             <div class="summary-boiler-meta">
@@ -236,32 +235,12 @@
                    th:with="featuredBoiler=${boilerRecommendation != null and !#lists.isEmpty(boilerRecommendation.boilers) ? boilerRecommendation.boilers[0] : null}">
                 <div class="summary-breakdown-card summary-boxt-sidebar">
                     <span class="summary-breakdown-eyebrow">Installation quote</span>
-                    <h3 class="summary-panel-title">Your price including installation:</h3>
-                    <div class="summary-sidebar-featured" th:if="${featuredBoiler != null}">
-                        <p class="summary-sidebar-model"
-                           th:text="${featuredBoiler.brand + ' ' + featuredBoiler.model}">
-                            Vaillant ecoTEC Plus 28kW Combi
-                        </p>
-                        <div class="summary-sidebar-price-row">
-                            <strong>£<span class="js-featured-total"
-                                            th:attr="data-base-price=${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
-                                            th:text="${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">3000</span></strong>
-                        </div>
-                    </div>
 
                     <p class="summary-empty-copy summary-sidebar-copy">
                         Choose the boiler you want and we’ll use your selected installation requirements to prepare your final booking.
                     </p>
 
                     <div class="summary-breakdown-list">
-                        <div class="summary-breakdown-row summary-breakdown-row-selected-boiler"
-                             th:if="${featuredBoiler != null}">
-                            <span th:text="${featuredBoiler.brand + ' ' + featuredBoiler.model}">
-                                Vaillant ecoTEC Plus 28kW Combi
-                            </span>
-                            <strong>Included</strong>
-                        </div>
-
                         <div class="summary-breakdown-row"
                              th:each="includedItem : ${quoteIncludedItems}">
                             <span th:text="${includedItem}">Programmable Room Thermostat</span>

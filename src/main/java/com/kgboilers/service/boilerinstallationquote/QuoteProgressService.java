@@ -1,6 +1,7 @@
 package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
+import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
@@ -20,6 +21,7 @@ public class QuoteProgressService {
     private static final String BOILER_REPAIR_SERVICE = "boiler-repair";
     private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
+    private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
 
     private static final List<String> STAGE_LABELS = List.of(
             "1.Your home",
@@ -81,6 +83,13 @@ public class QuoteProgressService {
             flow.add(QuoteStep.PROPERTY_OWNERSHIP);
             flow.add(QuoteStep.PROPERTY_TYPE);
         }
+        if (GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            flow.add(QuoteStep.GAS_APPLIANCES);
+            flow.add(QuoteStep.PROBLEM_DETAILS);
+            flow.add(QuoteStep.SUMMARY);
+            flow.add(QuoteStep.CONTACT);
+            return flow;
+        }
         if (!shouldSkipBedrooms(service)) {
             flow.add(QuoteStep.BEDROOMS);
         }
@@ -111,7 +120,7 @@ public class QuoteProgressService {
         if (!isBoilerRepair(service)) {
             flow.add(QuoteStep.BOILER_LOCATION);
         }
-        if (!skipRepairDetails) {
+        if (!skipRepairDetails && !shouldSkipBoilerFloorLevel(state)) {
             flow.add(QuoteStep.BOILER_FLOOR_LEVEL);
         }
 
@@ -165,11 +174,17 @@ public class QuoteProgressService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service) || isHotWaterCylinder(service);
+        return isBoilerRepair(service)
+                || isHotWaterCylinder(service)
+                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
         return isBoilerRepair(service);
+    }
+
+    private boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
+        return state != null && state.getBoilerLocation() == BoilerLocation.LOFT_OR_ATTIC;
     }
 
     private boolean shouldSkipRepairDetails(String service) {
@@ -177,7 +192,9 @@ public class QuoteProgressService {
     }
 
     private boolean shouldSkipFuel(String service) {
-        return isHotWaterCylinder(service);
+        String normalizedService = service == null ? "" : service.trim();
+        return isHotWaterCylinder(normalizedService)
+                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService);
     }
 
     private boolean isHotWaterCylinder(String service) {

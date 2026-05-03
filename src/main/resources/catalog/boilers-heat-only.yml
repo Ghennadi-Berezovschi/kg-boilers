@@ -3,7 +3,7 @@ kg:
     heat-only:
 
       - brand: "Main"
-        model: "Eco Compact 15kW"
+        model: "Eco Compact 15kW Heat Only"
         powerKw: 15
         radiatorsMin: 1
         radiatorsMax: 9
@@ -16,7 +16,7 @@ kg:
         enabled: true
 
       - brand: "Main"
-        model: "Eco Compact 18kW"
+        model: "Eco Compact 18kW Heat Only"
         powerKw: 18
         radiatorsMin: 6
         radiatorsMax: 9

@@ -117,6 +117,7 @@ public class QuoteLeadEmailService {
                 Hello %s,
 
                 Thank you for choosing %s.
+                We will call you back as soon as possible.
 
                 We received your hot water cylinder request.
                 We will review your details and call you back to confirm the right option.
@@ -366,6 +367,7 @@ public class QuoteLeadEmailService {
                 Hello %s,
 
                 Thank you for choosing %s.
+                We will call you back as soon as possible.
 
                 Your price including installation:
                 %s
@@ -382,9 +384,6 @@ public class QuoteLeadEmailService {
                 Optional extras:
                 %s
 
-                Total selected extras:
-                £%d
-
                 We will contact you shortly.
                 """.formatted(
                 clientName,
@@ -393,8 +392,7 @@ public class QuoteLeadEmailService {
                 totalPriceGbp,
                 buildIncludedItemsSection(),
                 buildSelectedExtrasSection(relocationPriceGbp, flueLengthPriceGbp, fluePositionPriceGbp, flueClearancePriceGbp, horizontalFlueShapePriceGbp, heatOnlyConversionPriceGbp),
-                buildOptionalExtrasSection(selectedOptionalExtras),
-                relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp + horizontalFlueShapePriceGbp + heatOnlyConversionPriceGbp + optionalExtrasPriceGbp
+                buildOptionalExtrasSection(selectedOptionalExtras)
         );
     }
 

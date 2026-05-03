@@ -442,7 +442,7 @@ public class QuoteSessionState implements Serializable {
                 && hasBoilerType()
                 && hasBoilerPosition()
                 && hasBoilerLocation()
-                && hasBoilerFloorLevel()
+                && (hasBoilerFloorLevel() || boilerLocation == BoilerLocation.LOFT_OR_ATTIC)
                 && hasBoilerCondition()
                 && hasRelocation()
                 && (relocation == Relocation.NO || hasRelocationDistance())

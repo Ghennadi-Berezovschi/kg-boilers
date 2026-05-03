@@ -1,6 +1,7 @@
 package com.kgboilers.controller.boilerinstallationquote;
 
 import com.kgboilers.dto.boilerinstallationquote.*;
+import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -284,6 +287,25 @@ public class QuoteWizardApiController {
         }
 
         QuoteStep nextStep = wizardService.updateProblemDetails(state, request.getProblemDetails(), service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/gas-appliances")
+    public ResponseEntity<QuoteResponseDto> setGasAppliances(@RequestBody @Valid GasAppliancesRequestDto request,
+                                                             HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.GAS_APPLIANCES, service)) {
+            return sessionExpired();
+        }
+
+        List<GasApplianceSelection> appliances = request.getAppliances().stream()
+                .map(item -> new GasApplianceSelection(item.getAppliance(), item.getQuantity()))
+                .toList();
+        QuoteStep nextStep = wizardService.updateGasAppliances(state, appliances, service);
         sessionService.saveState(session, state);
         return success(nextStep, service);
     }

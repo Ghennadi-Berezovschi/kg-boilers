@@ -1,6 +1,7 @@
 package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsException;
+import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
@@ -16,6 +17,7 @@ import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FluePosition;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
+import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
@@ -33,9 +35,13 @@ import com.kgboilers.model.boilerrepair.enums.PowerFlushStatus;
 import com.kgboilers.model.boilerrepair.enums.RepairProblem;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class QuoteWizardServiceTest {
 
@@ -63,6 +69,17 @@ class QuoteWizardServiceTest {
         assertNull(state.getFuel());
         assertEquals(QuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
         assertEquals("E16 4JJ", state.getPostcode());
+    }
+
+    @Test
+    void startWizard_shouldSkipFuelForGasPipework() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.startWizard(state, "E16 4JJ", "gas-pipework-and-gas-leak-detection");
+
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertNull(state.getFuel());
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
     }
 
     @Test
@@ -108,6 +125,17 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updateFuel_shouldAllowUnknownOtherForGeneralFlow() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteStep nextStep = service.updateFuel(state, FuelType.UNKNOWN_OTHER);
+
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(FuelType.UNKNOWN_OTHER, state.getFuel());
+    }
+
+    @Test
     void updateOwnership_shouldSetOwnershipAndReturnNextStep() {
         QuoteSessionState state = new QuoteSessionState();
 
@@ -146,6 +174,44 @@ class QuoteWizardServiceTest {
         assertEquals(QuoteStep.BOILER_TYPE, nextStep);
         assertEquals(PropertyType.HOUSE, state.getPropertyType());
         assertNull(state.getBedrooms());
+    }
+
+    @Test
+    void updatePropertyType_shouldAskGasAppliancesForGasPipework() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updatePropertyType(state, PropertyType.HOUSE, "gas-pipework-and-gas-leak-detection");
+
+        assertEquals(QuoteStep.GAS_APPLIANCES, nextStep);
+        assertEquals(PropertyType.HOUSE, state.getPropertyType());
+    }
+
+    @Test
+    void updateGasAppliances_shouldReturnProblemDetailsForGasPipework() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateGasAppliances(
+                state,
+                List.of(new GasApplianceSelection(GasApplianceType.GAS_BOILER, 1)),
+                "gas-pipework-and-gas-leak-detection"
+        );
+
+        assertEquals(QuoteStep.PROBLEM_DETAILS, nextStep);
+        assertEquals("Gas boiler", state.getGasAppliancesSummary());
+    }
+
+    @Test
+    void updateProblemDetails_shouldReturnContactForGasPipework() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateProblemDetails(
+                state,
+                "Gas pipe leaking near cooker",
+                "gas-pipework-and-gas-leak-detection"
+        );
+
+        assertEquals(QuoteStep.CONTACT, nextStep);
+        assertEquals("Gas pipe leaking near cooker", state.getProblemDetails());
     }
 
     @Test
@@ -367,6 +433,27 @@ class QuoteWizardServiceTest {
 
         assertEquals(QuoteStep.BOILER_FLOOR_LEVEL, nextStep);
         assertEquals(BoilerLocation.KITCHEN, state.getBoilerLocation());
+    }
+
+    @Test
+    void updateBoilerLocation_shouldSkipFloorLevelForLoft() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerLocation(state, BoilerLocation.LOFT_OR_ATTIC);
+
+        assertEquals(QuoteStep.BOILER_CONDITION, nextStep);
+        assertEquals(BoilerLocation.LOFT_OR_ATTIC, state.getBoilerLocation());
+        assertNull(state.getBoilerFloorLevel());
+        assertEquals(QuoteStep.BOILER_CONDITION, state.getCurrentStep());
+    }
+
+    @Test
+    void canAccessStep_shouldSkipFloorLevelAndAllowConditionForLoft() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setBoilerLocation(BoilerLocation.LOFT_OR_ATTIC);
+
+        assertFalse(service.canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL));
+        assertTrue(service.canAccessStep(state, QuoteStep.BOILER_CONDITION));
     }
 
     @Test

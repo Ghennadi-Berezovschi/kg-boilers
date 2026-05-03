@@ -20,8 +20,8 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2 th:text="${serviceContactSummary} ? 'Leave your contact details' : 'Choose your boiler and leave your details'">
-            Choose your boiler and leave your details
+        <h2 th:text="${serviceContactSummary} ? 'Leave your contact details' : 'Leave your details for your selected boiler'">
+            Leave your details for your selected boiler
         </h2>
         <p class="section-subtitle" th:unless="${serviceContactSummary}">
             We’ll use your name, email and phone number to contact you about the selected boiler.
@@ -182,21 +182,6 @@
                                 </span>
                             </label>
                         </div>
-
-                        <label class="summary-contact-field summary-upload-field">
-                            <span>Upload pictures <small>Optional</small></span>
-                            <input class="summary-picture-input"
-                                   type="file"
-                                   th:field="*{pictures}"
-                                   accept="image/jpeg,image/png,image/webp"
-                                   multiple>
-                            <span class="summary-upload-help">You can leave this empty and still send your request. Add up to 3 JPG, PNG or WebP pictures only if you want.</span>
-                            <span class="summary-field-error"
-                                  th:if="${#fields.hasErrors('pictures')}"
-                                  th:errors="*{pictures}">
-                                Please upload JPG, PNG or WebP pictures only.
-                            </span>
-                        </label>
 
                         <button type="submit" class="btn btn-phone summary-contact-submit">
                             Send my details

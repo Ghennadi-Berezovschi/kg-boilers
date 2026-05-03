@@ -23,8 +23,8 @@ class QuoteProgressServiceTest {
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FUEL_TYPE, false);
 
         assertEquals(1, progress.currentStepNumber());
-        assertEquals(16, progress.totalSteps());
-        assertEquals(6, progress.percentComplete());
+        assertEquals(6, progress.totalSteps());
+        assertEquals(17, progress.percentComplete());
         assertEquals("active", progress.stages().get(0).state());
     }
 
@@ -64,6 +64,23 @@ class QuoteProgressServiceTest {
         assertEquals(1, progress.currentStepNumber());
         assertEquals(7, progress.totalSteps());
         assertEquals(14, progress.percentComplete());
+    }
+
+    @Test
+    void buildProgress_shouldSkipFuelOnlyForGasPipework() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteProgressView progress = service.buildProgress(
+                state,
+                QuoteStep.PROPERTY_OWNERSHIP,
+                false,
+                "gas-pipework-and-gas-leak-detection"
+        );
+
+        assertEquals(1, progress.currentStepNumber());
+        assertEquals(6, progress.totalSteps());
+        assertEquals(17, progress.percentComplete());
     }
 
     @Test
