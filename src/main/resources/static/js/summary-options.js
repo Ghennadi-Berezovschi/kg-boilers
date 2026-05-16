@@ -7,12 +7,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkboxes = Array.from(form.querySelectorAll(".js-optional-extra-checkbox"));
     const addButtons = Array.from(form.querySelectorAll(".js-optional-extra-toggle"));
     const quantityInputs = Array.from(form.querySelectorAll(".js-extra-quantity"));
+    const chooseButtons = Array.from(form.querySelectorAll(".summary-choose-btn"));
+    const selectedBoilerInput = form.querySelector(".js-selected-boiler-input");
+    const selectedBoilerPanel = form.querySelector(".js-selected-boiler-panel");
+    const selectedBoilerDivider = form.querySelector(".js-selected-boiler-divider");
+    const selectedBoilerName = form.querySelector(".js-selected-boiler-name");
+    const selectedBoilerPrice = form.querySelector(".js-selected-boiler-price");
+    const sendQuoteButton = form.querySelector(".js-send-quote-btn");
+    const sendQuoteCopy = form.querySelector(".js-send-quote-copy");
     const priceNodes = Array.from(form.querySelectorAll(".js-boiler-total, .js-featured-total"));
     const totalExtrasNode = form.querySelector(".js-total-selected-extras");
     const breakdownContainer = form.querySelector(".js-optional-extras-breakdown");
-    const optionalDivider = form.querySelector(".js-optional-extras-divider");
 
     const baseExtrasTotal = Number(totalExtrasNode?.dataset.baseExtrasTotal || 0);
+    let selectedBoilerBasePrice = 0;
 
     const formatPrice = (value) => String(Math.max(0, Math.round(value)));
     const getQuantityInput = (extraId) => quantityInputs.find((input) => input.dataset.extraId === extraId);
@@ -102,9 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         breakdownContainer.toggleAttribute("hidden", selectedExtras.length === 0);
-        if (optionalDivider) {
-            optionalDivider.toggleAttribute("hidden", selectedExtras.length === 0);
-        }
     };
 
     const updatePrices = () => {
@@ -117,12 +122,63 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (totalExtrasNode) {
-            totalExtrasNode.textContent = formatPrice(baseExtrasTotal + optionalExtrasTotal);
+            totalExtrasNode.textContent = formatPrice(selectedBoilerBasePrice + baseExtrasTotal + optionalExtrasTotal);
+        }
+
+        if (selectedBoilerPrice && selectedBoilerBasePrice > 0) {
+            selectedBoilerPrice.textContent = formatPrice(selectedBoilerBasePrice);
         }
 
         syncRepeatableHiddenInputs();
         renderBreakdown(selectedExtras);
     };
+
+    chooseButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const boilerLabel = button.dataset.boilerLabel || "";
+            const boilerModel = button.dataset.boilerModel || boilerLabel;
+            selectedBoilerBasePrice = Number(button.dataset.boilerPrice || 0);
+
+            if (selectedBoilerInput) {
+                selectedBoilerInput.value = boilerLabel;
+            }
+            if (selectedBoilerPanel) {
+                selectedBoilerPanel.hidden = false;
+            }
+            if (selectedBoilerDivider) {
+                selectedBoilerDivider.hidden = false;
+            }
+            if (selectedBoilerName) {
+                selectedBoilerName.textContent = boilerModel;
+            }
+            if (sendQuoteButton) {
+                sendQuoteButton.disabled = false;
+            }
+            if (sendQuoteCopy) {
+                sendQuoteCopy.textContent = "Review your extras, then send your quote details.";
+            }
+
+            chooseButtons.forEach((item) => {
+                item.classList.toggle("is-selected", item === button);
+                item.textContent = item === button ? "Selected" : "Choose";
+                const card = item.closest(".summary-boiler-card");
+                if (card) {
+                    card.classList.toggle("is-selected", item === button);
+                }
+            });
+
+            updatePrices();
+        });
+    });
+
+    form.addEventListener("submit", (event) => {
+        if (selectedBoilerInput && !selectedBoilerInput.value) {
+            event.preventDefault();
+            if (sendQuoteCopy) {
+                sendQuoteCopy.textContent = "Please choose a boiler before sending your quote.";
+            }
+        }
+    });
 
     checkboxes.forEach((checkbox) => {
         syncCardState(checkbox);

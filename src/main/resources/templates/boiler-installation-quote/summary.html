@@ -75,6 +75,7 @@
               th:action="@{/quote/contact}"
               method="get"
               class="summary-selection-form js-summary-selection-form">
+            <input type="hidden" name="boiler" class="js-selected-boiler-input">
         <div class="summary-offer-layout">
             <div class="summary-offer-main" th:if="${boilerRecommendation != null}">
                 <div class="summary-recommendation-head">
@@ -134,9 +135,8 @@
                             </div>
 
                             <div class="summary-boiler-actions">
-                                <button type="submit"
-                                        name="boiler"
-                                        th:value="${boiler.brand + ' ' + boiler.model}"
+                                <button type="button"
+                                        th:attr="data-boiler-label=${boiler.brand + ' ' + boiler.model},data-boiler-model=${boiler.model},data-boiler-price=${boiler.averagePriceGbp}"
                                         class="summary-boxt-btn summary-boxt-btn-primary summary-choose-btn">
                                     Choose
                                 </button>
@@ -188,7 +188,7 @@
                                         data-toggle-target="installation-power-flushing-included"
                                         aria-expanded="false"
                                         aria-controls="installation-power-flushing-included">
-                                    About Power flushing
+                                    More info
                                 </button>
                                 <div class="summary-optional-footer">
                                     <strong class="summary-optional-price">+£<span th:text="${extra.priceGbp}">150</span></strong>
@@ -236,11 +236,69 @@
                 <div class="summary-breakdown-card summary-boxt-sidebar">
                     <span class="summary-breakdown-eyebrow">Installation quote</span>
 
-                    <p class="summary-empty-copy summary-sidebar-copy">
-                        Choose the boiler you want and we’ll use your selected installation requirements to prepare your final booking.
-                    </p>
+                    <div class="summary-send-quote-card">
+                        <h3 class="summary-send-quote-title">Send my quote</h3>
+                        <p class="summary-empty-copy summary-sidebar-copy js-send-quote-copy">
+                            Choose a boiler first, then send your quote details.
+                        </p>
+                        <button type="submit"
+                                class="summary-boxt-btn summary-boxt-btn-primary summary-send-quote-btn js-send-quote-btn"
+                                disabled>
+                            Send my quote
+                        </button>
+                    </div>
 
                     <div class="summary-breakdown-list">
+                        <div class="summary-breakdown-row summary-selected-quote js-selected-boiler-panel" hidden>
+                            <span class="js-selected-boiler-name">Eco Compact 30kW Combi</span>
+                            <strong>£<span class="js-selected-boiler-price">0</span></strong>
+                        </div>
+                        <div class="summary-breakdown-divider js-selected-boiler-divider" hidden></div>
+
+                        <div class="js-installation-extras-breakdown">
+                            <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${heatOnlyConversionPriceGbp != null and heatOnlyConversionPriceGbp > 0}">
+                                <span>Heat Only to Combi conversion</span>
+                                <strong>£<span th:text="${heatOnlyConversionPriceGbp}">1000</span></strong>
+                            </div>
+                            <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${horizontalFlueShapePriceGbp != null and horizontalFlueShapePriceGbp > 0}">
+                                <span>Square flue terminal adjustment</span>
+                                <strong>£<span th:text="${horizontalFlueShapePriceGbp}">200</span></strong>
+                            </div>
+                            <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${relocationPriceGbp != null and relocationPriceGbp > 0}">
+                                <span>Moving boiler</span>
+                                <strong>£<span th:text="${relocationPriceGbp}">400</span></strong>
+                            </div>
+                            <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${flueLengthPriceGbp != null and flueLengthPriceGbp > 0}">
+                                <span>Flue extension pack</span>
+                                <strong>£<span th:text="${flueLengthPriceGbp}">900</span></strong>
+                            </div>
+                            <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${fluePositionPriceGbp != null and fluePositionPriceGbp > 0}">
+                                <span>Balcony or structure flue adjustment</span>
+                                <strong>£<span th:text="${fluePositionPriceGbp}">50</span></strong>
+                            </div>
+                            <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${flueClearancePriceGbp != null and flueClearancePriceGbp > 0}">
+                                <span>Flue clearance adjustment</span>
+                                <strong>£<span th:text="${flueClearancePriceGbp}">150</span></strong>
+                            </div>
+
+                            <div class="js-optional-extras-breakdown"
+                                 th:hidden="${#lists.isEmpty(selectedOptionalExtras)}">
+                                <div class="summary-breakdown-row summary-breakdown-row-optional"
+                                     th:each="extra : ${selectedOptionalExtras}">
+                                    <div class="summary-breakdown-optional-copy">
+                                        <span th:text="${extra.title + (extra.quantity != null and extra.quantity > 1 ? ' x' + extra.quantity : '')}">Hive Thermostat Mini</span>
+                                        <button type="button"
+                                                class="summary-remove-extra js-remove-extra"
+                                                th:attr="data-extra-id=${extra.id}">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <strong>£<span th:text="${extra.priceGbp}">150</span></strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-breakdown-divider js-installation-extras-divider"></div>
+
                         <div class="summary-breakdown-row"
                              th:each="includedItem : ${quoteIncludedItems}">
                             <span th:text="${includedItem}">Programmable Room Thermostat</span>
@@ -249,53 +307,10 @@
 
                         <div class="summary-breakdown-divider"></div>
 
-                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${heatOnlyConversionPriceGbp != null and heatOnlyConversionPriceGbp > 0}">
-                            <span>Heat Only to Combi conversion</span>
-                            <strong>£<span th:text="${heatOnlyConversionPriceGbp}">1000</span></strong>
-                        </div>
-                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${horizontalFlueShapePriceGbp != null and horizontalFlueShapePriceGbp > 0}">
-                            <span>Square flue terminal adjustment</span>
-                            <strong>£<span th:text="${horizontalFlueShapePriceGbp}">200</span></strong>
-                        </div>
-                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${relocationPriceGbp != null and relocationPriceGbp > 0}">
-                            <span>Moving boiler</span>
-                            <strong>£<span th:text="${relocationPriceGbp}">400</span></strong>
-                        </div>
-                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${flueLengthPriceGbp != null and flueLengthPriceGbp > 0}">
-                            <span>Flue extension pack</span>
-                            <strong>£<span th:text="${flueLengthPriceGbp}">900</span></strong>
-                        </div>
-                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${fluePositionPriceGbp != null and fluePositionPriceGbp > 0}">
-                            <span>Balcony or structure flue adjustment</span>
-                            <strong>£<span th:text="${fluePositionPriceGbp}">50</span></strong>
-                        </div>
-                        <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${flueClearancePriceGbp != null and flueClearancePriceGbp > 0}">
-                            <span>Flue clearance adjustment</span>
-                            <strong>£<span th:text="${flueClearancePriceGbp}">150</span></strong>
-                        </div>
-
-                        <div class="summary-breakdown-divider js-optional-extras-divider"
-                             th:hidden="${#lists.isEmpty(selectedOptionalExtras)}"></div>
-
-                        <div class="js-optional-extras-breakdown"
-                             th:hidden="${#lists.isEmpty(selectedOptionalExtras)}">
-                            <div class="summary-breakdown-row summary-breakdown-row-optional"
-                                 th:each="extra : ${selectedOptionalExtras}">
-                                <div class="summary-breakdown-optional-copy">
-                                    <span th:text="${extra.title + (extra.quantity != null and extra.quantity > 1 ? ' x' + extra.quantity : '')}">Hive Thermostat Mini</span>
-                                    <button type="button"
-                                            class="summary-remove-extra js-remove-extra"
-                                            th:attr="data-extra-id=${extra.id}">
-                                        Remove
-                                    </button>
-                                </div>
-                                <strong>£<span th:text="${extra.priceGbp}">150</span></strong>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="summary-breakdown-total">
-                        <span>Total selected extras</span>
+                        <span>Total for boiler installation</span>
                         <strong>£<span class="js-total-selected-extras"
                                         th:attr="data-base-extras-total=${recommendedBoilerExtraPriceGbp}"
                                         th:text="${recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">0</span></strong>
