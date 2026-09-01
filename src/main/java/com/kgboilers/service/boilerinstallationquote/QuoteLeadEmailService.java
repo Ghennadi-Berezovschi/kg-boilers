@@ -157,7 +157,6 @@ public class QuoteLeadEmailService {
                 Boiler make: %s
                 Hot water: %s
                 Problem: %s
-                Uploaded pictures: %s
                 """.formatted(
                 HOT_WATER_CYLINDER_TITLE,
                 stateSafe(clientName),
@@ -169,8 +168,7 @@ public class QuoteLeadEmailService {
                 stateSafe(state == null ? null : state.getBoilerType()),
                 stateSafe(state == null ? null : state.getBoilerMake()),
                 formatHotWaterAnswer(state),
-                state == null ? "" : state.getProblemDetailsSummary(),
-                formatUploadedPictures(state)
+                state == null ? "" : state.getProblemDetailsSummary()
         );
     }
 

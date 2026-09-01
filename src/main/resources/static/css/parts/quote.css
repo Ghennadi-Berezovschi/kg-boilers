@@ -82,6 +82,15 @@
     background: #e84f35;
 }
 
+.quote-result-action-whatsapp {
+    background: #3fa34d;
+    box-shadow: 0 10px 20px rgba(63, 163, 77, 0.2);
+}
+
+.quote-result-action-whatsapp:hover {
+    background: #348f40;
+}
+
 .quote-result-action-secondary {
     background: #ffffff;
     border: 1px solid #cbd5e1;

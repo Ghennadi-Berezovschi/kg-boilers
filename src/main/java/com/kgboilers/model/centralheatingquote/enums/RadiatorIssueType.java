@@ -9,7 +9,7 @@ public enum RadiatorIssueType {
     MAGNETIC_FILTER_INSTALLATION("magnetic-filter-installation", "Magnetic filter installation"),
     INSTALL_RADIATOR_OR_TOWEL_RAIL("install-radiator-or-towel-rail", "Install a radiator or towel rail"),
     INSTALL_TRV_VALVES("install-trv-valves", "Install TRV valves, Lockshield valves, Towel rail valves"),
-    ALL_RADIATORS_ARE_COLD("all-radiators-are-cold", "All radiators are cold"),
+    ALL_RADIATORS_ARE_COLD("all-radiators-are-cold", "Radiators are cold"),
     NOT_HEATING_PROPERLY("not-heating-properly", "Radiator is not heating properly"),
     RADIATOR_LEAK("radiator-leak", "Radiator leak"),
     RADIATOR_PIPE_LEAK("radiator-pipe-leak", "Radiator pipe leak"),

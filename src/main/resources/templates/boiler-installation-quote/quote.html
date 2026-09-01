@@ -29,6 +29,10 @@
 
 <main class="container">
     <section class="section">
+        <a th:href="@{/#services}"
+           class="back-link"
+           aria-label="Go back to services">← Back</a>
+
         <h2 th:text="'Get a quote for ' + ${serviceTitle}">Get a quote</h2>
 
         <div class="card quote-card">

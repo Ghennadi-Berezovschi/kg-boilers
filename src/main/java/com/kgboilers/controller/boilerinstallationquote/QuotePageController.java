@@ -8,11 +8,13 @@ import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
+import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
 import com.kgboilers.service.boilerinstallationquote.FlueClearancePricingService;
 import com.kgboilers.service.boilerinstallationquote.FlueLengthPricingService;
@@ -256,6 +258,7 @@ public class QuotePageController {
 
         model.addAttribute("backUrl", getBoilerTypeBackUrl(service));
         model.addAttribute("hotWaterCylinderService", isHotWaterCylinder(service));
+        model.addAttribute("electricFuel", state != null && state.getFuel() == FuelType.ELECTRIC);
         return "boiler-installation-quote/boiler-type";
     }
 
@@ -522,7 +525,11 @@ public class QuotePageController {
         }
 
         String backUrl = QuoteStep.FLUE_LENGTH.getPath();
-        if (state != null && state.getFlueType() == FlueType.HORIZONTAL) {
+        if (isElectricFuel(state)) {
+            backUrl = state != null && state.getRelocation() == Relocation.YES
+                    ? QuoteStep.RELOCATION_DISTANCE.getPath()
+                    : QuoteStep.RELOCATION.getPath();
+        } else if (state != null && state.getFlueType() == FlueType.HORIZONTAL) {
             backUrl = QuoteStep.FLUE_PROPERTY_DISTANCE.getPath();
         } else if (state != null
                 && state.getFlueType() == FlueType.VERTICAL
@@ -573,6 +580,10 @@ public class QuotePageController {
             return "boiler-installation-quote/summary";
         }
 
+        if (isElectricInstallationContact(state, service)) {
+            return "redirect:/quote/contact";
+        }
+
         populateSummaryModel(session, model, state, selectedExtraIds);
 
         return "boiler-installation-quote/summary";
@@ -594,8 +605,12 @@ public class QuotePageController {
             return serviceOnlyContactPage(state, service, model);
         }
 
+        if (isElectricInstallationContact(state, service)) {
+            return electricInstallationContactPage(state, model);
+        }
+
         SummaryViewData summaryViewData = buildSummaryViewData(session, state, selectedExtraIds);
-        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, boilerLabel, service);
+        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, boilerLabel, service, state);
 
         if (selectedBoilerData == null) {
             return "redirect:/quote/summary";
@@ -639,6 +654,29 @@ public class QuotePageController {
         return "boiler-installation-quote/contact";
     }
 
+    private String electricInstallationContactPage(QuoteSessionState state, Model model) {
+        String selectedLabel = getElectricInstallationSelectionLabel(state);
+        SelectedBoilerData selectedBoilerData = getServiceSelectedBoilerData(selectedLabel);
+
+        if (!model.containsAttribute("contactRequest")) {
+            BoilerContactRequestDto contactRequest = new BoilerContactRequestDto();
+            contactRequest.setSelectedBoiler(selectedBoilerData.label());
+            contactRequest.setSelectedExtras(List.of());
+            model.addAttribute("contactRequest", contactRequest);
+        }
+        if (!model.containsAttribute("contactSuccess")) {
+            model.addAttribute("contactSuccess", false);
+        }
+
+        populateContactPageModel(model, selectedBoilerData, List.of(), List.of(), 0);
+        model.addAttribute("serviceContactSummary", true);
+        model.addAttribute("serviceSummaryTitle", "Boiler Installation");
+        model.addAttribute("state", state);
+        model.addAttribute("backUrl", QuoteStep.BATH_SHOWER_COUNT.getPath());
+        model.addAttribute("quoteProgress", buildProgress(state, QuoteStep.CONTACT, isContactSuccess(model), BOILER_INSTALLATION_SERVICE));
+        return "boiler-installation-quote/contact";
+    }
+
     @PostMapping("/contact")
     public String submitContactRequest(@Valid @ModelAttribute("contactRequest") BoilerContactRequestDto contactRequest,
                                        BindingResult bindingResult,
@@ -657,8 +695,13 @@ public class QuotePageController {
             contactRequest.setSelectedExtras(List.of());
         }
 
+        if (isElectricInstallationContact(state, service)) {
+            contactRequest.setSelectedBoiler(getElectricInstallationSelectionLabel(state));
+            contactRequest.setSelectedExtras(List.of());
+        }
+
         SummaryViewData summaryViewData = buildSummaryViewData(session, state, contactRequest.getSelectedExtras());
-        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, contactRequest.getSelectedBoiler(), service);
+        SelectedBoilerData selectedBoilerData = getSelectedBoilerData(summaryViewData, contactRequest.getSelectedBoiler(), service, state);
 
         if (selectedBoilerData == null) {
             return "redirect:/quote/summary";
@@ -674,13 +717,16 @@ public class QuotePageController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("contactSuccess", false);
-            if (isServiceOnlyContact(service)) {
-                SelectedBoilerData serviceSelection = getServiceSelectedBoilerData(formatServiceTitle(service));
+            if (isServiceOnlyContact(service) || isElectricInstallationContact(state, service)) {
+                boolean electricInstallation = isElectricInstallationContact(state, service);
+                String serviceLabel = electricInstallation ? "Boiler Installation" : formatServiceTitle(service);
+                String selectedLabel = electricInstallation ? getElectricInstallationSelectionLabel(state) : serviceLabel;
+                SelectedBoilerData serviceSelection = getServiceSelectedBoilerData(selectedLabel);
                 populateContactPageModel(model, serviceSelection, List.of(), List.of(), 0);
                 model.addAttribute("serviceContactSummary", true);
-                model.addAttribute("serviceSummaryTitle", formatServiceTitle(service));
+                model.addAttribute("serviceSummaryTitle", serviceLabel);
                 model.addAttribute("state", state);
-                model.addAttribute("backUrl", getServiceOnlyContactBackUrl(service));
+                model.addAttribute("backUrl", electricInstallation ? QuoteStep.BATH_SHOWER_COUNT.getPath() : getServiceOnlyContactBackUrl(service));
                 model.addAttribute("quoteProgress", buildProgress(state, QuoteStep.CONTACT, false, service));
                 return "boiler-installation-quote/contact";
             }
@@ -910,13 +956,20 @@ public class QuotePageController {
         return attributes != null && Boolean.TRUE.equals(attributes.get("contactSuccess"));
     }
 
-    private SelectedBoilerData getSelectedBoilerData(SummaryViewData summaryViewData, String boilerLabel, String service) {
+    private SelectedBoilerData getSelectedBoilerData(SummaryViewData summaryViewData,
+                                                     String boilerLabel,
+                                                     String service,
+                                                     QuoteSessionState state) {
         if (isBoilerServiceAndGasSafety(service) && GAS_SAFETY_CERTIFICATE_LABEL.equals(boilerLabel)) {
             return getServiceSelectedBoilerData(GAS_SAFETY_CERTIFICATE_LABEL);
         }
 
         if (isServiceOnlyContact(service)) {
             return getServiceSelectedBoilerData(formatServiceTitle(service));
+        }
+
+        if (isElectricInstallationContact(state, service)) {
+            return getServiceSelectedBoilerData(getElectricInstallationSelectionLabel(state));
         }
 
         BoilerRecommendationResult recommendation = summaryViewData.boilerRecommendation();
@@ -1085,6 +1138,18 @@ public class QuotePageController {
         return BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
+    private boolean isElectricInstallationContact(QuoteSessionState state, String service) {
+        return isDefaultInstallationService(service) && isElectricFuel(state);
+    }
+
+    private String getElectricInstallationSelectionLabel(QuoteSessionState state) {
+        if (state != null && state.getBoilerType() != null) {
+            return state.getBoilerType().getLabel();
+        }
+
+        return "Electric boiler";
+    }
+
     private boolean isBoilerServiceAndGasSafety(String service) {
         return GAS_SAFETY_CERTIFICATE_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
@@ -1096,8 +1161,18 @@ public class QuotePageController {
                     : pathForService(QuoteStep.PROPERTY_OWNERSHIP.previous(), service);
         }
 
-        return requiresBoilerTypeForGasSafety(state)
-                ? QuoteStep.BOILER_TYPE.getPath()
+        if (requiresBoilerTypeForGasSafety(state)) {
+            if (requiresGasAppliancesForGasSafety(state) && state != null && state.hasGasAppliances()) {
+                return QuoteStep.GAS_APPLIANCES.getPath();
+            }
+
+            return state != null && state.hasBoilerMake()
+                    ? QuoteStep.BOILER_MAKE.getPath()
+                    : QuoteStep.BOILER_TYPE.getPath();
+        }
+
+        return state != null && state.hasGasAppliances()
+                ? QuoteStep.GAS_APPLIANCES.getPath()
                 : QuoteStep.SERVICE_TYPE.getPath();
     }
 
@@ -1118,6 +1193,10 @@ public class QuotePageController {
     private boolean requiresBoilerTypeForGasSafety(GasSafetyServiceType serviceType) {
         return serviceType == GasSafetyServiceType.BOILER_SERVICE
                 || serviceType == GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE;
+    }
+
+    private boolean requiresGasAppliancesForGasSafety(QuoteSessionState state) {
+        return state != null && state.getGasSafetyServiceType() != GasSafetyServiceType.BOILER_SERVICE;
     }
 
     private boolean shouldSkipFuel(String service) {
@@ -1165,6 +1244,7 @@ public class QuotePageController {
             case COMBI -> "/images/boilers/combi.svg";
             case SYSTEM -> "/images/boilers/system.svg";
             case HEAT_ONLY -> "/images/boilers/heat-only.svg";
+            case ELECTRIC, ELECTRIC_WITH_HOT_WATER_CYLINDER -> "/images/boilers/system.svg";
             case OTHER -> "/images/boilers/combi.svg";
         };
     }
@@ -1176,18 +1256,30 @@ public class QuotePageController {
     }
 
     private int getFlueLengthPriceGbp(QuoteSessionState state) {
+        if (isElectricFuel(state)) {
+            return 0;
+        }
+
         return state != null && state.getFlueLength() != null
                 ? flueLengthPricingService.getPrice(state.getFlueLength())
                 : 0;
     }
 
     private int getFlueClearancePriceGbp(QuoteSessionState state) {
+        if (isElectricFuel(state)) {
+            return 0;
+        }
+
         return state != null && state.getFlueClearance() != null
                 ? flueClearancePricingService.getPrice(state.getFlueClearance())
                 : 0;
     }
 
     private int getFluePositionPriceGbp(QuoteSessionState state) {
+        if (isElectricFuel(state)) {
+            return 0;
+        }
+
         return state != null && state.getFluePosition() != null
                 ? fluePositionPricingService.getPrice(state.getFluePosition())
                 : 0;
@@ -1200,9 +1292,17 @@ public class QuotePageController {
     }
 
     private int getHorizontalFlueShapePriceGbp(QuoteSessionState state) {
+        if (isElectricFuel(state)) {
+            return 0;
+        }
+
         return state != null && state.getHorizontalFlueShape() == HorizontalFlueShape.SQUARE
                 ? squareFlueShapePriceGbp
                 : 0;
+    }
+
+    private boolean isElectricFuel(QuoteSessionState state) {
+        return state != null && state.getFuel() == FuelType.ELECTRIC;
     }
 
     private BoilerType getOptionalExtrasBoilerType(QuoteSessionState state) {

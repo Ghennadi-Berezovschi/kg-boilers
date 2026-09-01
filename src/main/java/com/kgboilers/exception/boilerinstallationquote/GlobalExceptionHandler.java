@@ -1,7 +1,9 @@
 package com.kgboilers.exception.boilerinstallationquote;
 
-import com.kgboilers.controller.centralheatingquote.CentralHeatingQuoteApiController;
 import com.kgboilers.controller.boilerinstallationquote.QuoteWizardApiController;
+import com.kgboilers.controller.boilerrepairquote.BoilerRepairQuoteApiController;
+import com.kgboilers.controller.centralheatingquote.CentralHeatingQuoteApiController;
+import com.kgboilers.controller.gassafetycertificatequote.GasSafetyCertificateQuoteApiController;
 import com.kgboilers.dto.boilerinstallationquote.QuoteResponseDto;
 import com.kgboilers.exception.ExternalServiceException;
 import com.kgboilers.exception.PostcodeNotFoundException;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {
         QuoteWizardApiController.class,
-        CentralHeatingQuoteApiController.class
+        BoilerRepairQuoteApiController.class,
+        CentralHeatingQuoteApiController.class,
+        GasSafetyCertificateQuoteApiController.class
 })
 public class GlobalExceptionHandler {
 

@@ -96,7 +96,40 @@
             </article>
         </div>
 
-        <div class="grid fuel-grid" th:unless="${hotWaterCylinderService}">
+        <div class="grid fuel-grid" th:if="${electricFuel}">
+            <article class="card fuel-card" onclick="selectBoilerType('electric-boiler')">
+                <div class="fuel-icon" style="color:#ffb321;font-size:3rem;">⚡</div>
+                <h3 class="fuel-title">Electric boiler</h3>
+                <div class="fuel-desc">
+                    An electric boiler that heats your central heating system.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectBoilerType('electric-boiler-with-hot-water-cylinder')">
+                <div class="fuel-icon" style="color:#ffb321;font-size:3rem;">⚡</div>
+                <h3 class="fuel-title">Electric boiler with hot water cylinder</h3>
+                <div class="fuel-desc">
+                    An electric boiler connected to a hot water cylinder.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+
+            <article class="card fuel-card" onclick="selectBoilerType('other')">
+                <div class="fuel-icon">
+                    <div style="width:120px;height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#ff5a3c;">
+                        ?
+                    </div>
+                </div>
+                <h3 class="fuel-title">I'm not sure</h3>
+                <div class="fuel-desc">
+                    Choose this if you are not sure which electric boiler type you have.
+                </div>
+                <div class="fuel-select">Select</div>
+            </article>
+        </div>
+
+        <div class="grid fuel-grid" th:if="${hotWaterCylinderService != true and electricFuel != true}">
             <article class="card fuel-card" onclick="selectBoilerType('combi')">
                 <div class="fuel-icon">
                     <img src="/images/boilers/combi.svg"
@@ -163,11 +196,12 @@
     const resultElement = document.getElementById("result");
     const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
     const hotWaterCylinderService = /*[[${hotWaterCylinderService}]]*/ false;
+    const electricFuel = /*[[${electricFuel}]]*/ false;
 
     async function selectBoilerType(boilerType) {
         clearError();
 
-        if (boilerType === "other" && !hotWaterCylinderService) {
+        if (boilerType === "other" && !hotWaterCylinderService && !electricFuel) {
             showError("Please send us a photo of your boiler via WhatsApp or give us a call — we’ll help you identify which boiler you have.");
             return;
         }

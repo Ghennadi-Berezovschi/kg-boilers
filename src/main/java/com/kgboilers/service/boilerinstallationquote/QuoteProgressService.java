@@ -3,6 +3,7 @@ package com.kgboilers.service.boilerinstallationquote;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
@@ -65,10 +66,11 @@ public class QuoteProgressService {
             flow.add(QuoteStep.SERVICE_TYPE);
             if (shouldIncludeGasSafetyBoilerType(state, currentStep)) {
                 flow.add(QuoteStep.BOILER_TYPE);
-                flow.add(QuoteStep.FUEL_TYPE);
                 flow.add(QuoteStep.BOILER_MAKE);
             }
-            flow.add(QuoteStep.GAS_APPLIANCES);
+            if (shouldIncludeGasSafetyAppliances(state, currentStep)) {
+                flow.add(QuoteStep.GAS_APPLIANCES);
+            }
             flow.add(QuoteStep.PROPERTY_OWNERSHIP);
             flow.add(QuoteStep.PROPERTY_TYPE);
             flow.add(QuoteStep.SUMMARY);
@@ -132,20 +134,22 @@ public class QuoteProgressService {
                 flow.add(QuoteStep.RELOCATION_DISTANCE);
             }
 
-            flow.add(QuoteStep.FLUE_TYPE);
-            if (shouldIncludeHorizontalFlueShape(state, currentStep)) {
-                flow.add(QuoteStep.FLUE_SHAPE);
-            }
-            flow.add(QuoteStep.FLUE_LENGTH);
+            if (!shouldSkipFlueSteps(state)) {
+                flow.add(QuoteStep.FLUE_TYPE);
+                if (shouldIncludeHorizontalFlueShape(state, currentStep)) {
+                    flow.add(QuoteStep.FLUE_SHAPE);
+                }
+                flow.add(QuoteStep.FLUE_LENGTH);
 
-            if (shouldIncludeSlopedRoofPosition(state, currentStep)) {
-                flow.add(QuoteStep.SLOPED_ROOF_POSITION);
-            }
+                if (shouldIncludeSlopedRoofPosition(state, currentStep)) {
+                    flow.add(QuoteStep.SLOPED_ROOF_POSITION);
+                }
 
-            if (shouldIncludeHorizontalFlueSteps(state, currentStep)) {
-                flow.add(QuoteStep.FLUE_POSITION);
-                flow.add(QuoteStep.FLUE_CLEARANCE);
-                flow.add(QuoteStep.FLUE_PROPERTY_DISTANCE);
+                if (shouldIncludeHorizontalFlueSteps(state, currentStep)) {
+                    flow.add(QuoteStep.FLUE_POSITION);
+                    flow.add(QuoteStep.FLUE_CLEARANCE);
+                    flow.add(QuoteStep.FLUE_PROPERTY_DISTANCE);
+                }
             }
         }
 
@@ -168,7 +172,9 @@ public class QuoteProgressService {
             flow.add(QuoteStep.BATH_SHOWER_COUNT);
         }
 
-        flow.add(QuoteStep.SUMMARY);
+        if (!shouldSendInstallationDirectlyToContact(state)) {
+            flow.add(QuoteStep.SUMMARY);
+        }
         flow.add(QuoteStep.CONTACT);
         return flow;
     }
@@ -185,6 +191,14 @@ public class QuoteProgressService {
 
     private boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
         return state != null && state.getBoilerLocation() == BoilerLocation.LOFT_OR_ATTIC;
+    }
+
+    private boolean shouldSkipFlueSteps(QuoteSessionState state) {
+        return state != null && state.getFuel() == FuelType.ELECTRIC;
+    }
+
+    private boolean shouldSendInstallationDirectlyToContact(QuoteSessionState state) {
+        return state != null && state.getFuel() == FuelType.ELECTRIC;
     }
 
     private boolean shouldSkipRepairDetails(String service) {
@@ -226,6 +240,16 @@ public class QuoteProgressService {
     private boolean requiresBoilerTypeForGasSafety(GasSafetyServiceType serviceType) {
         return serviceType == GasSafetyServiceType.BOILER_SERVICE
                 || serviceType == GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE;
+    }
+
+    private boolean shouldIncludeGasSafetyAppliances(QuoteSessionState state, QuoteStep currentStep) {
+        return currentStep == QuoteStep.GAS_APPLIANCES
+                || state == null
+                || requiresGasAppliancesForGasSafety(state.getGasSafetyServiceType());
+    }
+
+    private boolean requiresGasAppliancesForGasSafety(GasSafetyServiceType serviceType) {
+        return serviceType != GasSafetyServiceType.BOILER_SERVICE;
     }
 
     private boolean shouldIncludeBoilerConversion(QuoteSessionState state, QuoteStep currentStep, String service) {

@@ -1,0 +1,2 @@
+ALTER TABLE quotes
+    ALTER COLUMN boiler_type TYPE VARCHAR(80);

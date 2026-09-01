@@ -434,6 +434,8 @@ public class QuoteSessionState implements Serializable {
     // =========================
 
     public boolean isComplete() {
+        boolean skipFlueSteps = fuel == FuelType.ELECTRIC;
+
         return hasPostcode()
                 && hasFuel()
                 && hasOwnership()
@@ -446,13 +448,14 @@ public class QuoteSessionState implements Serializable {
                 && hasBoilerCondition()
                 && hasRelocation()
                 && (relocation == Relocation.NO || hasRelocationDistance())
-                && hasCompleteFlueSelection()
+                && (skipFlueSteps
+                || (hasCompleteFlueSelection()
                 && hasFlueLength()
                 && (verticalFlueType != VerticalFlueType.SLOPED_ROOF || hasSlopedRoofPosition())
                 && (flueType != FlueType.HORIZONTAL || hasFluePosition())
-                && hasBathShowerCount()
-                && hasRadiatorCount()
                 && (flueType != FlueType.HORIZONTAL
-                || (hasFlueClearance() && hasFluePropertyDistance()));
+                || (hasFlueClearance() && hasFluePropertyDistance()))))
+                && hasBathShowerCount()
+                && hasRadiatorCount();
     }
 }

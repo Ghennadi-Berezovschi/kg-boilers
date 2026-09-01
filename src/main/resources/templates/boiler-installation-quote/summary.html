@@ -41,7 +41,7 @@
                 </div>
                 <div class="summary-breakdown-row" th:if="${state != null and state.boilerType != null}">
                     <span>Boiler type</span>
-                    <strong th:text="${#strings.capitalize(state.boilerType.value)}">Combi</strong>
+                    <strong th:text="${state.boilerType.label}">Combi boiler</strong>
                 </div>
                 <div class="summary-breakdown-row" th:if="${state != null and state.boilerMake != null}">
                     <span>Boiler make</span>

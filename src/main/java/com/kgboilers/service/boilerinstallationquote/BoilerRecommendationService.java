@@ -180,6 +180,7 @@ public class BoilerRecommendationService {
             case COMBI -> "Combi boiler";
             case SYSTEM -> "System boiler";
             case HEAT_ONLY -> "Heat-only boiler";
+            case ELECTRIC, ELECTRIC_WITH_HOT_WATER_CYLINDER -> boilerType.getLabel();
             case OTHER -> "Boiler";
         };
     }

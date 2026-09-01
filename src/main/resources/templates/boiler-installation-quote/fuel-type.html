@@ -43,7 +43,7 @@
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFuel('unknown-other')">
+            <article class="card fuel-card" onclick="showUnknownFuelHelp()">
                 <div class="fuel-icon" style="color:#ff5a3c;">?</div>
                 <h3 class="fuel-title">I don't know / Other</h3>
                 <div class="fuel-desc">
@@ -63,6 +63,18 @@
 <script th:inline="javascript">
     const resultElement = document.getElementById("result");
     const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
+
+    function showUnknownFuelHelp() {
+        resultElement.className = "quote-result success";
+        resultElement.innerHTML = `
+            Send us a photo of your boiler on WhatsApp, and we will help you identify what type of boiler you have.
+            <span class="quote-result-actions">
+                <a class="quote-result-action quote-result-action-whatsapp" href="https://wa.me/447709023018" target="_blank" rel="noopener noreferrer">
+                    WhatsApp
+                </a>
+            </span>
+        `;
+    }
 
     async function selectFuel(fuelType) {
         clearError();
@@ -109,10 +121,12 @@
     }
 
     function showError(message) {
+        resultElement.className = "quote-result error";
         resultElement.textContent = "❌ " + message;
     }
 
     function clearError() {
+        resultElement.className = "quote-result";
         resultElement.textContent = "";
     }
 </script>

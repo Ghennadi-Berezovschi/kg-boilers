@@ -98,7 +98,7 @@ kg:
     name: "Pro Boiler Services London"
 
   boiler-repair:
-    visit-price-gbp: 79
+    visit-price-gbp: 89
 
   contact:
     email: "heatingandplumbingdirect@gmail.com"
@@ -117,8 +117,15 @@ kg:
     service-max-distance-miles:
       central-heating: 15
       boiler-repair: 15
+      hot-water-cylinder: 15
     service-postcodes:
       boiler-repair:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      gas-safety-certificate:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      hot-water-cylinder:
         - "E16 4JJ"
         - "E4 8BJ"
 

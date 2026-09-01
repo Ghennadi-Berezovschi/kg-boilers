@@ -37,6 +37,7 @@ public class BoilerCatalogService {
             case COMBI -> getCombiBoilers();
             case SYSTEM -> getSystemBoilers();
             case HEAT_ONLY -> getHeatOnlyBoilers();
+            case ELECTRIC, ELECTRIC_WITH_HOT_WATER_CYLINDER -> List.of();
             case OTHER -> List.of();
         };
     }

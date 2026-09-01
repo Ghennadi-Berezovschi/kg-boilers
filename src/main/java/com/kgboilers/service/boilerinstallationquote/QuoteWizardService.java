@@ -83,20 +83,18 @@ public class QuoteWizardService {
                 case SERVICE_TYPE -> state.hasPostcode();
                 case BOILER_TYPE -> state.hasGasSafetyServiceType()
                         && requiresBoilerTypeForGasSafety(state);
-                case FUEL_TYPE -> state.hasGasSafetyServiceType()
-                        && requiresBoilerTypeForGasSafety(state)
-                        && state.hasBoilerType();
+                case FUEL_TYPE -> false;
                 case BOILER_MAKE -> state.hasGasSafetyServiceType()
                         && requiresBoilerTypeForGasSafety(state)
-                        && state.hasBoilerType()
-                        && state.hasFuel();
+                        && state.hasBoilerType();
                 case GAS_APPLIANCES -> state.hasGasSafetyServiceType()
+                        && requiresGasAppliancesForGasSafety(state)
                         && (!requiresBoilerTypeForGasSafety(state)
-                        || (state.hasBoilerType() && state.hasFuel() && state.hasBoilerMake()));
+                        || (state.hasBoilerType() && state.hasBoilerMake()));
                 case PROPERTY_OWNERSHIP -> state.hasGasSafetyServiceType()
                         && (!requiresBoilerTypeForGasSafety(state)
-                        || (state.hasBoilerType() && state.hasFuel() && state.hasBoilerMake()))
-                        && state.hasGasAppliances();
+                        || (state.hasBoilerType() && state.hasBoilerMake()))
+                        && (!requiresGasAppliancesForGasSafety(state) || state.hasGasAppliances());
                 case PROPERTY_TYPE -> state.hasOwnership();
                 case SUMMARY, CONTACT -> isComplete(state, service);
                 default -> false;
@@ -145,7 +143,8 @@ public class QuoteWizardService {
                     : state.hasBedrooms();
 
             case BOILER_MAKE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
-                    && state.hasBoilerType();
+                    && state.hasBoilerType()
+                    && !isElectricFuel(state);
 
             case HOT_WATER -> false;
 
@@ -154,7 +153,9 @@ public class QuoteWizardService {
             case GAS_APPLIANCES -> isGasPipework(service) && state.hasPropertyType();
 
             case BOILER_AGE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
-                    && state.hasBoilerMake();
+                    && (isElectricFuel(state)
+                    ? state.hasBoilerType()
+                    : state.hasBoilerMake());
 
             case BOILER_CONVERSION -> !BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && state.hasBoilerType()
@@ -190,33 +191,46 @@ public class QuoteWizardService {
 
             case RELOCATION_DISTANCE -> !skipRepairDetails && state.getRelocation() == Relocation.YES;
 
-            case FLUE_TYPE -> !skipRepairDetails && state.hasRelocation()
+            case FLUE_TYPE -> !skipRepairDetails
+                    && !shouldSkipFlueSteps(state)
+                    && state.hasRelocation()
                     && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance());
 
             case FLUE_SHAPE -> !skipRepairDetails
+                    && !shouldSkipFlueSteps(state)
                     && state.getFlueType() == FlueType.HORIZONTAL;
 
-            case FLUE_LENGTH -> !skipRepairDetails && state.hasCompleteFlueSelection();
+            case FLUE_LENGTH -> !skipRepairDetails
+                    && !shouldSkipFlueSteps(state)
+                    && state.hasCompleteFlueSelection();
 
             case SLOPED_ROOF_POSITION -> !skipRepairDetails
+                    && !shouldSkipFlueSteps(state)
                     && state.hasFlueLength()
                     && state.getFlueType() == FlueType.VERTICAL
                     && state.getVerticalFlueType() == VerticalFlueType.SLOPED_ROOF;
 
             case FLUE_POSITION -> !skipRepairDetails && state.hasFlueLength()
+                    && !shouldSkipFlueSteps(state)
                     && state.getFlueType() == FlueType.HORIZONTAL;
 
             case FLUE_CLEARANCE -> !skipRepairDetails && state.hasFluePosition()
+                    && !shouldSkipFlueSteps(state)
                     && state.getFlueType() == FlueType.HORIZONTAL;
 
             case FLUE_PROPERTY_DISTANCE -> !skipRepairDetails && state.hasFlueClearance()
+                    && !shouldSkipFlueSteps(state)
                     && state.getFlueType() == FlueType.HORIZONTAL;
 
-            case RADIATOR_COUNT -> !skipRepairDetails
-                    && state.hasFlueLength()
-                    && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
-                    && (state.getFlueType() != FlueType.HORIZONTAL
-                    || (state.hasFluePosition() && state.hasFlueClearance() && state.hasFluePropertyDistance()));
+            case RADIATOR_COUNT -> !skipRepairDetails && (
+                    shouldSkipFlueSteps(state)
+                            ? state.hasRelocation()
+                            && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
+                            : state.hasFlueLength()
+                            && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
+                            && (state.getFlueType() != FlueType.HORIZONTAL
+                            || (state.hasFluePosition() && state.hasFlueClearance() && state.hasFluePropertyDistance()))
+            );
 
             case POWER_FLUSH -> skipRepairDetails
                     && state.hasFaultCodeDisplayStatus()
@@ -244,14 +258,15 @@ public class QuoteWizardService {
                     && state.hasMagneticFilterStatus()
                     : state.hasRelocation()
                     && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
-                    && state.hasCompleteFlueSelection()
+                    && (shouldSkipFlueSteps(state)
+                    || (state.hasCompleteFlueSelection()
                     && state.hasFlueLength()
                     && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
                     && (state.getFlueType() != FlueType.HORIZONTAL || state.hasFluePosition())
-                    && state.hasRadiatorCount()
-                    && state.hasBathShowerCount()
                     && (state.getFlueType() != FlueType.HORIZONTAL
-                    || (state.hasFlueClearance() && state.hasFluePropertyDistance()));
+                    || (state.hasFlueClearance() && state.hasFluePropertyDistance()))))
+                    && state.hasRadiatorCount()
+                    && state.hasBathShowerCount();
 
             case CONTACT -> isComplete(state, service);
         };
@@ -281,6 +296,7 @@ public class QuoteWizardService {
 
         state.setFuel(selectedFuel);
         state.setGasAppliances(null);
+        clearFlueDetails(state);
 
         if (isBoilerServiceAndGasSafety(service)) {
             state.setCurrentStep(QuoteStep.BOILER_MAKE);
@@ -410,16 +426,17 @@ public class QuoteWizardService {
 
         if (isBoilerServiceAndGasSafety(service)) {
             state.setFuel(null);
-            state.setCurrentStep(QuoteStep.FUEL_TYPE);
-            return QuoteStep.FUEL_TYPE;
+            state.setCurrentStep(QuoteStep.BOILER_MAKE);
+            return QuoteStep.BOILER_MAKE;
         }
 
         if (BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
             state.setHeatOnlyConversion(null);
             state.setBoilerPosition(null);
             state.setRadiatorCount(null);
-            state.setCurrentStep(QuoteStep.BOILER_MAKE);
-            return QuoteStep.BOILER_MAKE;
+            QuoteStep nextStep = isElectricFuel(state) ? QuoteStep.BOILER_AGE : QuoteStep.BOILER_MAKE;
+            state.setCurrentStep(nextStep);
+            return nextStep;
         }
 
         if (isHotWaterCylinder(service)) {
@@ -469,8 +486,11 @@ public class QuoteWizardService {
 
         if (isBoilerServiceAndGasSafety(service)) {
             state.setGasAppliances(null);
-            state.setCurrentStep(QuoteStep.GAS_APPLIANCES);
-            return QuoteStep.GAS_APPLIANCES;
+            QuoteStep nextStep = requiresGasAppliancesForGasSafety(state)
+                    ? QuoteStep.GAS_APPLIANCES
+                    : QuoteStep.PROPERTY_OWNERSHIP;
+            state.setCurrentStep(nextStep);
+            return nextStep;
         }
 
         if (isHotWaterCylinder(service)) {
@@ -691,13 +711,7 @@ public class QuoteWizardService {
         }
 
         state.setRelocation(relocation);
-        state.setFlueType(null);
-        state.setVerticalFlueType(null);
-        state.setHorizontalFlueShape(null);
-        state.setFlueLength(null);
-        state.setFluePosition(null);
-        state.setFlueClearance(null);
-        state.setFluePropertyDistance(null);
+        clearFlueDetails(state);
         state.setRadiatorCount(null);
         state.setPowerFlushStatus(null);
         state.setMagneticFilterStatus(null);
@@ -713,8 +727,9 @@ public class QuoteWizardService {
         }
 
         state.setRelocationDistance(null);
-        state.setCurrentStep(QuoteStep.FLUE_TYPE);
-        return QuoteStep.FLUE_TYPE;
+        QuoteStep nextStep = nextStepAfterRelocation(state);
+        state.setCurrentStep(nextStep);
+        return nextStep;
     }
 
     public QuoteStep updateRelocationDistance(QuoteSessionState state, RelocationDistance distance) {
@@ -723,13 +738,7 @@ public class QuoteWizardService {
         }
 
         state.setRelocationDistance(distance);
-        state.setFlueType(null);
-        state.setVerticalFlueType(null);
-        state.setHorizontalFlueShape(null);
-        state.setFlueLength(null);
-        state.setFluePosition(null);
-        state.setFlueClearance(null);
-        state.setFluePropertyDistance(null);
+        clearFlueDetails(state);
         state.setRadiatorCount(null);
         state.setPowerFlushStatus(null);
         state.setMagneticFilterStatus(null);
@@ -738,8 +747,9 @@ public class QuoteWizardService {
         state.setBoilerPressureStatus(null);
         state.setFaultCodeDisplayStatus(null);
         state.setFaultCodeDetails(null);
-        state.setCurrentStep(QuoteStep.FLUE_TYPE);
-        return QuoteStep.FLUE_TYPE;
+        QuoteStep nextStep = nextStepAfterRelocation(state);
+        state.setCurrentStep(nextStep);
+        return nextStep;
     }
 
     public boolean isComplete(QuoteSessionState state, String service) {
@@ -751,7 +761,7 @@ public class QuoteWizardService {
             return state.hasPostcode()
                     && state.hasFuel()
                     && state.hasBoilerType()
-                    && state.hasBoilerMake()
+                    && (isElectricFuel(state) || state.hasBoilerMake())
                     && state.hasBoilerAge()
                     && state.hasRepairProblem()
                     && state.hasFaultCodeDisplayStatus()
@@ -764,8 +774,8 @@ public class QuoteWizardService {
             return state.hasPostcode()
                     && state.hasGasSafetyServiceType()
                     && (!requiresBoilerTypeForGasSafety(state)
-                    || (state.hasBoilerType() && state.hasFuel() && state.hasBoilerMake()))
-                    && state.hasGasAppliances()
+                    || (state.hasBoilerType() && state.hasBoilerMake()))
+                    && (!requiresGasAppliancesForGasSafety(state) || state.hasGasAppliances())
                     && state.hasOwnership()
                     && state.hasPropertyType();
         }
@@ -801,13 +811,15 @@ public class QuoteWizardService {
                 && state.hasBoilerCondition()
                 && state.hasRelocation()
                 && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
-                && state.hasCompleteFlueSelection()
+                && (shouldSkipFlueSteps(state)
+                || (state.hasCompleteFlueSelection()
                 && state.hasFlueLength()
+                && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
                 && (state.getFlueType() != FlueType.HORIZONTAL || state.hasFluePosition())
-                && state.hasBathShowerCount()
-                && state.hasRadiatorCount()
                 && (state.getFlueType() != FlueType.HORIZONTAL
-                || (state.hasFlueClearance() && state.hasFluePropertyDistance()));
+                || (state.hasFlueClearance() && state.hasFluePropertyDistance()))))
+                && state.hasBathShowerCount()
+                && state.hasRadiatorCount();
     }
 
     private boolean shouldSkipBedrooms(String service) {
@@ -820,6 +832,33 @@ public class QuoteWizardService {
 
     public boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
         return state != null && state.getBoilerLocation() == BoilerLocation.LOFT_OR_ATTIC;
+    }
+
+    private boolean shouldSkipFlueSteps(QuoteSessionState state) {
+        return isElectricFuel(state);
+    }
+
+    private boolean isElectricFuel(QuoteSessionState state) {
+        return state != null && state.getFuel() == FuelType.ELECTRIC;
+    }
+
+    private boolean shouldSendInstallationDirectlyToContact(QuoteSessionState state) {
+        return state != null && state.getFuel() == FuelType.ELECTRIC;
+    }
+
+    private QuoteStep nextStepAfterRelocation(QuoteSessionState state) {
+        return shouldSkipFlueSteps(state) ? QuoteStep.RADIATOR_COUNT : QuoteStep.FLUE_TYPE;
+    }
+
+    private void clearFlueDetails(QuoteSessionState state) {
+        state.setFlueType(null);
+        state.setVerticalFlueType(null);
+        state.setHorizontalFlueShape(null);
+        state.setFlueLength(null);
+        state.setSlopedRoofPosition(null);
+        state.setFluePosition(null);
+        state.setFlueClearance(null);
+        state.setFluePropertyDistance(null);
     }
 
     private boolean shouldSkipRepairDetails(String service) {
@@ -875,6 +914,14 @@ public class QuoteWizardService {
     private boolean requiresBoilerTypeForGasSafety(GasSafetyServiceType serviceType) {
         return serviceType == GasSafetyServiceType.BOILER_SERVICE
                 || serviceType == GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE;
+    }
+
+    private boolean requiresGasAppliancesForGasSafety(QuoteSessionState state) {
+        return state != null && requiresGasAppliancesForGasSafety(state.getGasSafetyServiceType());
+    }
+
+    private boolean requiresGasAppliancesForGasSafety(GasSafetyServiceType serviceType) {
+        return serviceType != GasSafetyServiceType.BOILER_SERVICE;
     }
 
     public QuoteStep updateFlueType(QuoteSessionState state, FlueType flueType) {
@@ -1090,8 +1137,11 @@ public class QuoteWizardService {
         }
 
         state.setBathShowerCount(bathShowerCount);
-        state.setCurrentStep(QuoteStep.SUMMARY);
-        return QuoteStep.SUMMARY;
+        QuoteStep nextStep = shouldSendInstallationDirectlyToContact(state)
+                ? QuoteStep.CONTACT
+                : QuoteStep.SUMMARY;
+        state.setCurrentStep(nextStep);
+        return nextStep;
     }
 
     public QuoteStep updatePowerFlush(QuoteSessionState state,

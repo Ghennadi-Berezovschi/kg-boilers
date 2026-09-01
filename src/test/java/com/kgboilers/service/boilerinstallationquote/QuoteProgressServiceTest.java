@@ -2,6 +2,7 @@ package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
+import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
@@ -41,6 +42,19 @@ class QuoteProgressServiceTest {
         assertEquals(22, progress.totalSteps());
         assertEquals(77, progress.percentComplete());
         assertEquals("active", progress.stages().get(1).state());
+    }
+
+    @Test
+    void buildProgress_shouldSkipFlueStepsForElectricBoiler() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFuel(FuelType.ELECTRIC);
+        state.setRelocation(Relocation.NO);
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.RADIATOR_COUNT, false);
+
+        assertEquals(11, progress.currentStepNumber());
+        assertEquals(14, progress.totalSteps());
+        assertEquals(79, progress.percentComplete());
     }
 
     @Test
@@ -141,7 +155,7 @@ class QuoteProgressServiceTest {
     }
 
     @Test
-    void buildProgress_shouldIncludeBoilerTypeForBoilerServiceGasSafetyFlow() {
+    void buildProgress_shouldSkipGasAppliancesForBoilerServiceFlow() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
         state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE);
@@ -151,5 +165,18 @@ class QuoteProgressServiceTest {
         assertEquals(2, progress.currentStepNumber());
         assertEquals(7, progress.totalSteps());
         assertEquals(29, progress.percentComplete());
+    }
+
+    @Test
+    void buildProgress_shouldIncludeGasAppliancesForBoilerServiceAndCertificateFlow() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE);
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.BOILER_TYPE, false, "gas-safety-certificate");
+
+        assertEquals(2, progress.currentStepNumber());
+        assertEquals(8, progress.totalSteps());
+        assertEquals(25, progress.percentComplete());
     }
 }

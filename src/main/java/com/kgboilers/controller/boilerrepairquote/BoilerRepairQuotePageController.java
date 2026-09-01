@@ -2,6 +2,7 @@ package com.kgboilers.controller.boilerrepairquote;
 
 import com.kgboilers.dto.boilerrepairquote.BoilerRepairContactRequestDto;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
+import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerrepair.enums.BoilerAge;
@@ -118,6 +119,8 @@ public class BoilerRepairQuotePageController {
         }
 
         model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.FUEL_TYPE));
+        model.addAttribute("hotWaterCylinderService", false);
+        model.addAttribute("electricFuel", state != null && state.getFuel() == FuelType.ELECTRIC);
         return "boiler-installation-quote/boiler-type";
     }
 
@@ -140,7 +143,10 @@ public class BoilerRepairQuotePageController {
             return boilerRepairQuotePageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(QuoteStep.BOILER_MAKE));
+        QuoteStep backStep = state != null && state.getFuel() == FuelType.ELECTRIC
+                ? QuoteStep.BOILER_TYPE
+                : QuoteStep.BOILER_MAKE;
+        model.addAttribute("backUrl", boilerRepairQuotePageService.pathForStep(backStep));
         model.addAttribute("boilerAgeOptions", BoilerAge.values());
         return "boiler-repair-quote/boiler-age";
     }

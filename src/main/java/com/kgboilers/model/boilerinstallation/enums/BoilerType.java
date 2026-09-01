@@ -5,20 +5,33 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum BoilerType {
 
-    COMBI("combi"),
-    SYSTEM("system"),
-    HEAT_ONLY("heat-only"),
-    OTHER("other");
+    COMBI("combi", "Combi boiler"),
+    SYSTEM("system", "System boiler"),
+    HEAT_ONLY("heat-only", "Heat-only boiler"),
+    ELECTRIC("electric-boiler", "Electric boiler"),
+    ELECTRIC_WITH_HOT_WATER_CYLINDER("electric-boiler-with-hot-water-cylinder", "Electric boiler with hot water cylinder"),
+    OTHER("other", "I'm not sure");
 
     private final String value;
+    private final String label;
 
-    BoilerType(String value) {
+    BoilerType(String value, String label) {
         this.value = value;
+        this.label = label;
     }
 
     @JsonValue
     public String getValue() {
         return value;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    @Override
+    public String toString() {
+        return label;
     }
 
     @JsonCreator

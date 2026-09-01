@@ -118,7 +118,7 @@ public class GasSafetyCertificateQuotePageController {
             return pageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", pageService.pathForStep(QuoteStep.FUEL_TYPE));
+        model.addAttribute("backUrl", pageService.pathForStep(QuoteStep.BOILER_TYPE));
         model.addAttribute("boilerMakeOptions", BoilerMake.values());
         return "gas-safety-certificate-quote/boiler-make";
     }
@@ -144,9 +144,13 @@ public class GasSafetyCertificateQuotePageController {
             return pageService.redirectToStart();
         }
 
-        model.addAttribute("backUrl", state != null && state.hasGasAppliances()
+        String backUrl = state != null && state.hasGasAppliances()
                 ? pageService.pathForStep(QuoteStep.GAS_APPLIANCES)
-                : pageService.pathForStep(QuoteStep.SERVICE_TYPE));
+                : pageService.pathForStep(QuoteStep.SERVICE_TYPE);
+        if (state != null && state.hasBoilerMake() && !state.hasGasAppliances()) {
+            backUrl = pageService.pathForStep(QuoteStep.BOILER_MAKE);
+        }
+        model.addAttribute("backUrl", backUrl);
         return "gas-safety-certificate-quote/property-ownership";
     }
 

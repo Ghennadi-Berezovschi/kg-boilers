@@ -5,6 +5,7 @@ import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
+import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
 import com.kgboilers.model.boilerinstallation.enums.BoilerLocation;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
@@ -247,8 +248,8 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateGasSafetyServiceType(state, GasSafetyServiceType.GAS_SAFETY_CERTIFICATE);
 
-        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
-        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
+        assertEquals(QuoteStep.GAS_APPLIANCES, nextStep);
+        assertEquals(QuoteStep.GAS_APPLIANCES, state.getCurrentStep());
     }
 
     @Test
@@ -361,7 +362,18 @@ class QuoteWizardServiceTest {
     }
 
     @Test
-    void updateBoilerMake_shouldReturnOwnershipForBoilerServiceAndGasSafety() {
+    void canAccessStep_shouldSkipFuelForBoilerServiceAndGasSafety() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE);
+        state.setBoilerType(BoilerType.COMBI);
+
+        assertFalse(service.canAccessStep(state, QuoteStep.FUEL_TYPE, "gas-safety-certificate"));
+        assertTrue(service.canAccessStep(state, QuoteStep.BOILER_MAKE, "gas-safety-certificate"));
+    }
+
+    @Test
+    void updateBoilerMake_shouldReturnPropertyOwnershipForBoilerService() {
         QuoteSessionState state = new QuoteSessionState();
         state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE);
         state.setBoilerType(BoilerType.COMBI);
@@ -371,6 +383,48 @@ class QuoteWizardServiceTest {
         assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
         assertEquals(BoilerMake.VAILLANT, state.getBoilerMake());
         assertEquals(QuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
+        assertFalse(service.canAccessStep(state, QuoteStep.GAS_APPLIANCES, "gas-safety-certificate"));
+        assertTrue(service.canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, "gas-safety-certificate"));
+    }
+
+    @Test
+    void updateBoilerMake_shouldReturnGasAppliancesForBoilerServiceAndCertificate() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE);
+        state.setBoilerType(BoilerType.COMBI);
+
+        QuoteStep nextStep = service.updateBoilerMake(state, BoilerMake.VAILLANT, "gas-safety-certificate");
+
+        assertEquals(QuoteStep.GAS_APPLIANCES, nextStep);
+        assertEquals(BoilerMake.VAILLANT, state.getBoilerMake());
+        assertEquals(QuoteStep.GAS_APPLIANCES, state.getCurrentStep());
+    }
+
+    @Test
+    void isComplete_shouldNotRequireFuelForBoilerServiceAndGasSafety() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE_AND_GAS_SAFETY_CERTIFICATE);
+        state.setBoilerType(BoilerType.COMBI);
+        state.setBoilerMake(BoilerMake.VAILLANT);
+        state.setGasAppliances(List.of(new GasApplianceSelection(GasApplianceType.GAS_BOILER, 1)));
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+
+        assertTrue(service.isComplete(state, "gas-safety-certificate"));
+    }
+
+    @Test
+    void isComplete_shouldNotRequireGasAppliancesForBoilerService() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setGasSafetyServiceType(GasSafetyServiceType.BOILER_SERVICE);
+        state.setBoilerType(BoilerType.COMBI);
+        state.setBoilerMake(BoilerMake.VAILLANT);
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+
+        assertTrue(service.isComplete(state, "gas-safety-certificate"));
     }
 
     @Test
@@ -391,6 +445,20 @@ class QuoteWizardServiceTest {
 
         assertEquals(QuoteStep.BOILER_MAKE, nextStep);
         assertEquals(BoilerType.HEAT_ONLY, state.getBoilerType());
+    }
+
+    @Test
+    void updateBoilerType_shouldSkipBoilerMakeForElectricBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFuel(FuelType.ELECTRIC);
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.ELECTRIC, "boiler-repair");
+
+        assertEquals(QuoteStep.BOILER_AGE, nextStep);
+        assertEquals(BoilerType.ELECTRIC, state.getBoilerType());
+        assertEquals(QuoteStep.BOILER_AGE, state.getCurrentStep());
+        assertFalse(service.canAccessStep(state, QuoteStep.BOILER_MAKE, "boiler-repair"));
+        assertTrue(service.canAccessStep(state, QuoteStep.BOILER_AGE, "boiler-repair"));
     }
 
     @Test
@@ -521,6 +589,20 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updateRelocation_shouldSkipFlueTypeForElectricBoiler_whenRelocationIsNo() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFuel(FuelType.ELECTRIC);
+
+        QuoteStep nextStep = service.updateRelocation(state, Relocation.NO);
+
+        assertEquals(QuoteStep.RADIATOR_COUNT, nextStep);
+        assertEquals(Relocation.NO, state.getRelocation());
+        assertEquals(QuoteStep.RADIATOR_COUNT, state.getCurrentStep());
+        assertTrue(service.canAccessStep(state, QuoteStep.RADIATOR_COUNT));
+        assertFalse(service.canAccessStep(state, QuoteStep.FLUE_TYPE));
+    }
+
+    @Test
     void updateRelocation_shouldGoToRelocationDistance_whenRelocationIsYes() {
         QuoteSessionState state = new QuoteSessionState();
 
@@ -540,6 +622,43 @@ class QuoteWizardServiceTest {
         assertEquals(QuoteStep.FLUE_TYPE, nextStep);
         assertEquals(RelocationDistance.TWO_TO_THREE, state.getRelocationDistance());
         assertEquals(QuoteStep.FLUE_TYPE, state.getCurrentStep());
+    }
+
+    @Test
+    void updateRelocationDistance_shouldSkipFlueTypeForElectricBoiler() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFuel(FuelType.ELECTRIC);
+        state.setRelocation(Relocation.YES);
+
+        QuoteStep nextStep = service.updateRelocationDistance(state, RelocationDistance.TWO_TO_THREE);
+
+        assertEquals(QuoteStep.RADIATOR_COUNT, nextStep);
+        assertEquals(RelocationDistance.TWO_TO_THREE, state.getRelocationDistance());
+        assertEquals(QuoteStep.RADIATOR_COUNT, state.getCurrentStep());
+        assertFalse(service.canAccessStep(state, QuoteStep.FLUE_LENGTH));
+    }
+
+    @Test
+    void isComplete_shouldNotRequireFlueDetailsForElectricBoiler() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setFuel(FuelType.ELECTRIC);
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBedrooms(Bedrooms.THREE);
+        state.setBoilerType(BoilerType.COMBI);
+        state.setBoilerPosition(BoilerPosition.WALL_MOUNTED);
+        state.setBoilerLocation(BoilerLocation.KITCHEN);
+        state.setBoilerFloorLevel(BoilerFloorLevel.GROUND_FLOOR);
+        state.setBoilerCondition(BoilerCondition.OLD_INEFFICIENT);
+        state.setRelocation(Relocation.NO);
+        state.setRadiatorCount(RadiatorCount.SIX_TO_NINE);
+        state.setBathShowerCount(BathShowerCount.TWO);
+
+        assertTrue(service.isComplete(state, null));
+        assertTrue(state.isComplete());
+        assertTrue(service.canAccessStep(state, QuoteStep.SUMMARY));
+        assertFalse(service.canAccessStep(state, QuoteStep.FLUE_TYPE));
     }
 
     @Test
@@ -711,6 +830,22 @@ class QuoteWizardServiceTest {
         assertEquals(MagneticFilterStatus.YES_HAS, state.getMagneticFilterStatus());
         assertEquals("Yes, it has one", state.getMagneticFilterSummary());
         assertEquals(QuoteStep.REPAIR_PROBLEM, state.getCurrentStep());
+    }
+
+    @Test
+    void isComplete_shouldNotRequireBoilerMakeForElectricBoilerRepair() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setFuel(FuelType.ELECTRIC);
+        state.setBoilerType(BoilerType.ELECTRIC);
+        state.setBoilerAge(BoilerAge.FIVE_TO_TEN_YEARS);
+        state.setRepairProblem(RepairProblem.HEATING_AND_HOT_WATER);
+        state.setFaultCodeDisplayStatus(FaultCodeDisplayStatus.NO_NOT_SHOWING);
+        state.setPowerFlushStatus(PowerFlushStatus.NO_NOT_DONE);
+        state.setMagneticFilterStatus(MagneticFilterStatus.DO_NOT_KNOW);
+
+        assertTrue(service.isComplete(state, "boiler-repair"));
+        assertTrue(service.canAccessStep(state, QuoteStep.SUMMARY, "boiler-repair"));
     }
 
     @Test
