@@ -35,6 +35,7 @@ public class QuoteWizardService {
     private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
+    private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
 
     // =========================
     // START
@@ -134,7 +135,7 @@ public class QuoteWizardService {
 
             case BEDROOMS -> state.hasPropertyType()
                     && !skipBedrooms
-                    && (!isGasPipework(service) || state.hasGasAppliances());
+                    && (!isGasApplianceService(service) || state.hasGasAppliances());
 
             case BOILER_TYPE -> isBoilerRepair(service)
                     ? state.hasFuel()
@@ -148,9 +149,11 @@ public class QuoteWizardService {
 
             case HOT_WATER -> false;
 
-            case PROBLEM_DETAILS -> isGasPipework(service) && state.hasGasAppliances();
+            case PROBLEM_DETAILS -> isGasPipework(service)
+                    ? state.hasGasAppliances()
+                    : isGasCookerHob(service) && state.hasGasAppliances();
 
-            case GAS_APPLIANCES -> isGasPipework(service) && state.hasPropertyType();
+            case GAS_APPLIANCES -> isGasApplianceService(service) && state.hasPropertyType();
 
             case BOILER_AGE -> BOILER_REPAIR_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                     && (isElectricFuel(state)
@@ -374,7 +377,7 @@ public class QuoteWizardService {
             return QuoteStep.SUMMARY;
         }
 
-        if (isGasPipework(service)) {
+        if (isGasApplianceService(service)) {
             state.setGasAppliances(null);
             state.setCurrentStep(QuoteStep.GAS_APPLIANCES);
             return QuoteStep.GAS_APPLIANCES;
@@ -519,9 +522,16 @@ public class QuoteWizardService {
     }
 
     public QuoteStep updateProblemDetails(QuoteSessionState state, String problemDetails, String service) {
+        return updateProblemDetails(state, problemDetails, service, null);
+    }
+
+    public QuoteStep updateProblemDetails(QuoteSessionState state,
+                                          String problemDetails,
+                                          String service,
+                                          GasApplianceType installationAppliance) {
         if (!isHotWaterCylinder(service)) {
-            if (!isGasPipework(service)) {
-                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder and gas pipework");
+            if (!isGasApplianceService(service)) {
+                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder and gas appliance services");
             }
         }
 
@@ -532,6 +542,13 @@ public class QuoteWizardService {
         String normalizedDetails = problemDetails.trim();
         if (normalizedDetails.length() > 500) {
             throw new IllegalArgumentException("Please keep the problem description under 500 characters");
+        }
+
+        if (isGasCookerHob(service)) {
+            if (installationAppliance != GasApplianceType.GAS_HOB && installationAppliance != GasApplianceType.GAS_COOKER) {
+                throw new IllegalArgumentException("Select gas hob or gas cooker installation");
+            }
+            state.setGasAppliances(List.of(new GasApplianceSelection(installationAppliance, 1)));
         }
 
         state.setProblemDetails(normalizedDetails);
@@ -558,7 +575,7 @@ public class QuoteWizardService {
         }
 
         state.setGasAppliances(appliances);
-        if (isGasPipework(service)) {
+        if (isGasApplianceService(service)) {
             state.setProblemDetails(null);
             state.setCurrentStep(QuoteStep.PROBLEM_DETAILS);
             return QuoteStep.PROBLEM_DETAILS;
@@ -798,11 +815,19 @@ public class QuoteWizardService {
                     && state.hasProblemDetails();
         }
 
+        if (isGasCookerHob(service)) {
+            return state.hasPostcode()
+                    && state.hasOwnership()
+                    && state.hasPropertyType()
+                    && state.hasGasAppliances()
+                    && state.hasProblemDetails();
+        }
+
         return state.hasPostcode()
                 && (shouldSkipFuel(service) || state.hasFuel())
                 && state.hasOwnership()
                 && state.hasPropertyType()
-                && (!isGasPipework(service) || state.hasGasAppliances())
+                && (!isGasApplianceService(service) || state.hasGasAppliances())
                 && (shouldSkipBedrooms(service) || state.hasBedrooms())
                 && state.hasBoilerType()
                 && (shouldSkipBoilerPosition(service) || state.hasBoilerPosition())
@@ -823,7 +848,7 @@ public class QuoteWizardService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service) || isHotWaterCylinder(service) || isGasPipework(service);
+        return isBoilerRepair(service) || isHotWaterCylinder(service) || isGasApplianceService(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
@@ -868,11 +893,19 @@ public class QuoteWizardService {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return isHotWaterCylinder(normalizedService)
-                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService);
+                || isGasApplianceService(normalizedService);
+    }
+
+    private boolean isGasApplianceService(String service) {
+        return isGasPipework(service) || isGasCookerHob(service);
     }
 
     private boolean isGasPipework(String service) {
         return GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean isGasCookerHob(String service) {
+        return GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isHotWaterCylinder(String service) {

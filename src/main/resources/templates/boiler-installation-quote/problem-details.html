@@ -6,7 +6,7 @@
 
     <title>Problem Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260421-1352')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260903-2100')}">
 </head>
 <body>
 
@@ -26,20 +26,53 @@
 
         <div class="card" style="max-width:720px; margin:0 auto; padding:28px;">
             <label for="problemDetails"
-                   style="display:block; margin-bottom:10px; font-weight:700; color:var(--blue-main);">
-                Problem details
+                   style="display:block; margin-bottom:4px; font-weight:700; color:var(--blue-main);">
+                Please describe the issue
             </label>
+
+            <p style="font-size:14px; color:#6E7784; margin:0 0 10px;">
+                A short description is enough.
+            </p>
 
             <textarea id="problemDetails"
                       class="quote-input"
                       rows="5"
                       maxlength="500"
                       th:text="${problemDetails}"
-                      placeholder="For example: cylinder leaking, no hot water, low pressure, strange noise"
+                      th:placeholder="${gasCookerHobInstallationService}
+                              ? 'Example: new hob, cooker replacement, freestanding cooker connection'
+                              : 'For example: cylinder leaking, no hot water, low pressure, strange noise'"
                       style="width:100%; min-height:140px; padding:16px; resize:vertical;"></textarea>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:16px;">
-                <span style="font-size:14px; color:#6E7784;">A short description is enough.</span>
+            <div th:if="${gasCookerHobInstallationService}"
+                 class="installation-choice-group">
+                <p class="installation-choice-title">Choose installation type</p>
+                <p class="installation-choice-hint">Please choose gas hob or gas cooker installation.</p>
+
+                <label class="installation-choice-card">
+                    <input type="radio"
+                           name="installationAppliance"
+                           value="gas-hob"
+                           th:checked="${selectedInstallationAppliance == 'gas-hob'}">
+                    <span class="installation-choice-copy">
+                        <span class="installation-choice-name">Gas hob (standard) installation</span>
+                    </span>
+                    <strong class="installation-choice-price">£<span th:text="${gasHobInstallationPriceGbp}">140</span></strong>
+                </label>
+
+                <label class="installation-choice-card">
+                    <input type="radio"
+                           name="installationAppliance"
+                           value="gas-cooker"
+                           th:checked="${selectedInstallationAppliance == 'gas-cooker'}">
+                    <span class="installation-choice-copy">
+                        <span class="installation-choice-name">Gas cooker (standard) installation</span>
+                    </span>
+                    <strong class="installation-choice-price">£<span th:text="${gasCookerInstallationPriceGbp}">140</span></strong>
+                </label>
+            </div>
+
+            <div class="problem-details-actions">
                 <button type="button" id="problemDetailsBtn" class="card-cta">Continue →</button>
             </div>
         </div>
@@ -55,6 +88,7 @@
     const detailsField = document.getElementById("problemDetails");
     const continueButton = document.getElementById("problemDetailsBtn");
     const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
+    const gasCookerHobInstallationService = /*[[${gasCookerHobInstallationService}]]*/ false;
 
     detailsField.addEventListener("input", clearError);
     continueButton.addEventListener("click", submitProblemDetails);
@@ -76,15 +110,27 @@
             return;
         }
 
+        const selectedInstallation = document.querySelector("input[name='installationAppliance']:checked");
+
+        if (gasCookerHobInstallationService && !selectedInstallation) {
+            showError("Please choose gas hob or gas cooker installation");
+            return;
+        }
+
         setLoading(true);
 
         try {
+            const payload = { problemDetails: problemDetails };
+            if (selectedInstallation) {
+                payload.installationAppliance = selectedInstallation.value;
+            }
+
             const response = await fetch(`${quoteApiBasePath}/problem-details`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ problemDetails: problemDetails })
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();

@@ -57,6 +57,7 @@ public class QuotePageController {
     private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
+    private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
     private static final String GAS_SAFETY_CERTIFICATE_LABEL = "Boiler Service and Gas Safety Certificate";
     private static final String QUOTE_SERVICE_COOKIE = "kg_quote_service";
     private static final int QUOTE_SERVICE_COOKIE_MAX_AGE_SECONDS = 2 * 60 * 60;
@@ -76,6 +77,8 @@ public class QuotePageController {
     private final QuoteLeadEmailService quoteLeadEmailService;
     private final QuoteOfferProperties quoteOfferProperties;
     private final QuoteProgressService quoteProgressService;
+    private final int gasCookerInstallationPriceGbp;
+    private final int gasHobInstallationPriceGbp;
 
     public QuotePageController(QuoteSessionService sessionService,
                                QuoteWizardService wizardService,
@@ -85,6 +88,8 @@ public class QuotePageController {
                                FluePositionPricingService fluePositionPricingService,
                                @Value("${kg.pricing.flue-shape.square:0}") int squareFlueShapePriceGbp,
                                @Value("${kg.pricing.heat-only-to-combi:0}") int heatOnlyToCombiPriceGbp,
+                               @Value("${kg.pricing.gas-cooker-and-hob-installation.gas-cooker:0}") int gasCookerInstallationPriceGbp,
+                               @Value("${kg.pricing.gas-cooker-and-hob-installation.gas-hob:0}") int gasHobInstallationPriceGbp,
                                BoilerRecommendationService boilerRecommendationService,
                                QuoteOptionalExtraService quoteOptionalExtraService,
                                QuotePersistenceService quotePersistenceService,
@@ -107,6 +112,8 @@ public class QuotePageController {
         this.quoteLeadEmailService = quoteLeadEmailService;
         this.quoteOfferProperties = quoteOfferProperties;
         this.quoteProgressService = quoteProgressService;
+        this.gasCookerInstallationPriceGbp = gasCookerInstallationPriceGbp;
+        this.gasHobInstallationPriceGbp = gasHobInstallationPriceGbp;
     }
 
     @ModelAttribute
@@ -215,7 +222,7 @@ public class QuotePageController {
         QuoteSessionState state = sessionService.getState(session);
         String service = getSelectedService(session);
 
-        if (isGasPipework(service) && isComplete(state, service)) {
+        if (isGasApplianceService(service) && isComplete(state, service)) {
             return "redirect:/quote/summary";
         }
 
@@ -227,7 +234,7 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        model.addAttribute("backUrl", isGasPipework(service)
+        model.addAttribute("backUrl", isGasApplianceService(service)
                 ? pathForService(QuoteStep.GAS_APPLIANCES, service)
                 : pathForService(QuoteStep.BEDROOMS.previous(), service));
         return "boiler-installation-quote/bedrooms";
@@ -300,8 +307,12 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        model.addAttribute("backUrl", QuoteStep.HOT_WATER.getPath());
+        model.addAttribute("backUrl", getProblemDetailsBackUrl(service));
         model.addAttribute("problemDetails", state != null ? state.getProblemDetailsSummary() : "");
+        model.addAttribute("gasCookerHobInstallationService", isGasCookerHob(service));
+        model.addAttribute("gasHobInstallationPriceGbp", gasHobInstallationPriceGbp);
+        model.addAttribute("gasCookerInstallationPriceGbp", gasCookerInstallationPriceGbp);
+        model.addAttribute("selectedInstallationAppliance", getSelectedInstallationApplianceValue(state));
         return "boiler-installation-quote/problem-details";
     }
 
@@ -575,8 +586,8 @@ public class QuotePageController {
             return "boiler-installation-quote/summary";
         }
 
-        if (isGasPipework(service)) {
-            populateServiceSummaryModel(model, state, formatServiceTitle(service), QuoteStep.PROBLEM_DETAILS.getPath());
+        if (isGasApplianceService(service)) {
+            populateServiceSummaryModel(model, state, formatServiceTitle(service), getGasApplianceSummaryBackUrl(service));
             return "boiler-installation-quote/summary";
         }
 
@@ -633,7 +644,9 @@ public class QuotePageController {
 
     private String serviceOnlyContactPage(QuoteSessionState state, String service, Model model) {
         String serviceLabel = formatServiceTitle(service);
-        SelectedBoilerData selectedBoilerData = getServiceSelectedBoilerData(serviceLabel);
+        List<ServicePriceLine> servicePriceLines = buildServicePriceLines(state, service);
+        int servicePriceGbp = getServiceTotalPriceGbp(servicePriceLines);
+        SelectedBoilerData selectedBoilerData = getServiceSelectedBoilerData(serviceLabel, servicePriceGbp);
 
         if (!model.containsAttribute("contactRequest")) {
             BoilerContactRequestDto contactRequest = new BoilerContactRequestDto();
@@ -648,6 +661,8 @@ public class QuotePageController {
         populateContactPageModel(model, selectedBoilerData, List.of(), List.of(), 0);
         model.addAttribute("serviceContactSummary", true);
         model.addAttribute("serviceSummaryTitle", serviceLabel);
+        model.addAttribute("servicePriceLines", servicePriceLines);
+        model.addAttribute("serviceTotalPriceGbp", servicePriceGbp);
         model.addAttribute("state", state);
         model.addAttribute("backUrl", getServiceOnlyContactBackUrl(service));
         model.addAttribute("quoteProgress", buildProgress(state, QuoteStep.CONTACT, isContactSuccess(model), service));
@@ -656,7 +671,7 @@ public class QuotePageController {
 
     private String electricInstallationContactPage(QuoteSessionState state, Model model) {
         String selectedLabel = getElectricInstallationSelectionLabel(state);
-        SelectedBoilerData selectedBoilerData = getServiceSelectedBoilerData(selectedLabel);
+        SelectedBoilerData selectedBoilerData = getServiceSelectedBoilerData(selectedLabel, 0);
 
         if (!model.containsAttribute("contactRequest")) {
             BoilerContactRequestDto contactRequest = new BoilerContactRequestDto();
@@ -721,10 +736,14 @@ public class QuotePageController {
                 boolean electricInstallation = isElectricInstallationContact(state, service);
                 String serviceLabel = electricInstallation ? "Boiler Installation" : formatServiceTitle(service);
                 String selectedLabel = electricInstallation ? getElectricInstallationSelectionLabel(state) : serviceLabel;
-                SelectedBoilerData serviceSelection = getServiceSelectedBoilerData(selectedLabel);
+                List<ServicePriceLine> servicePriceLines = electricInstallation ? List.of() : buildServicePriceLines(state, service);
+                int servicePriceGbp = getServiceTotalPriceGbp(servicePriceLines);
+                SelectedBoilerData serviceSelection = getServiceSelectedBoilerData(selectedLabel, servicePriceGbp);
                 populateContactPageModel(model, serviceSelection, List.of(), List.of(), 0);
                 model.addAttribute("serviceContactSummary", true);
                 model.addAttribute("serviceSummaryTitle", serviceLabel);
+                model.addAttribute("servicePriceLines", servicePriceLines);
+                model.addAttribute("serviceTotalPriceGbp", servicePriceGbp);
                 model.addAttribute("state", state);
                 model.addAttribute("backUrl", electricInstallation ? QuoteStep.BATH_SHOWER_COUNT.getPath() : getServiceOnlyContactBackUrl(service));
                 model.addAttribute("quoteProgress", buildProgress(state, QuoteStep.CONTACT, false, service));
@@ -961,15 +980,15 @@ public class QuotePageController {
                                                      String service,
                                                      QuoteSessionState state) {
         if (isBoilerServiceAndGasSafety(service) && GAS_SAFETY_CERTIFICATE_LABEL.equals(boilerLabel)) {
-            return getServiceSelectedBoilerData(GAS_SAFETY_CERTIFICATE_LABEL);
+            return getServiceSelectedBoilerData(GAS_SAFETY_CERTIFICATE_LABEL, 0);
         }
 
         if (isServiceOnlyContact(service)) {
-            return getServiceSelectedBoilerData(formatServiceTitle(service));
+            return getServiceSelectedBoilerData(formatServiceTitle(service), getServiceTotalPriceGbp(buildServicePriceLines(state, service)));
         }
 
         if (isElectricInstallationContact(state, service)) {
-            return getServiceSelectedBoilerData(getElectricInstallationSelectionLabel(state));
+            return getServiceSelectedBoilerData(getElectricInstallationSelectionLabel(state), 0);
         }
 
         BoilerRecommendationResult recommendation = summaryViewData.boilerRecommendation();
@@ -992,11 +1011,11 @@ public class QuotePageController {
                 .orElse(null);
     }
 
-    private SelectedBoilerData getServiceSelectedBoilerData(String serviceLabel) {
+    private SelectedBoilerData getServiceSelectedBoilerData(String serviceLabel, int priceGbp) {
         com.kgboilers.model.boilerinstallationquote.BoilerModel serviceSelection = new com.kgboilers.model.boilerinstallationquote.BoilerModel();
         serviceSelection.setBrand("Service");
         serviceSelection.setModel(serviceLabel);
-        serviceSelection.setAveragePriceGbp(0);
+        serviceSelection.setAveragePriceGbp(priceGbp);
         serviceSelection.setImage("/images/boilers/system.svg");
         return new SelectedBoilerData(
                 serviceLabel,
@@ -1005,6 +1024,45 @@ public class QuotePageController {
                 0,
                 serviceSelection.getImage()
         );
+    }
+
+    private List<ServicePriceLine> buildServicePriceLines(QuoteSessionState state, String service) {
+        if (!isGasCookerHob(service) || state == null || state.getGasAppliances() == null) {
+            return List.of();
+        }
+
+        return state.getGasAppliances().stream()
+                .filter(selection -> selection != null && selection.getAppliance() != null)
+                .map(selection -> {
+                    int unitPriceGbp = getGasApplianceInstallationPriceGbp(selection.getAppliance());
+                    int quantity = Math.max(1, selection.getQuantity());
+                    return new ServicePriceLine(
+                            selection.getAppliance().getLabel() + " installation",
+                            quantity,
+                            unitPriceGbp,
+                            unitPriceGbp * quantity
+                    );
+                })
+                .filter(line -> line.totalPriceGbp() > 0)
+                .toList();
+    }
+
+    private int getGasApplianceInstallationPriceGbp(GasApplianceType applianceType) {
+        return switch (applianceType) {
+            case GAS_COOKER -> gasCookerInstallationPriceGbp;
+            case GAS_HOB -> gasHobInstallationPriceGbp;
+            default -> 0;
+        };
+    }
+
+    private int getServiceTotalPriceGbp(List<ServicePriceLine> servicePriceLines) {
+        if (servicePriceLines == null) {
+            return 0;
+        }
+
+        return servicePriceLines.stream()
+                .mapToInt(ServicePriceLine::totalPriceGbp)
+                .sum();
     }
 
     private String buildBoilerLabel(com.kgboilers.model.boilerinstallationquote.BoilerModel boiler) {
@@ -1114,6 +1172,10 @@ public class QuotePageController {
             return "Gas Pipework And Gas Leak Detection";
         }
 
+        if (isGasCookerHob(service)) {
+            return "Gas Cooker And Hob Installation";
+        }
+
         if ("central-heating".equals(service)) {
             return "Central Heating Installation & Repair";
         }
@@ -1202,25 +1264,52 @@ public class QuotePageController {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(normalizedService)
-                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService);
+                || isGasApplianceService(normalizedService);
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isHotWaterCylinder(service) || isGasPipework(service);
+        return isHotWaterCylinder(service) || isGasApplianceService(service);
     }
 
     private boolean isServiceOnlyContact(String service) {
-        return isHotWaterCylinder(service) || isGasPipework(service);
+        return isHotWaterCylinder(service) || isGasApplianceService(service);
     }
 
     private String getServiceOnlyContactBackUrl(String service) {
-        return isGasPipework(service)
-                ? QuoteStep.PROBLEM_DETAILS.getPath()
-                : QuoteStep.PROBLEM_DETAILS.getPath();
+        return QuoteStep.PROBLEM_DETAILS.getPath();
+    }
+
+    private String getGasApplianceSummaryBackUrl(String service) {
+        return QuoteStep.PROBLEM_DETAILS.getPath();
+    }
+
+    private String getProblemDetailsBackUrl(String service) {
+        if (isGasApplianceService(service)) {
+            return pathForService(QuoteStep.GAS_APPLIANCES, service);
+        }
+
+        return QuoteStep.HOT_WATER.getPath();
+    }
+
+    private String getSelectedInstallationApplianceValue(QuoteSessionState state) {
+        if (state == null || state.getGasAppliances() == null || state.getGasAppliances().isEmpty()) {
+            return "";
+        }
+
+        GasApplianceType applianceType = state.getGasAppliances().get(0).getAppliance();
+        return applianceType == null ? "" : applianceType.getValue();
+    }
+
+    private boolean isGasApplianceService(String service) {
+        return isGasPipework(service) || isGasCookerHob(service);
     }
 
     private boolean isGasPipework(String service) {
         return GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean isGasCookerHob(String service) {
+        return GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isHotWaterCylinder(String service) {
@@ -1340,5 +1429,8 @@ public class QuotePageController {
                     : 0;
             return catalogPriceGbp + installationExtrasPriceGbp + optionalExtrasPriceGbp;
         }
+    }
+
+    private record ServicePriceLine(String label, int quantity, int unitPriceGbp, int totalPriceGbp) {
     }
 }

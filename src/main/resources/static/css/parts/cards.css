@@ -93,6 +93,10 @@
 }
 
 .card-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
     padding: 8px 12px;
     border-radius: 6px;
 
@@ -128,6 +132,17 @@
 
     .card {
         padding: 18px;
+    }
+
+    .card:hover {
+        transform: none;
+    }
+
+    .card-cta {
+        min-height: 44px;
+        padding: 10px 14px;
+        font-weight: 800;
+        line-height: 1.15;
     }
 
     .card h3 {

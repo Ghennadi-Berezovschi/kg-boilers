@@ -30,7 +30,9 @@ class QuoteServiceTest {
         when(locationProperties.getMaxDistanceMiles()).thenReturn(70.0);
         when(locationProperties.getServiceMaxDistanceMiles()).thenReturn(java.util.Map.of(
                 "central-heating", 15.0,
-                "boiler-repair", 15.0
+                "boiler-repair", 15.0,
+                "gas-cooker-and-hob-installation", 15.0,
+                "gas-pipework-and-gas-leak-detection", 15.0
         ));
         when(locationProperties.getServicePostcodes()).thenReturn(java.util.Map.of());
 
@@ -83,6 +85,28 @@ class QuoteServiceTest {
     }
 
     @Test
+    void shouldUseBoilerRepairDistanceLimit_whenGasPipeworkServiceSelected() {
+        Coordinates coords = new Coordinates(51.5, 0.0);
+
+        when(postcodeService.getCoordinates(anyString())).thenReturn(coords);
+        when(distanceService.calculateMiles(any(), any())).thenReturn(20.0);
+
+        assertThrows(OutOfAreaException.class,
+                () -> quoteService.startQuote("E16 4JJ", "gas-pipework-and-gas-leak-detection"));
+    }
+
+    @Test
+    void shouldUseBoilerRepairDistanceLimit_whenGasCookerAndHobServiceSelected() {
+        Coordinates coords = new Coordinates(51.5, 0.0);
+
+        when(postcodeService.getCoordinates(anyString())).thenReturn(coords);
+        when(distanceService.calculateMiles(any(), any())).thenReturn(20.0);
+
+        assertThrows(OutOfAreaException.class,
+                () -> quoteService.startQuote("E16 4JJ", "gas-cooker-and-hob-installation"));
+    }
+
+    @Test
     void shouldUseNearestConfiguredPostcode_whenMultiplePostcodesAreConfigured() {
         Coordinates clientCoords = new Coordinates(51.5, 0.0);
         Coordinates firstEngineerCoords = new Coordinates(51.6, 0.1);
@@ -116,6 +140,46 @@ class QuoteServiceTest {
         when(distanceService.calculateMiles(clientCoords, repairEngineerCoords)).thenReturn(10.0);
 
         QuoteStep step = quoteService.startQuote("N1 1AA", "boiler-repair");
+
+        assertEquals(QuoteStep.FUEL_TYPE, step);
+    }
+
+    @Test
+    void shouldUseServiceSpecificPostcodes_whenConfiguredForGasPipework() {
+        Coordinates clientCoords = new Coordinates(51.5, 0.0);
+        Coordinates defaultEngineerCoords = new Coordinates(51.6, 0.1);
+        Coordinates repairEngineerCoords = new Coordinates(51.4, 0.0);
+
+        when(locationProperties.getServicePostcodes()).thenReturn(java.util.Map.of(
+                "gas-pipework-and-gas-leak-detection", java.util.List.of("E16 4JJ", "E4 8BJ")
+        ));
+        when(postcodeService.getCoordinates("N1 1AA")).thenReturn(clientCoords);
+        when(postcodeService.getCoordinates("E16 4JJ")).thenReturn(defaultEngineerCoords);
+        when(postcodeService.getCoordinates("E4 8BJ")).thenReturn(repairEngineerCoords);
+        when(distanceService.calculateMiles(clientCoords, defaultEngineerCoords)).thenReturn(24.0);
+        when(distanceService.calculateMiles(clientCoords, repairEngineerCoords)).thenReturn(10.0);
+
+        QuoteStep step = quoteService.startQuote("N1 1AA", "gas-pipework-and-gas-leak-detection");
+
+        assertEquals(QuoteStep.FUEL_TYPE, step);
+    }
+
+    @Test
+    void shouldUseServiceSpecificPostcodes_whenConfiguredForGasCookerAndHob() {
+        Coordinates clientCoords = new Coordinates(51.5, 0.0);
+        Coordinates defaultEngineerCoords = new Coordinates(51.6, 0.1);
+        Coordinates repairEngineerCoords = new Coordinates(51.4, 0.0);
+
+        when(locationProperties.getServicePostcodes()).thenReturn(java.util.Map.of(
+                "gas-cooker-and-hob-installation", java.util.List.of("E16 4JJ", "E4 8BJ")
+        ));
+        when(postcodeService.getCoordinates("N1 1AA")).thenReturn(clientCoords);
+        when(postcodeService.getCoordinates("E16 4JJ")).thenReturn(defaultEngineerCoords);
+        when(postcodeService.getCoordinates("E4 8BJ")).thenReturn(repairEngineerCoords);
+        when(distanceService.calculateMiles(clientCoords, defaultEngineerCoords)).thenReturn(24.0);
+        when(distanceService.calculateMiles(clientCoords, repairEngineerCoords)).thenReturn(10.0);
+
+        QuoteStep step = quoteService.startQuote("N1 1AA", "gas-cooker-and-hob-installation");
 
         assertEquals(QuoteStep.FUEL_TYPE, step);
     }

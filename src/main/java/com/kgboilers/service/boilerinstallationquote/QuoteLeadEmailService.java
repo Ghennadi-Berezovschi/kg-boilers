@@ -22,6 +22,8 @@ public class QuoteLeadEmailService {
 
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String HOT_WATER_CYLINDER_TITLE = "Hot Water Cylinder Installation & Repair";
+    private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
+    private static final String GAS_COOKER_HOB_TITLE = "Gas Cooker And Hob Installation";
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
@@ -71,6 +73,21 @@ public class QuoteLeadEmailService {
                         contactProperties.getEmail(),
                         "New hot water cylinder lead",
                         buildHotWaterCylinderBusinessEmailBody(state, serviceType, clientName, clientEmail, clientPhone));
+            }
+            return;
+        }
+
+        if (isGasCookerHob(serviceType)) {
+            sendSafely(mailSender,
+                    clientEmail,
+                    "Your " + companyProperties.getName() + " gas cooker and hob installation request",
+                    buildGasCookerHobClientEmailBody(state, clientName, totalPriceGbp));
+
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                sendSafely(mailSender,
+                        contactProperties.getEmail(),
+                        "New gas cooker and hob installation lead",
+                        buildGasCookerHobBusinessEmailBody(state, clientName, clientEmail, clientPhone, totalPriceGbp));
             }
             return;
         }
@@ -127,6 +144,80 @@ public class QuoteLeadEmailService {
                 clientName,
                 companyProperties.getName(),
                 companyProperties.getName()
+        );
+    }
+
+    private String buildGasCookerHobClientEmailBody(QuoteSessionState state,
+                                                    String clientName,
+                                                    int totalPriceGbp) {
+        return """
+                Hello %s,
+
+                Thank you for choosing %s.
+                We received your gas cooker and hob installation request.
+
+                Service:
+                %s
+
+                Gas appliances:
+                %s
+
+                Problem:
+                %s
+
+                Installation price:
+                £%d
+
+                We will contact you shortly.
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                GAS_COOKER_HOB_TITLE,
+                state == null ? "" : state.getGasAppliancesSummary(),
+                state == null ? "" : state.getProblemDetailsSummary(),
+                totalPriceGbp
+        );
+    }
+
+    private String buildGasCookerHobBusinessEmailBody(QuoteSessionState state,
+                                                      String clientName,
+                                                      String clientEmail,
+                                                      String clientPhone,
+                                                      int totalPriceGbp) {
+        return """
+                New gas cooker and hob installation lead received.
+
+                Status:
+                NEW_LEAD
+
+                Service:
+                %s
+
+                Installation price:
+                £%d
+
+                Client contact:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Client answers:
+                Postcode: %s
+                Ownership: %s
+                Property: %s
+                Gas appliances: %s
+                Problem: %s
+                """.formatted(
+                GAS_COOKER_HOB_TITLE,
+                totalPriceGbp,
+                stateSafe(clientName),
+                clientEmail,
+                clientPhone,
+                stateSafe(state == null ? null : state.getPostcode()),
+                stateSafe(state == null ? null : state.getOwnership()),
+                stateSafe(state == null ? null : state.getPropertyType()),
+                state == null ? "" : state.getGasAppliancesSummary(),
+                state == null ? "" : state.getProblemDetailsSummary()
         );
     }
 
@@ -231,7 +322,6 @@ public class QuoteLeadEmailService {
                 Postcode: %s
                 Gas appliances: %s
                 Optional extras: %s
-                Uploaded pictures: %s
                 """.formatted(
                 serviceTitle,
                 clientName,
@@ -239,8 +329,7 @@ public class QuoteLeadEmailService {
                 clientPhone,
                 state == null ? "" : state.getPostcode(),
                 state == null ? "" : state.getGasAppliancesSummary(),
-                formatServiceExtras(selectedExtras),
-                formatUploadedPictures(state)
+                formatServiceExtras(selectedExtras)
         );
 
         sendSafely(mailSender,
@@ -331,7 +420,6 @@ public class QuoteLeadEmailService {
                 Fault code / message / signal: %s
                 Fault code details: %s
                 Optional extras: %s
-                Uploaded pictures: %s
                 """.formatted(
                 stateSafe(serviceType),
                 stateSafe(clientName),
@@ -345,8 +433,7 @@ public class QuoteLeadEmailService {
                 defaultLine(state.getRepairProblemSummary(), "-"),
                 defaultLine(state.getFaultCodeDisplaySummary(), "-"),
                 defaultLine(state.getFaultCodeDetailsSummary(), "-"),
-                formatServiceExtras(selectedExtras),
-                formatUploadedPictures(state)
+                formatServiceExtras(selectedExtras)
         );
     }
 
@@ -459,7 +546,6 @@ public class QuoteLeadEmailService {
                 Baths and showers: %s
                 Optional extras: %s
                 Optional extras price: £%d
-                Uploaded pictures: %s
                 """.formatted(
                 stateSafe(serviceType),
                 selectedBoiler,
@@ -495,8 +581,7 @@ public class QuoteLeadEmailService {
                 state.getRadiatorCountSummary(),
                 state.getBathShowerCountSummary(),
                 buildBusinessOptionalExtrasLine(selectedOptionalExtras),
-                optionalExtrasPriceGbp,
-                formatUploadedPictures(state)
+                optionalExtrasPriceGbp
         );
     }
 
@@ -656,6 +741,10 @@ public class QuoteLeadEmailService {
 
     private boolean isHotWaterCylinder(String serviceType) {
         return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
+    }
+
+    private boolean isGasCookerHob(String serviceType) {
+        return GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
     }
 
     private String formatHotWaterAnswer(QuoteSessionState state) {

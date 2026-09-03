@@ -117,9 +117,17 @@ kg:
     service-max-distance-miles:
       central-heating: 15
       boiler-repair: 15
+      gas-cooker-and-hob-installation: 15
+      gas-pipework-and-gas-leak-detection: 15
       hot-water-cylinder: 15
     service-postcodes:
       boiler-repair:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      gas-cooker-and-hob-installation:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      gas-pipework-and-gas-leak-detection:
         - "E16 4JJ"
         - "E4 8BJ"
       gas-safety-certificate:
@@ -161,6 +169,9 @@ kg:
       round: 0
       unsure: 0
     heat-only-to-combi: 1000
+    gas-cooker-and-hob-installation:
+      gas-cooker: 140
+      gas-hob: 140
 
   quote-offer:
     included-items:

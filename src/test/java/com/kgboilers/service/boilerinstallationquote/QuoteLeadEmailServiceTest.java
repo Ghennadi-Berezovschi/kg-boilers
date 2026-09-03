@@ -8,8 +8,10 @@ import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
+import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
+import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import org.junit.jupiter.api.BeforeEach;
@@ -162,6 +164,50 @@ class QuoteLeadEmailServiceTest {
         assertTrue(businessMessage.getText().contains("Hot water: No"));
         assertTrue(businessMessage.getText().contains("Problem: Cylinder is leaking"));
         assertFalse(businessMessage.getText().contains("New boiler lead received."));
+    }
+
+    @Test
+    void sendLeadEmails_shouldIncludeGasCookerAndHobInstallationPrice() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setGasAppliances(List.of(new GasApplianceSelection(GasApplianceType.GAS_HOB, 1)));
+        state.setProblemDetails("Install a new gas hob");
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "gas-cooker-and-hob-installation",
+                "Gas Cooker And Hob Installation",
+                140,
+                "Jane Smith",
+                "client@example.com",
+                "+44 7700 900123",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(),
+                0
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+        SimpleMailMessage businessMessage = messageCaptor.getAllValues().get(1);
+
+        assertEquals("Your K&G Boiler Services gas cooker and hob installation request", clientMessage.getSubject());
+        assertTrue(clientMessage.getText().contains("Installation price:\n£140"));
+        assertTrue(clientMessage.getText().contains("Gas appliances:\nGas hob"));
+        assertTrue(clientMessage.getText().contains("Problem:\nInstall a new gas hob"));
+
+        assertEquals("New gas cooker and hob installation lead", businessMessage.getSubject());
+        assertTrue(businessMessage.getText().contains("Installation price:\n£140"));
+        assertTrue(businessMessage.getText().contains("Gas appliances: Gas hob"));
+        assertTrue(businessMessage.getText().contains("Problem: Install a new gas hob"));
     }
 
     @Test

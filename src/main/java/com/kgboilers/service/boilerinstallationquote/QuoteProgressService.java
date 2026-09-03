@@ -23,6 +23,7 @@ public class QuoteProgressService {
     private static final String GAS_SAFETY_CERTIFICATE_SERVICE = "gas-safety-certificate";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
+    private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
 
     private static final List<String> STAGE_LABELS = List.of(
             "1.Your home",
@@ -89,6 +90,12 @@ public class QuoteProgressService {
             flow.add(QuoteStep.GAS_APPLIANCES);
             flow.add(QuoteStep.PROBLEM_DETAILS);
             flow.add(QuoteStep.SUMMARY);
+            flow.add(QuoteStep.CONTACT);
+            return flow;
+        }
+        if (GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            flow.add(QuoteStep.GAS_APPLIANCES);
+            flow.add(QuoteStep.PROBLEM_DETAILS);
             flow.add(QuoteStep.CONTACT);
             return flow;
         }
@@ -182,7 +189,7 @@ public class QuoteProgressService {
     private boolean shouldSkipBedrooms(String service) {
         return isBoilerRepair(service)
                 || isHotWaterCylinder(service)
-                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+                || isGasApplianceService(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
@@ -208,7 +215,13 @@ public class QuoteProgressService {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return isHotWaterCylinder(normalizedService)
-                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService);
+                || isGasApplianceService(normalizedService);
+    }
+
+    private boolean isGasApplianceService(String service) {
+        String normalizedService = service == null ? "" : service.trim();
+        return GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService)
+                || GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(normalizedService);
     }
 
     private boolean isHotWaterCylinder(String service) {

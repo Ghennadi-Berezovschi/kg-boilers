@@ -16,6 +16,7 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
     private static final String BOILER_INSTALLATION_SERVICE = "boiler-installation";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
+    private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
 
     private final QuoteWizardService wizardService;
 
@@ -130,6 +131,7 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(normalizedService)
-                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService);
+                || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService)
+                || GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(normalizedService);
     }
 }

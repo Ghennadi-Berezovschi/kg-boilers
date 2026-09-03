@@ -2,6 +2,7 @@ package com.kgboilers.controller.boilerinstallationquote;
 
 import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferProperties;
 import com.kgboilers.dto.boilerinstallationquote.BoilerContactRequestDto;
+import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.BoilerModel;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
@@ -22,6 +23,7 @@ import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
+import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
@@ -121,6 +123,8 @@ class QuotePageControllerTest {
                 fluePositionPricingService,
                 200,
                 1000,
+                140,
+                140,
                 boilerRecommendationService,
                 quoteOptionalExtraService,
                 quotePersistenceService,
@@ -695,6 +699,27 @@ class QuotePageControllerTest {
         verify(model).addAttribute("selectedBoilerPriceGbp", 3150);
         verify(model).addAttribute("selectedBoilerImage", "/images/boilers/catalog/vaillant-ecotec-plus-28kw-combi.jpg");
         verifyNoInteractions(quotePersistenceService);
+    }
+
+    @Test
+    void contactPage_shouldShowGasCookerAndHobInstallationPrice() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setGasAppliances(java.util.List.of(new GasApplianceSelection(GasApplianceType.GAS_HOB, 1)));
+        state.setProblemDetails("Install a new gas hob");
+
+        when(session.getAttribute("service")).thenReturn("gas-cooker-and-hob-installation");
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "gas-cooker-and-hob-installation")).thenReturn(true);
+
+        String view = controller.contactPage(null, null, session, model);
+
+        assertEquals("boiler-installation-quote/contact", view);
+        verify(model).addAttribute("serviceSummaryTitle", "Gas Cooker And Hob Installation");
+        verify(model).addAttribute("serviceTotalPriceGbp", 140);
+        verify(model).addAttribute("selectedBoilerPriceGbp", 140);
     }
 
     @Test

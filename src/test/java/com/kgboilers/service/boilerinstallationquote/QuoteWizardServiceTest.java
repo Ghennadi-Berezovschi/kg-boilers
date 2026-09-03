@@ -84,12 +84,43 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void startWizard_shouldSkipFuelForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.startWizard(state, "E16 4JJ", "gas-cooker-and-hob-installation");
+
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertNull(state.getFuel());
+        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
+    }
+
+    @Test
     void canAccessStep_shouldAllowOwnershipWithoutFuelForHotWaterCylinder() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
 
         assertEquals(false, service.canAccessStep(state, QuoteStep.FUEL_TYPE, "hot-water-cylinder"));
         assertEquals(true, service.canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, "hot-water-cylinder"));
+    }
+
+    @Test
+    void canAccessStep_shouldAllowOwnershipWithoutFuelForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        assertEquals(false, service.canAccessStep(state, QuoteStep.FUEL_TYPE, "gas-cooker-and-hob-installation"));
+        assertEquals(true, service.canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, "gas-cooker-and-hob-installation"));
+    }
+
+    @Test
+    void canAccessStep_shouldAllowProblemDetailsAfterGasAppliancesForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setGasAppliances(List.of(new GasApplianceSelection(GasApplianceType.GAS_COOKER, 1)));
+
+        assertEquals(true, service.canAccessStep(state, QuoteStep.PROBLEM_DETAILS, "gas-cooker-and-hob-installation"));
     }
 
     @Test
@@ -188,6 +219,16 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updatePropertyType_shouldAskGasAppliancesForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updatePropertyType(state, PropertyType.HOUSE, "gas-cooker-and-hob-installation");
+
+        assertEquals(QuoteStep.GAS_APPLIANCES, nextStep);
+        assertEquals(PropertyType.HOUSE, state.getPropertyType());
+    }
+
+    @Test
     void updateGasAppliances_shouldReturnProblemDetailsForGasPipework() {
         QuoteSessionState state = new QuoteSessionState();
 
@@ -199,6 +240,37 @@ class QuoteWizardServiceTest {
 
         assertEquals(QuoteStep.PROBLEM_DETAILS, nextStep);
         assertEquals("Gas boiler", state.getGasAppliancesSummary());
+    }
+
+    @Test
+    void updateGasAppliances_shouldReturnProblemDetailsForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateGasAppliances(
+                state,
+                List.of(new GasApplianceSelection(GasApplianceType.GAS_COOKER, 1)),
+                "gas-cooker-and-hob-installation"
+        );
+
+        assertEquals(QuoteStep.PROBLEM_DETAILS, nextStep);
+        assertEquals("Gas cooker", state.getGasAppliancesSummary());
+        assertNull(state.getProblemDetails());
+    }
+
+    @Test
+    void updateProblemDetails_shouldReturnContactForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateProblemDetails(
+                state,
+                "Install a freestanding cooker",
+                "gas-cooker-and-hob-installation",
+                GasApplianceType.GAS_COOKER
+        );
+
+        assertEquals(QuoteStep.CONTACT, nextStep);
+        assertEquals("Install a freestanding cooker", state.getProblemDetails());
+        assertEquals("Gas cooker", state.getGasAppliancesSummary());
     }
 
     @Test

@@ -98,6 +98,23 @@ class QuoteProgressServiceTest {
     }
 
     @Test
+    void buildProgress_shouldSkipFuelForGasCookerAndHob() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteProgressView progress = service.buildProgress(
+                state,
+                QuoteStep.PROPERTY_OWNERSHIP,
+                false,
+                "gas-cooker-and-hob-installation"
+        );
+
+        assertEquals(1, progress.currentStepNumber());
+        assertEquals(5, progress.totalSteps());
+        assertEquals(20, progress.percentComplete());
+    }
+
+    @Test
     void buildProgress_shouldSkipHomeAndPropertyQuestionsForBoilerRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");

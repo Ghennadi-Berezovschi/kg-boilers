@@ -286,7 +286,7 @@ public class QuoteWizardApiController {
             return sessionExpired();
         }
 
-        QuoteStep nextStep = wizardService.updateProblemDetails(state, request.getProblemDetails(), service);
+        QuoteStep nextStep = wizardService.updateProblemDetails(state, request.getProblemDetails(), service, request.getInstallationAppliance());
         sessionService.saveState(session, state);
         return success(nextStep, service);
     }

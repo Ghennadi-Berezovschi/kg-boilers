@@ -6,7 +6,7 @@
 
     <title>Boiler Contact Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260429-2044')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260903-2100')}">
 </head>
 <body>
 
@@ -57,6 +57,12 @@
                     <div class="summary-breakdown-row">
                         <span>Service</span>
                         <strong th:text="${serviceSummaryTitle}">Hot Water Cylinder Installation &amp; Repair</strong>
+                    </div>
+                    <div class="summary-breakdown-row"
+                         th:each="priceLine : ${servicePriceLines}"
+                         th:if="${servicePriceLines != null}">
+                        <span th:text="${priceLine.label + (priceLine.quantity > 1 ? ' x' + priceLine.quantity : '')}">Gas hob installation</span>
+                        <strong>£<span th:text="${priceLine.totalPriceGbp}">120</span></strong>
                     </div>
                     <div class="summary-breakdown-row" th:if="${state != null and state.postcode != null}">
                         <span>Postcode</span>
