@@ -36,6 +36,7 @@ public class QuoteWizardService {
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
+    private static final String PLUMBING_SERVICE = "plumbing";
 
     // =========================
     // START
@@ -137,7 +138,9 @@ public class QuoteWizardService {
                     && !skipBedrooms
                     && (!isGasApplianceService(service) || state.hasGasAppliances());
 
-            case BOILER_TYPE -> isBoilerRepair(service)
+            case BOILER_TYPE -> isPlumbing(service)
+                    ? false
+                    : isBoilerRepair(service)
                     ? state.hasFuel()
                     : skipBedrooms
                     ? state.hasPropertyType()
@@ -149,9 +152,13 @@ public class QuoteWizardService {
 
             case HOT_WATER -> false;
 
-            case PROBLEM_DETAILS -> isGasPipework(service)
+            case PROBLEM_DETAILS -> isPlumbing(service)
+                    ? state.hasPlumbingProblems()
+                    : isGasPipework(service)
                     ? state.hasGasAppliances()
                     : isGasCookerHob(service) && state.hasGasAppliances();
+
+            case PLUMBING_PROBLEMS -> isPlumbing(service) && state.hasPropertyType();
 
             case GAS_APPLIANCES -> isGasApplianceService(service) && state.hasPropertyType();
 
@@ -170,6 +177,10 @@ public class QuoteWizardService {
 
             case BOILER_LOCATION -> {
                 if (isBoilerRepair(service)) {
+                    yield false;
+                }
+
+                if (isPlumbing(service)) {
                     yield false;
                 }
 
@@ -383,6 +394,14 @@ public class QuoteWizardService {
             return QuoteStep.GAS_APPLIANCES;
         }
 
+        if (isPlumbing(service)) {
+            state.setBedrooms(null);
+            state.setBoilerType(null);
+            state.setPlumbingProblems(null);
+            state.setCurrentStep(QuoteStep.PLUMBING_PROBLEMS);
+            return QuoteStep.PLUMBING_PROBLEMS;
+        }
+
         if (shouldSkipBedrooms(service)) {
             state.setBedrooms(null);
             state.setCurrentStep(QuoteStep.BOILER_TYPE);
@@ -447,6 +466,12 @@ public class QuoteWizardService {
             QuoteStep nextStep = selectedBoilerType == BoilerType.OTHER ? QuoteStep.HOT_WATER : QuoteStep.BOILER_MAKE;
             state.setCurrentStep(nextStep);
             return nextStep;
+        }
+
+        if (isPlumbing(service)) {
+            clearInstallationDetailsAfterBoilerType(state);
+            state.setCurrentStep(QuoteStep.CONTACT);
+            return QuoteStep.CONTACT;
         }
 
         if (selectedBoilerType == BoilerType.HEAT_ONLY) {
@@ -525,13 +550,33 @@ public class QuoteWizardService {
         return updateProblemDetails(state, problemDetails, service, null);
     }
 
+    public QuoteStep updatePlumbingProblems(QuoteSessionState state, List<PlumbingProblem> problems, String service) {
+        if (!isPlumbing(service)) {
+            throw new IllegalArgumentException("Plumbing problems are only supported for plumbing");
+        }
+
+        if (problems == null || problems.isEmpty()) {
+            throw new IllegalArgumentException("Select at least one plumbing problem");
+        }
+
+        boolean hasInvalidProblem = problems.stream().anyMatch(problem -> problem == null);
+        if (hasInvalidProblem) {
+            throw new IllegalArgumentException("Unsupported plumbing problem");
+        }
+
+        state.setPlumbingProblems(problems.stream().distinct().toList());
+        state.setProblemDetails(null);
+        state.setCurrentStep(QuoteStep.PROBLEM_DETAILS);
+        return QuoteStep.PROBLEM_DETAILS;
+    }
+
     public QuoteStep updateProblemDetails(QuoteSessionState state,
                                           String problemDetails,
                                           String service,
                                           GasApplianceType installationAppliance) {
         if (!isHotWaterCylinder(service)) {
-            if (!isGasApplianceService(service)) {
-                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder and gas appliance services");
+            if (!isGasApplianceService(service) && !isPlumbing(service)) {
+                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder, gas appliance and plumbing services");
             }
         }
 
@@ -823,6 +868,14 @@ public class QuoteWizardService {
                     && state.hasProblemDetails();
         }
 
+        if (isPlumbing(service)) {
+            return state.hasPostcode()
+                    && state.hasOwnership()
+                    && state.hasPropertyType()
+                    && state.hasPlumbingProblems()
+                    && state.hasProblemDetails();
+        }
+
         return state.hasPostcode()
                 && (shouldSkipFuel(service) || state.hasFuel())
                 && state.hasOwnership()
@@ -848,11 +901,14 @@ public class QuoteWizardService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service) || isHotWaterCylinder(service) || isGasApplianceService(service);
+        return isBoilerRepair(service)
+                || isHotWaterCylinder(service)
+                || isPlumbing(service)
+                || isGasApplianceService(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
-        return isBoilerRepair(service);
+        return isBoilerRepair(service) || isPlumbing(service);
     }
 
     public boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
@@ -893,7 +949,12 @@ public class QuoteWizardService {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return isHotWaterCylinder(normalizedService)
+                || isPlumbing(normalizedService)
                 || isGasApplianceService(normalizedService);
+    }
+
+    private boolean isPlumbing(String service) {
+        return PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isGasApplianceService(String service) {

@@ -13,6 +13,7 @@ import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
+import com.kgboilers.model.boilerinstallation.enums.PlumbingProblem;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
@@ -58,6 +59,7 @@ public class QuotePageController {
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
+    private static final String PLUMBING_SERVICE = "plumbing";
     private static final String GAS_SAFETY_CERTIFICATE_LABEL = "Boiler Service and Gas Safety Certificate";
     private static final String QUOTE_SERVICE_COOKIE = "kg_quote_service";
     private static final int QUOTE_SERVICE_COOKIE_MAX_AGE_SECONDS = 2 * 60 * 60;
@@ -254,6 +256,23 @@ public class QuotePageController {
         return "gas-safety-certificate-quote/gas-appliances";
     }
 
+    @GetMapping("/plumbing-problems")
+    public String plumbingProblemsPage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.PLUMBING_PROBLEMS, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.PROPERTY_TYPE, service));
+        model.addAttribute("plumbingProblemOptions", PlumbingProblem.values());
+        model.addAttribute("selectedPlumbingProblems", state == null || state.getPlumbingProblems() == null
+                ? List.of()
+                : state.getPlumbingProblems().stream().map(PlumbingProblem::getValue).toList());
+        return "boiler-installation-quote/plumbing-problems";
+    }
+
     @GetMapping("/boiler-type")
     public String boilerTypePage(HttpSession session, Model model) {
         QuoteSessionState state = sessionService.getState(session);
@@ -310,6 +329,7 @@ public class QuotePageController {
         model.addAttribute("backUrl", getProblemDetailsBackUrl(service));
         model.addAttribute("problemDetails", state != null ? state.getProblemDetailsSummary() : "");
         model.addAttribute("gasCookerHobInstallationService", isGasCookerHob(service));
+        model.addAttribute("plumbingService", isPlumbing(service));
         model.addAttribute("gasHobInstallationPriceGbp", gasHobInstallationPriceGbp);
         model.addAttribute("gasCookerInstallationPriceGbp", gasCookerInstallationPriceGbp);
         model.addAttribute("selectedInstallationAppliance", getSelectedInstallationApplianceValue(state));
@@ -359,7 +379,7 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        model.addAttribute("backUrl", pathForService(QuoteStep.BOILER_LOCATION.previous(), service));
+        model.addAttribute("backUrl", getBoilerLocationBackUrl(state, service));
         return "boiler-installation-quote/boiler-location";
     }
 
@@ -947,6 +967,7 @@ public class QuotePageController {
             case "/quote/boiler-make" -> QuoteStep.BOILER_MAKE;
             case "/quote/hot-water" -> QuoteStep.HOT_WATER;
             case "/quote/problem-details" -> QuoteStep.PROBLEM_DETAILS;
+            case "/quote/plumbing-problems" -> QuoteStep.PLUMBING_PROBLEMS;
             case "/quote/gas-appliances" -> QuoteStep.GAS_APPLIANCES;
             case "/quote/boiler-conversion" -> QuoteStep.BOILER_CONVERSION;
             case "/quote/boiler-position" -> QuoteStep.BOILER_POSITION;
@@ -1248,6 +1269,18 @@ public class QuotePageController {
                 : pathForService(QuoteStep.BOILER_TYPE.previous(), service);
     }
 
+    private String getBoilerLocationBackUrl(QuoteSessionState state, String service) {
+        if (shouldSkipBoilerPosition(service)) {
+            if (state != null && state.getBoilerType() == BoilerType.HEAT_ONLY) {
+                return pathForService(QuoteStep.BOILER_CONVERSION, service);
+            }
+
+            return pathForService(QuoteStep.BOILER_TYPE, service);
+        }
+
+        return pathForService(QuoteStep.BOILER_LOCATION.previous(), service);
+    }
+
     private boolean requiresBoilerTypeForGasSafety(QuoteSessionState state) {
         return state != null && requiresBoilerTypeForGasSafety(state.getGasSafetyServiceType());
     }
@@ -1264,18 +1297,31 @@ public class QuotePageController {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(normalizedService)
+                || PLUMBING_SERVICE.equalsIgnoreCase(normalizedService)
                 || isGasApplianceService(normalizedService);
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isHotWaterCylinder(service) || isGasApplianceService(service);
+        return isHotWaterCylinder(service)
+                || PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
+                || isGasApplianceService(service);
+    }
+
+    private boolean shouldSkipBoilerPosition(String service) {
+        return PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isServiceOnlyContact(String service) {
-        return isHotWaterCylinder(service) || isGasApplianceService(service);
+        return isHotWaterCylinder(service)
+                || PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
+                || isGasApplianceService(service);
     }
 
     private String getServiceOnlyContactBackUrl(String service) {
+        if (PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+            return pathForService(QuoteStep.PROBLEM_DETAILS, service);
+        }
+
         return QuoteStep.PROBLEM_DETAILS.getPath();
     }
 
@@ -1284,6 +1330,10 @@ public class QuotePageController {
     }
 
     private String getProblemDetailsBackUrl(String service) {
+        if (isPlumbing(service)) {
+            return pathForService(QuoteStep.PLUMBING_PROBLEMS, service);
+        }
+
         if (isGasApplianceService(service)) {
             return pathForService(QuoteStep.GAS_APPLIANCES, service);
         }
@@ -1302,6 +1352,10 @@ public class QuotePageController {
 
     private boolean isGasApplianceService(String service) {
         return isGasPipework(service) || isGasCookerHob(service);
+    }
+
+    private boolean isPlumbing(String service) {
+        return PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isGasPipework(String service) {

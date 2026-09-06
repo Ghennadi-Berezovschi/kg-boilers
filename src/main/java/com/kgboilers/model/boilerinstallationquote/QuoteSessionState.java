@@ -18,6 +18,7 @@ import com.kgboilers.model.boilerinstallation.enums.GasSafetyServiceType;
 import com.kgboilers.model.boilerinstallation.enums.HeatOnlyConversion;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.OwnershipType;
+import com.kgboilers.model.boilerinstallation.enums.PlumbingProblem;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
@@ -85,6 +86,7 @@ public class QuoteSessionState implements Serializable {
     private BathShowerCount bathShowerCount;
     private Boolean hotWaterAvailable;
     private String problemDetails;
+    private List<PlumbingProblem> plumbingProblems;
     private List<UploadedPicture> uploadedPictures = List.of();
 
     private QuoteStep currentStep = QuoteStep.START;
@@ -219,6 +221,10 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasProblemDetails() {
         return problemDetails != null && !problemDetails.isBlank();
+    }
+
+    public boolean hasPlumbingProblems() {
+        return plumbingProblems != null && !plumbingProblems.isEmpty();
     }
 
     public boolean hasUploadedPictures() {
@@ -409,6 +415,16 @@ public class QuoteSessionState implements Serializable {
         }
 
         return problemDetails.trim();
+    }
+
+    public String getPlumbingProblemsSummary() {
+        if (!hasPlumbingProblems()) {
+            return "";
+        }
+
+        return plumbingProblems.stream()
+                .map(PlumbingProblem::getLabel)
+                .collect(Collectors.joining(", "));
     }
 
     public String getBathShowerCountSummary() {

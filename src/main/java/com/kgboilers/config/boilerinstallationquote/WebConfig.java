@@ -28,6 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/quote/fuel-type",
                         "/quote/property-ownership",
                         "/quote/property-type",
+                        "/quote/plumbing-problems",
                         "/quote/boiler-type",
                         "/quote/boiler-make"
                 );

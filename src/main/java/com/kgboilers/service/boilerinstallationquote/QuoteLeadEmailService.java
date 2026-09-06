@@ -24,6 +24,8 @@ public class QuoteLeadEmailService {
     private static final String HOT_WATER_CYLINDER_TITLE = "Hot Water Cylinder Installation & Repair";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
     private static final String GAS_COOKER_HOB_TITLE = "Gas Cooker And Hob Installation";
+    private static final String PLUMBING_SERVICE = "plumbing";
+    private static final String PLUMBING_TITLE = "Plumbing";
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
@@ -92,6 +94,21 @@ public class QuoteLeadEmailService {
             return;
         }
 
+        if (isPlumbing(serviceType)) {
+            sendSafely(mailSender,
+                    clientEmail,
+                    "Your " + companyProperties.getName() + " plumbing request",
+                    buildPlumbingClientEmailBody(state, clientName));
+
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                sendSafely(mailSender,
+                        contactProperties.getEmail(),
+                        "New plumbing lead",
+                        buildPlumbingBusinessEmailBody(state, clientName, clientEmail, clientPhone));
+            }
+            return;
+        }
+
         sendSafely(mailSender,
                 clientEmail,
                 "Your " + companyProperties.getName() + " quote request",
@@ -137,7 +154,7 @@ public class QuoteLeadEmailService {
                 We will call you back as soon as possible.
 
                 We received your hot water cylinder request.
-                We will review your details and call you back to confirm the right option.
+                We will review your details and call you back to confirm the price and the right option.
 
                 %s
                 """.formatted(
@@ -217,6 +234,65 @@ public class QuoteLeadEmailService {
                 stateSafe(state == null ? null : state.getOwnership()),
                 stateSafe(state == null ? null : state.getPropertyType()),
                 state == null ? "" : state.getGasAppliancesSummary(),
+                state == null ? "" : state.getProblemDetailsSummary()
+        );
+    }
+
+    private String buildPlumbingClientEmailBody(QuoteSessionState state, String clientName) {
+        return """
+                Hello %s,
+
+                Thank you for choosing %s.
+                We received your plumbing request.
+
+                Plumbing problems:
+                %s
+
+                Problem details:
+                %s
+
+                We will contact you shortly.
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                state == null ? "" : state.getPlumbingProblemsSummary(),
+                state == null ? "" : state.getProblemDetailsSummary()
+        );
+    }
+
+    private String buildPlumbingBusinessEmailBody(QuoteSessionState state,
+                                                  String clientName,
+                                                  String clientEmail,
+                                                  String clientPhone) {
+        return """
+                New plumbing lead received.
+
+                Status:
+                NEW_LEAD
+
+                Service:
+                %s
+
+                Client contact:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Client answers:
+                Postcode: %s
+                Ownership: %s
+                Property: %s
+                Plumbing problems: %s
+                Problem details: %s
+                """.formatted(
+                PLUMBING_TITLE,
+                stateSafe(clientName),
+                clientEmail,
+                clientPhone,
+                stateSafe(state == null ? null : state.getPostcode()),
+                stateSafe(state == null ? null : state.getOwnership()),
+                stateSafe(state == null ? null : state.getPropertyType()),
+                state == null ? "" : state.getPlumbingProblemsSummary(),
                 state == null ? "" : state.getProblemDetailsSummary()
         );
     }
@@ -745,6 +821,10 @@ public class QuoteLeadEmailService {
 
     private boolean isGasCookerHob(String serviceType) {
         return GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
+    }
+
+    private boolean isPlumbing(String serviceType) {
+        return PLUMBING_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
     }
 
     private String formatHotWaterAnswer(QuoteSessionState state) {

@@ -23,6 +23,8 @@
     .brand{
         width: auto;
         flex: 1 1 auto;
+        min-height: 44px;
+        justify-content: center;
         padding-left: 16px;
     }
 

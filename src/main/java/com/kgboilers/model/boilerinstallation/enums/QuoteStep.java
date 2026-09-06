@@ -22,6 +22,8 @@ public enum QuoteStep {
 
     PROBLEM_DETAILS("/quote/problem-details"),
 
+    PLUMBING_PROBLEMS("/quote/plumbing-problems"),
+
     GAS_APPLIANCES("/quote/gas-appliances"),
 
     BOILER_AGE("/quote/boiler-age"),
@@ -105,6 +107,8 @@ public enum QuoteStep {
             case HOT_WATER -> BOILER_MAKE;
 
             case PROBLEM_DETAILS -> HOT_WATER;
+
+            case PLUMBING_PROBLEMS -> PROPERTY_TYPE;
 
             case GAS_APPLIANCES -> BOILER_MAKE;
 

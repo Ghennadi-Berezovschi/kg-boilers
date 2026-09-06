@@ -24,6 +24,7 @@ public class QuoteProgressService {
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
+    private static final String PLUMBING_SERVICE = "plumbing";
 
     private static final List<String> STAGE_LABELS = List.of(
             "1.Your home",
@@ -102,6 +103,14 @@ public class QuoteProgressService {
         if (!shouldSkipBedrooms(service)) {
             flow.add(QuoteStep.BEDROOMS);
         }
+
+        if (isPlumbing(service)) {
+            flow.add(QuoteStep.PLUMBING_PROBLEMS);
+            flow.add(QuoteStep.PROBLEM_DETAILS);
+            flow.add(QuoteStep.CONTACT);
+            return flow;
+        }
+
         flow.add(QuoteStep.BOILER_TYPE);
 
         if (isHotWaterCylinder(service)) {
@@ -189,11 +198,12 @@ public class QuoteProgressService {
     private boolean shouldSkipBedrooms(String service) {
         return isBoilerRepair(service)
                 || isHotWaterCylinder(service)
+                || isPlumbing(service)
                 || isGasApplianceService(service);
     }
 
     private boolean shouldSkipBoilerPosition(String service) {
-        return isBoilerRepair(service);
+        return isBoilerRepair(service) || isPlumbing(service);
     }
 
     private boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
@@ -215,7 +225,12 @@ public class QuoteProgressService {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return isHotWaterCylinder(normalizedService)
+                || isPlumbing(normalizedService)
                 || isGasApplianceService(normalizedService);
+    }
+
+    private boolean isPlumbing(String service) {
+        return PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isGasApplianceService(String service) {

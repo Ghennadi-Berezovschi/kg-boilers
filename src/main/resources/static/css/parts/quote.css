@@ -667,6 +667,18 @@
     color: #1f2f57;
 }
 
+.summary-breakdown-row-long {
+    flex-direction: column;
+    gap: 4px;
+}
+
+.summary-breakdown-row-long strong {
+    flex: 1 1 auto;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .summary-breakdown-row-selected-boiler > span {
     color: #1f2f57;
     font-weight: 800;
@@ -2627,6 +2639,10 @@
 .gas-appliance-card:has(.gas-appliance-checkbox:checked) .gas-appliance-pill {
     background: #ff5a3c;
     color: #ffffff;
+}
+
+.plumbing-problem-card {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
 }
 
 .gas-appliance-actions {

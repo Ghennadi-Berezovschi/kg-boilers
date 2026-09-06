@@ -310,6 +310,22 @@ public class QuoteWizardApiController {
         return success(nextStep, service);
     }
 
+    @PostMapping("/plumbing-problems")
+    public ResponseEntity<QuoteResponseDto> setPlumbingProblems(@RequestBody @Valid PlumbingProblemsRequestDto request,
+                                                                HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.PLUMBING_PROBLEMS, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updatePlumbingProblems(state, request.getProblems(), service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
     @PostMapping("/boiler-conversion")
     public ResponseEntity<QuoteResponseDto> setBoilerConversion(@RequestBody @Valid BoilerConversionRequestDto request,
                                                                 HttpSession session) {

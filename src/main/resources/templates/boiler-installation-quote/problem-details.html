@@ -6,7 +6,7 @@
 
     <title>Problem Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260903-2100')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
 </head>
 <body>
 
@@ -30,18 +30,16 @@
                 Please describe the issue
             </label>
 
-            <p style="font-size:14px; color:#6E7784; margin:0 0 10px;">
-                A short description is enough.
-            </p>
-
             <textarea id="problemDetails"
                       class="quote-input"
                       rows="5"
                       maxlength="500"
                       th:text="${problemDetails}"
-                      th:placeholder="${gasCookerHobInstallationService}
+                      th:placeholder="${plumbingService}
+                              ? 'For example: tap leaking under the sink, blocked toilet, low water pressure, shower not working'
+                              : (${gasCookerHobInstallationService}
                               ? 'Example: new hob, cooker replacement, freestanding cooker connection'
-                              : 'For example: cylinder leaking, no hot water, low pressure, strange noise'"
+                              : 'For example: cylinder leaking, no hot water, low pressure, strange noise')"
                       style="width:100%; min-height:140px; padding:16px; resize:vertical;"></textarea>
 
             <div th:if="${gasCookerHobInstallationService}"

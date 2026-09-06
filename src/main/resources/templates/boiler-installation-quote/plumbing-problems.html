@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Gas Appliances</title>
+    <title>Plumbing Problems</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
 </head>
@@ -21,28 +21,19 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            What type of <span style="color:#ff5a3c;">gas appliances</span> do you have?
+            What <span style="color:#ff5a3c;">plumbing issue</span> do you have?
         </h2>
         <p class="section-subtitle">Select all that apply.</p>
 
-        <div class="gas-appliance-grid">
-            <label class="gas-appliance-card"
-                   th:each="appliance : ${gasApplianceOptions}">
-                <input class="gas-appliance-checkbox"
+        <div class="gas-appliance-grid plumbing-problem-grid">
+            <label class="gas-appliance-card plumbing-problem-card"
+                   th:each="problem : ${plumbingProblemOptions}">
+                <input class="gas-appliance-checkbox plumbing-problem-checkbox"
                        type="checkbox"
-                       name="appliances"
-                       th:value="${appliance.value}">
-                <span class="gas-appliance-title" th:text="${appliance.label}">Gas boiler</span>
-                <span class="gas-appliance-quantity-wrap">
-                    <span class="gas-appliance-quantity-label">Qty</span>
-                    <select class="gas-appliance-quantity"
-                            aria-label="Quantity"
-                            onclick="event.stopPropagation()">
-                        <option th:each="quantity : ${#numbers.sequence(1, 9)}"
-                                th:value="${quantity}"
-                                th:text="${quantity}">1</option>
-                    </select>
-                </span>
+                       name="problems"
+                       th:value="${problem.value}"
+                       th:checked="${#lists.contains(selectedPlumbingProblems, problem.value)}">
+                <span class="gas-appliance-title" th:text="${problem.label}">Leaking tap</span>
                 <span class="gas-appliance-pill">Add</span>
             </label>
         </div>
@@ -51,7 +42,7 @@
             <span class="gas-appliance-action-hint">Select all that apply</span>
             <button type="button"
                     class="gas-appliance-continue"
-                    onclick="submitGasAppliances()">
+                    onclick="submitPlumbingProblems()">
                 Continue
             </button>
         </div>
@@ -63,36 +54,27 @@
 <div th:replace="~{fragments/_footer :: footer}"></div>
 
 <script th:inline="javascript">
-    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/gas-safety-certificate-quote";
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
     const resultElement = document.getElementById("result");
 
-    async function submitGasAppliances() {
+    async function submitPlumbingProblems() {
         clearError();
 
-        const appliances = Array.from(document.querySelectorAll(".gas-appliance-checkbox:checked"))
-            .map(input => {
-                const card = input.closest(".gas-appliance-card");
-                const quantityInput = card?.querySelector(".gas-appliance-quantity");
-                const quantity = Number.parseInt(quantityInput?.value || "1", 10);
+        const problems = Array.from(document.querySelectorAll(".plumbing-problem-checkbox:checked"))
+            .map(input => input.value);
 
-                return {
-                    appliance: input.value,
-                    quantity: Math.min(Math.max(quantity, 1), 9)
-                };
-            });
-
-        if (appliances.length === 0) {
-            showError("Please select at least one gas appliance.");
+        if (problems.length === 0) {
+            showError("Please select at least one plumbing problem.");
             return;
         }
 
         try {
-            const response = await fetch(`${quoteApiBasePath}/gas-appliances`, {
+            const response = await fetch(`${quoteApiBasePath}/plumbing-problems`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ appliances })
+                body: JSON.stringify({ problems })
             });
 
             const data = await response.json();
@@ -104,7 +86,7 @@
 
             window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Gas appliances error:", error);
+            console.error("Plumbing problems error:", error);
             showError("Something went wrong. Please try again.");
         }
     }

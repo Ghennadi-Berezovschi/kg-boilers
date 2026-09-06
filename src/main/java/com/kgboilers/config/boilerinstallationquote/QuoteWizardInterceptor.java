@@ -17,6 +17,7 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
+    private static final String PLUMBING_SERVICE = "plumbing";
 
     private final QuoteWizardService wizardService;
 
@@ -78,6 +79,13 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
             }
         }
 
+        if (uri.equals("/quote/plumbing-problems")) {
+            if (!canAccessStep(state, QuoteStep.PLUMBING_PROBLEMS, service)) {
+                response.sendRedirect("/quote");
+                return false;
+            }
+        }
+
         if (uri.equals("/quote/boiler-type")) {
             if (!canAccessStep(state, QuoteStep.BOILER_TYPE, service)) {
                 response.sendRedirect("/quote");
@@ -131,6 +139,7 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
     private boolean shouldSkipFuel(String service) {
         String normalizedService = service == null ? "" : service.trim();
         return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(normalizedService)
+                || PLUMBING_SERVICE.equalsIgnoreCase(normalizedService)
                 || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService)
                 || GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(normalizedService);
     }

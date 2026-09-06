@@ -6,7 +6,7 @@
 
     <title>Boiler Contact Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260903-2100')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
 </head>
 <body>
 
@@ -27,7 +27,7 @@
             We’ll use your name, email and phone number to contact you about the selected boiler.
         </p>
         <p class="section-subtitle" th:if="${serviceContactSummary}">
-            Leave your name and phone number, and we will call you back to confirm the right option.
+            Leave your name and phone number, and we will call you back to confirm the price and the right option.
         </p>
 
         <div class="contact-page-grid">
@@ -80,9 +80,13 @@
                         <span>Hot water</span>
                         <strong th:text="${state.hotWaterAvailable ? 'Yes' : 'No'}">Yes</strong>
                     </div>
-                    <div class="summary-breakdown-row" th:if="${state != null and state.hasProblemDetails()}">
+                    <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasProblemDetails()}">
                         <span>Problem</span>
                         <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
+                    </div>
+                    <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasPlumbingProblems()}">
+                        <span>Plumbing issues</span>
+                        <strong th:text="${state.plumbingProblemsSummary}">Leaking tap</strong>
                     </div>
                     <div class="summary-breakdown-row" th:if="${state != null and state.ownership != null}">
                         <span>Customer type</span>

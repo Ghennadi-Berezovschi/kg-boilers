@@ -120,6 +120,7 @@ kg:
       gas-cooker-and-hob-installation: 15
       gas-pipework-and-gas-leak-detection: 15
       hot-water-cylinder: 15
+      plumbing: 15
     service-postcodes:
       boiler-repair:
         - "E16 4JJ"

@@ -329,6 +329,7 @@ public class QuotePersistenceService {
         answers.put("boilerMake", enumName(state.getBoilerMake()));
         answers.put("hotWaterAvailable", state.getHotWaterAvailable());
         answers.put("problemDetails", state.getProblemDetailsSummary());
+        answers.put("plumbingProblems", state.getPlumbingProblemsSummary());
         answers.put("boilerAge", state.getBoilerAgeSummary());
         answers.put("boilerPosition", enumName(state.getBoilerPosition()));
         answers.put("boilerLocation", enumName(state.getBoilerLocation()));
