@@ -32,34 +32,33 @@ class CentralHeatingQuoteWizardServiceTest {
     private final CentralHeatingQuoteWizardService service = new CentralHeatingQuoteWizardService();
 
     @Test
-    void startWizard_shouldGoToFuelType() {
+    void startWizard_shouldGoToRadiatorIssues() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
 
         CentralHeatingQuoteStep nextStep = service.startWizard(state, "E16 4JJ");
 
-        assertEquals(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(CentralHeatingQuoteStep.RADIATOR_ISSUES, nextStep);
         assertEquals("E16 4JJ", state.getPostcode());
-        assertEquals(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP, state.getCurrentStep());
+        assertEquals(CentralHeatingQuoteStep.RADIATOR_ISSUES, state.getCurrentStep());
     }
 
     @Test
-    void updateSharedSteps_shouldEndAtComingSoon() {
+    void updateSharedSteps_shouldGoToPropertyOwnershipAfterIssueDetails() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
 
+        assertEquals(CentralHeatingQuoteStep.RADIATOR_ISSUES, service.startWizard(state, "E16 4JJ"));
+        assertEquals(CentralHeatingQuoteStep.ISSUE_DETAILS, service.updateRadiatorIssues(
+                state,
+                Set.of(RadiatorIssueType.RADIATOR_LEAK, RadiatorIssueType.SOMETHING_ELSE)
+        ));
+        assertEquals(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP, service.updateIssueDetails(state, "Radiator in hallway is leaking"));
         assertEquals(CentralHeatingQuoteStep.PROPERTY_TYPE, service.updateOwnership(state, OwnershipType.HOMEOWNER));
-        assertEquals(CentralHeatingQuoteStep.BEDROOMS, service.updatePropertyType(state, PropertyType.HOUSE));
-        assertEquals(CentralHeatingQuoteStep.BOILER_TYPE, service.updateBedrooms(state, Bedrooms.THREE));
-        assertEquals(CentralHeatingQuoteStep.FUEL_TYPE, service.updateBoilerType(state, BoilerType.COMBI));
-        assertEquals(CentralHeatingQuoteStep.RADIATOR_COUNT, service.updateFuel(state, FuelType.GAS));
+        assertEquals(CentralHeatingQuoteStep.BOILER_TYPE, service.updatePropertyType(state, PropertyType.HOUSE));
+        assertEquals(CentralHeatingQuoteStep.RADIATOR_COUNT, service.updateBoilerType(state, BoilerType.COMBI));
         assertEquals(CentralHeatingQuoteStep.TRV_VALVES, service.updateRadiatorCount(state, RadiatorCount.SIX_TO_NINE));
         assertEquals(CentralHeatingQuoteStep.POWER_FLUSH, service.updateTrvValveStatus(state, TrvValveStatus.NOT_ALL_OF_THEM));
         assertEquals(CentralHeatingQuoteStep.MAGNETIC_FILTER, service.updatePowerFlush(state, PowerFlushStatus.YES_DONE));
-        assertEquals(CentralHeatingQuoteStep.RADIATOR_ISSUES, service.updateMagneticFilter(state, MagneticFilterStatus.YES_HAS));
-        assertEquals(CentralHeatingQuoteStep.SUMMARY, service.updateRadiatorIssues(
-                state,
-                Set.of(RadiatorIssueType.RADIATOR_LEAK, RadiatorIssueType.SOMETHING_ELSE),
-                "Radiator in hallway is leaking"
-        ));
+        assertEquals(CentralHeatingQuoteStep.SUMMARY, service.updateMagneticFilter(state, MagneticFilterStatus.YES_HAS));
     }
 
     @Test
@@ -98,18 +97,28 @@ class CentralHeatingQuoteWizardServiceTest {
     }
 
     @Test
-    void updateRadiatorIssues_shouldSaveIssuesAndOptionalOtherText() {
+    void updateRadiatorIssues_shouldSaveIssuesAndGoToIssueDetails() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setMagneticFilterStatus(MagneticFilterStatus.YES_HAS);
 
-        assertEquals(CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY, service.updateRadiatorIssues(
+        assertEquals(CentralHeatingQuoteStep.ISSUE_DETAILS, service.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.INSTALL_TRV_VALVES, RadiatorIssueType.SOMETHING_ELSE),
-                "Bathroom radiator needs checking"
+                Set.of(RadiatorIssueType.INSTALL_TRV_VALVES, RadiatorIssueType.SOMETHING_ELSE)
         ));
         String summary = state.getRadiatorIssuesSummary();
         assertTrue(summary.contains("Install TRV valves, Lockshield valves, Towel rail valves"));
         assertTrue(summary.contains("Something else"));
+        assertNull(state.getOtherRadiatorIssueDetails());
+    }
+
+    @Test
+    void updateIssueDetails_shouldSaveDetailsAndRedirectToPropertyOwnership() {
+        CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
+
+        assertEquals(
+                CentralHeatingQuoteStep.PROPERTY_OWNERSHIP,
+                service.updateIssueDetails(state, "Bathroom radiator needs checking")
+        );
         assertEquals("Bathroom radiator needs checking", state.getOtherRadiatorIssueDetails());
     }
 
@@ -118,10 +127,9 @@ class CentralHeatingQuoteWizardServiceTest {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setMagneticFilterStatus(MagneticFilterStatus.YES_HAS);
 
-        assertEquals(CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY, service.updateRadiatorIssues(
+        assertEquals(CentralHeatingQuoteStep.ISSUE_DETAILS, service.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.INSTALL_TRV_VALVES),
-                null
+                Set.of(RadiatorIssueType.INSTALL_TRV_VALVES)
         ));
     }
 
@@ -130,10 +138,9 @@ class CentralHeatingQuoteWizardServiceTest {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setMagneticFilterStatus(MagneticFilterStatus.YES_HAS);
 
-        assertEquals(CentralHeatingQuoteStep.INSTALLATION_ITEM, service.updateRadiatorIssues(
+        assertEquals(CentralHeatingQuoteStep.ISSUE_DETAILS, service.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL),
-                null
+                Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL)
         ));
     }
 
@@ -192,6 +199,8 @@ class CentralHeatingQuoteWizardServiceTest {
     void updateInstallationItem_shouldRedirectToInstallationPosition() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setRadiatorIssues(Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL));
+        state.setOtherRadiatorIssueDetails("Install a towel rail in the bathroom");
+        state.setMagneticFilterStatus(MagneticFilterStatus.NO_DOES_NOT_HAVE);
 
         assertTrue(service.canAccessStep(state, CentralHeatingQuoteStep.INSTALLATION_ITEM));
 
@@ -205,6 +214,8 @@ class CentralHeatingQuoteWizardServiceTest {
     void updateInstallationPosition_shouldRedirectToRadiatorSpecification() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setRadiatorIssues(Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL));
+        state.setOtherRadiatorIssueDetails("Install a towel rail in the bathroom");
+        state.setOtherRadiatorIssueDetails("Install a towel rail in the bathroom");
 
         service.updateInstallationItem(state, InstallationItemType.TOWEL_RAIL);
 
@@ -245,6 +256,8 @@ class CentralHeatingQuoteWizardServiceTest {
     void updateInstallationPipeDistance_shouldRedirectToRadiatorSpecification() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setRadiatorIssues(Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL));
+        state.setOtherRadiatorIssueDetails("Install a towel rail in the bathroom");
+        state.setMagneticFilterStatus(MagneticFilterStatus.NO_DOES_NOT_HAVE);
 
         service.updateInstallationItem(state, InstallationItemType.TOWEL_RAIL);
         service.updateInstallationPosition(state, InstallationPositionType.NO_EXISTING_ITEM);
@@ -259,6 +272,8 @@ class CentralHeatingQuoteWizardServiceTest {
     void canAccessStep_shouldAllowRadiatorSpecificationAndComingSoon_afterTowelRailSelection() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setRadiatorIssues(Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL));
+        state.setOtherRadiatorIssueDetails("Install a towel rail in the bathroom");
+        state.setMagneticFilterStatus(MagneticFilterStatus.NO_DOES_NOT_HAVE);
 
         service.updateInstallationItem(state, InstallationItemType.TOWEL_RAIL);
         service.updateInstallationPosition(state, InstallationPositionType.DIFFERENT_POSITION);
@@ -417,14 +432,14 @@ class CentralHeatingQuoteWizardServiceTest {
     }
 
     @Test
-    void updateRadiatorIssues_shouldClearOtherTextWhenSomethingElseIsNotSelected() {
+    void updateRadiatorIssues_shouldClearIssueDetailsWhenSelectionChanges() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         state.setMagneticFilterStatus(MagneticFilterStatus.NO_DOES_NOT_HAVE);
+        state.setOtherRadiatorIssueDetails("Should be cleared");
 
-        assertEquals(CentralHeatingQuoteStep.SUMMARY, service.updateRadiatorIssues(
+        assertEquals(CentralHeatingQuoteStep.ISSUE_DETAILS, service.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.RADIATOR_VALVE_ISSUE),
-                "Should be ignored"
+                Set.of(RadiatorIssueType.RADIATOR_VALVE_ISSUE)
         ));
         assertNull(state.getOtherRadiatorIssueDetails());
     }

@@ -104,6 +104,10 @@ public class CentralHeatingQuoteSessionState implements Serializable {
         return radiatorIssues != null && !radiatorIssues.isEmpty();
     }
 
+    public boolean hasIssueDetails() {
+        return otherRadiatorIssueDetails != null && !otherRadiatorIssueDetails.isBlank();
+    }
+
     public String getRadiatorCountSummary() {
         if (radiatorCount == null) {
             return "";

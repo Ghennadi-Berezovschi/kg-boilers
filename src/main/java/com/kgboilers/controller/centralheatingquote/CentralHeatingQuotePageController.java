@@ -144,6 +144,19 @@ public class CentralHeatingQuotePageController {
         return "central-heating-quote/radiator-issues";
     }
 
+    @GetMapping("/issue-details")
+    public String issueDetailsPage(HttpSession session, Model model) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.ISSUE_DETAILS)) {
+            return "redirect:/central-heating-quote";
+        }
+
+        model.addAttribute("backUrl", CentralHeatingQuoteStep.ISSUE_DETAILS.previous().getPath());
+        model.addAttribute("issueDetails", state.getOtherRadiatorIssueDetails());
+        return "central-heating-quote/issue-details";
+    }
+
     @GetMapping("/trv-installation-quantity")
     public String trvInstallationQuantityPage(HttpSession session, Model model) {
         CentralHeatingQuoteSessionState state = sessionService.getState(session);

@@ -335,6 +335,24 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updateBoilerType_shouldSendNotSureInstallationToContact() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setFuel(FuelType.GAS);
+        state.setOwnership(OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBedrooms(Bedrooms.THREE);
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.OTHER);
+
+        assertEquals(QuoteStep.CONTACT, nextStep);
+        assertEquals(BoilerType.OTHER, state.getBoilerType());
+        assertEquals(QuoteStep.CONTACT, state.getCurrentStep());
+        assertTrue(service.canAccessStep(state, QuoteStep.CONTACT));
+        assertTrue(service.isComplete(state, null));
+    }
+
+    @Test
     void updateBoilerType_shouldReturnBoilerMakeForHotWaterCylinder() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
@@ -898,10 +916,10 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateMagneticFilter(state, MagneticFilterStatus.YES_HAS, "boiler-repair");
 
-        assertEquals(QuoteStep.REPAIR_PROBLEM, nextStep);
+        assertEquals(QuoteStep.SUMMARY, nextStep);
         assertEquals(MagneticFilterStatus.YES_HAS, state.getMagneticFilterStatus());
         assertEquals("Yes, it has one", state.getMagneticFilterSummary());
-        assertEquals(QuoteStep.REPAIR_PROBLEM, state.getCurrentStep());
+        assertEquals(QuoteStep.SUMMARY, state.getCurrentStep());
     }
 
     @Test
@@ -962,9 +980,9 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateFaultCodeDisplay(state, FaultCodeDisplayStatus.NO_NOT_SHOWING, "boiler-repair");
 
-        assertEquals(QuoteStep.SUMMARY, nextStep);
+        assertEquals(QuoteStep.POWER_FLUSH, nextStep);
         assertEquals(FaultCodeDisplayStatus.NO_NOT_SHOWING, state.getFaultCodeDisplayStatus());
-        assertEquals(QuoteStep.SUMMARY, state.getCurrentStep());
+        assertEquals(QuoteStep.POWER_FLUSH, state.getCurrentStep());
         assertEquals("", state.getFaultCodeDetailsSummary());
     }
 
@@ -975,9 +993,9 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateFaultCodeDetails(state, "F22 low pressure warning", "boiler-repair");
 
-        assertEquals(QuoteStep.SUMMARY, nextStep);
+        assertEquals(QuoteStep.POWER_FLUSH, nextStep);
         assertEquals("F22 low pressure warning", state.getFaultCodeDetailsSummary());
-        assertEquals(QuoteStep.SUMMARY, state.getCurrentStep());
+        assertEquals(QuoteStep.POWER_FLUSH, state.getCurrentStep());
     }
 
     @Test

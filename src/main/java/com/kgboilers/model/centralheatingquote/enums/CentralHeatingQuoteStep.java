@@ -24,6 +24,8 @@ public enum CentralHeatingQuoteStep {
 
     RADIATOR_ISSUES("/central-heating-quote/radiator-issues"),
 
+    ISSUE_DETAILS("/central-heating-quote/issue-details"),
+
     TRV_INSTALLATION_QUANTITY("/central-heating-quote/trv-installation-quantity"),
 
     INSTALLATION_ITEM("/central-heating-quote/installation-item"),
@@ -53,7 +55,7 @@ public enum CentralHeatingQuoteStep {
     public CentralHeatingQuoteStep previous() {
         return switch (this) {
             case START -> START;
-            case PROPERTY_OWNERSHIP -> RADIATOR_ISSUES;
+            case PROPERTY_OWNERSHIP -> ISSUE_DETAILS;
             case PROPERTY_TYPE -> PROPERTY_OWNERSHIP;
             case BEDROOMS -> PROPERTY_TYPE;
             case BOILER_TYPE -> PROPERTY_TYPE;
@@ -63,6 +65,7 @@ public enum CentralHeatingQuoteStep {
             case POWER_FLUSH -> TRV_VALVES;
             case MAGNETIC_FILTER -> POWER_FLUSH;
             case RADIATOR_ISSUES -> START;
+            case ISSUE_DETAILS -> RADIATOR_ISSUES;
             case TRV_INSTALLATION_QUANTITY -> MAGNETIC_FILTER;
             case INSTALLATION_ITEM -> TRV_INSTALLATION_QUANTITY;
             case INSTALLATION_POSITION -> INSTALLATION_ITEM;

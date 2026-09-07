@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Central Heating Radiator Issues</title>
+    <title>Central Heating Issue Details</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
 </head>
@@ -20,26 +20,27 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2>What do you need help with regarding your heating?</h2>
-        <p class="section-subtitle">
-            Select all that apply.
-        </p>
+        <h2 style="margin-bottom:32px;">
+            <span style="color:#ff5a3c;">Please describe</span> the issue
+        </h2>
 
-        <div class="radiator-issues-panel card">
-            <div class="radiator-issues-list">
-                <label class="radiator-issue-option" th:each="issue : ${radiatorIssueOptions}">
-                    <input type="checkbox"
-                           class="radiator-issue-checkbox"
-                           th:value="${issue.value}"
-                           th:data-other="${issue.name() == 'SOMETHING_ELSE'}">
-                    <span class="radiator-issue-copy">
-                        <span class="radiator-issue-title" th:text="${issue.label}">Install a radiator in the same location</span>
-                    </span>
-                </label>
-            </div>
+        <div class="card" style="max-width:720px; margin:0 auto; padding:28px;">
+            <label for="issueDetails"
+                   style="display:block; margin-bottom:12px; font-weight:700; color:var(--blue-main);">
+                Please describe the issue
+            </label>
 
-            <div class="radiator-issues-actions">
-                <button type="button" id="radiatorIssuesBtn" class="card-cta">Continue →</button>
+            <textarea id="issueDetails"
+                      class="quote-input"
+                      rows="5"
+                      maxlength="500"
+                      required
+                      th:text="${issueDetails}"
+                      placeholder="For example: radiator leak in bedroom, radiators are cold upstairs, valves need replacing"
+                      style="width:100%; min-height:140px; padding:16px; resize:vertical;"></textarea>
+
+            <div class="problem-details-actions">
+                <button type="button" id="issueDetailsBtn" class="card-cta">Continue →</button>
             </div>
         </div>
 
@@ -51,34 +52,39 @@
 
 <script>
     const resultElement = document.getElementById("result");
-    const continueButton = document.getElementById("radiatorIssuesBtn");
-    const checkboxes = Array.from(document.querySelectorAll(".radiator-issue-checkbox"));
+    const detailsField = document.getElementById("issueDetails");
+    const continueButton = document.getElementById("issueDetailsBtn");
 
-    continueButton.addEventListener("click", submitRadiatorIssues);
-    checkboxes.forEach(checkbox => checkbox.addEventListener("change", clearError));
+    detailsField.addEventListener("input", clearError);
+    continueButton.addEventListener("click", submitIssueDetails);
 
-    async function submitRadiatorIssues() {
+    async function submitIssueDetails() {
         clearError();
 
-        const radiatorIssues = checkboxes
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.value);
+        const issueDetails = detailsField.value.trim();
 
-        if (radiatorIssues.length === 0) {
-            showError("Please select at least one radiator issue");
+        if (!issueDetails) {
+            showError("Please describe the issue");
+            detailsField.focus();
+            return;
+        }
+
+        if (issueDetails.length > 500) {
+            showError("Please keep the problem description under 500 characters");
+            detailsField.focus();
             return;
         }
 
         setLoading(true);
 
         try {
-            const response = await fetch("/central-heating-quote/radiator-issues", {
+            const response = await fetch("/central-heating-quote/issue-details", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    radiatorIssues: radiatorIssues
+                    issueDetails: issueDetails
                 })
             });
 
@@ -91,7 +97,7 @@
 
             window.location.href = data.nextStep;
         } catch (error) {
-            console.error("Radiator issues error:", error);
+            console.error("Issue details error:", error);
             showError("Something went wrong. Please try again.");
         } finally {
             setLoading(false);

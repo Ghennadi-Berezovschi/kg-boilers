@@ -3,6 +3,7 @@ package com.kgboilers.service.boilerinstallationquote;
 import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferProperties;
 import com.kgboilers.config.properties.ContactProperties;
 import com.kgboilers.config.properties.CompanyProperties;
+import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallationquote.UploadedPicture;
@@ -20,12 +21,19 @@ import java.util.List;
 @Service
 public class QuoteLeadEmailService {
 
+    private static final String BOILER_INSTALLATION_SERVICE = "boiler-installation";
     private static final String HOT_WATER_CYLINDER_SERVICE = "hot-water-cylinder";
     private static final String HOT_WATER_CYLINDER_TITLE = "Hot Water Cylinder Installation & Repair";
+    private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
+    private static final String GAS_PIPEWORK_TITLE = "Gas Pipework And Gas Leak Detection";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
     private static final String GAS_COOKER_HOB_TITLE = "Gas Cooker And Hob Installation";
     private static final String PLUMBING_SERVICE = "plumbing";
     private static final String PLUMBING_TITLE = "Plumbing";
+    private static final String BATHROOM_REFURBISHMENT_SERVICE = "bathroom-refurbishment";
+    private static final String BATHROOM_REFURBISHMENT_TITLE = "Bathroom Refurbishment";
+    private static final String AIR_CONDITIONING_INSTALLATION_SERVICE = "air-conditioning-installation";
+    private static final String AIR_CONDITIONING_INSTALLATION_TITLE = "Air Conditioning Installation";
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
@@ -61,6 +69,21 @@ public class QuoteLeadEmailService {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         if (mailSender == null) {
             log.warn("Quote lead email was skipped because JavaMailSender is not configured");
+            return;
+        }
+
+        if (isBoilerTypeHelpLead(state, serviceType)) {
+            sendSafely(mailSender,
+                    clientEmail,
+                    "Your " + companyProperties.getName() + " boiler type help request",
+                    buildBoilerTypeHelpClientEmailBody(state, clientName));
+
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                sendSafely(mailSender,
+                        contactProperties.getEmail(),
+                        "New boiler installation lead: help identify boiler type",
+                        buildBoilerTypeHelpBusinessEmailBody(state, clientName, clientEmail, clientPhone));
+            }
             return;
         }
 
@@ -109,6 +132,22 @@ public class QuoteLeadEmailService {
             return;
         }
 
+        if (isGasPipework(serviceType) || isSimpleServiceOnly(serviceType)) {
+            String serviceTitle = formatServiceTitle(serviceType);
+            sendSafely(mailSender,
+                    clientEmail,
+                    "Your " + companyProperties.getName() + " " + serviceTitle.toLowerCase() + " request",
+                    buildServiceRequestClientEmailBody(state, clientName, serviceTitle));
+
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                sendSafely(mailSender,
+                        contactProperties.getEmail(),
+                        "New " + serviceTitle.toLowerCase() + " lead",
+                        buildServiceRequestBusinessEmailBody(state, serviceTitle, clientName, clientEmail, clientPhone));
+            }
+            return;
+        }
+
         sendSafely(mailSender,
                 clientEmail,
                 "Your " + companyProperties.getName() + " quote request",
@@ -144,6 +183,67 @@ public class QuoteLeadEmailService {
                             selectedOptionalExtras,
                             optionalExtrasPriceGbp));
         }
+    }
+
+    private String buildBoilerTypeHelpClientEmailBody(QuoteSessionState state, String clientName) {
+        return """
+                Hello %s,
+
+                Thank you for choosing %s.
+                We received your boiler installation request.
+
+                You selected:
+                Other / Not sure
+
+                We will contact you soon to help identify your boiler type and confirm the right installation option.
+                You can also send us a photo of your boiler on WhatsApp:
+                %s
+
+                %s
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                stateSafe(contactProperties.getWhatsapp()),
+                companyProperties.getName()
+        );
+    }
+
+    private String buildBoilerTypeHelpBusinessEmailBody(QuoteSessionState state,
+                                                        String clientName,
+                                                        String clientEmail,
+                                                        String clientPhone) {
+        return """
+                New boiler installation lead received.
+
+                Customer selected Other / Not sure for boiler type.
+                Contact the customer to help identify the boiler type and confirm the right installation option.
+
+                Status:
+                NEW_LEAD
+
+                Customer details submitted in the contact form:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Quote answers:
+                Postcode: %s
+                Fuel: %s
+                Ownership: %s
+                Property: %s
+                Bedrooms: %s
+                Boiler type: %s
+                """.formatted(
+                stateSafe(clientName),
+                stateSafe(clientEmail),
+                stateSafe(clientPhone),
+                stateSafe(state == null ? null : state.getPostcode()),
+                stateSafe(state == null ? null : state.getFuel()),
+                stateSafe(state == null ? null : state.getOwnership()),
+                stateSafe(state == null ? null : state.getPropertyType()),
+                stateSafe(state == null ? null : state.getBedrooms()),
+                stateSafe(state == null ? null : state.getBoilerType())
+        );
     }
 
     private String buildHotWaterCylinderClientEmailBody(QuoteSessionState state, String clientName) {
@@ -293,6 +393,66 @@ public class QuoteLeadEmailService {
                 stateSafe(state == null ? null : state.getOwnership()),
                 stateSafe(state == null ? null : state.getPropertyType()),
                 state == null ? "" : state.getPlumbingProblemsSummary(),
+                state == null ? "" : state.getProblemDetailsSummary()
+        );
+    }
+
+    private String buildServiceRequestClientEmailBody(QuoteSessionState state,
+                                                      String clientName,
+                                                      String serviceTitle) {
+        return """
+                Hello %s,
+
+                Thank you for choosing %s.
+                We received your %s request.
+
+                Problem details:
+                %s
+
+                We will contact you soon to confirm the right option and price.
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                serviceTitle,
+                state == null ? "" : state.getProblemDetailsSummary()
+        );
+    }
+
+    private String buildServiceRequestBusinessEmailBody(QuoteSessionState state,
+                                                        String serviceTitle,
+                                                        String clientName,
+                                                        String clientEmail,
+                                                        String clientPhone) {
+        return """
+                New %s lead received.
+
+                Status:
+                NEW_LEAD
+
+                Service:
+                %s
+
+                Customer details submitted in the contact form:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Quote answers:
+                Postcode: %s
+                Ownership: %s
+                Property: %s
+                Gas appliances: %s
+                Problem details: %s
+                """.formatted(
+                serviceTitle,
+                serviceTitle,
+                stateSafe(clientName),
+                stateSafe(clientEmail),
+                stateSafe(clientPhone),
+                stateSafe(state == null ? null : state.getPostcode()),
+                stateSafe(state == null ? null : state.getOwnership()),
+                stateSafe(state == null ? null : state.getPropertyType()),
+                state == null ? "" : state.getGasAppliancesSummary(),
                 state == null ? "" : state.getProblemDetailsSummary()
         );
     }
@@ -825,6 +985,39 @@ public class QuoteLeadEmailService {
 
     private boolean isPlumbing(String serviceType) {
         return PLUMBING_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
+    }
+
+    private boolean isGasPipework(String serviceType) {
+        return GAS_PIPEWORK_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim());
+    }
+
+    private boolean isSimpleServiceOnly(String serviceType) {
+        String normalizedService = serviceType == null ? "" : serviceType.trim();
+        return BATHROOM_REFURBISHMENT_SERVICE.equalsIgnoreCase(normalizedService)
+                || AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(normalizedService);
+    }
+
+    private String formatServiceTitle(String serviceType) {
+        String normalizedService = serviceType == null ? "" : serviceType.trim();
+        if (GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService)) {
+            return GAS_PIPEWORK_TITLE;
+        }
+
+        if (BATHROOM_REFURBISHMENT_SERVICE.equalsIgnoreCase(normalizedService)) {
+            return BATHROOM_REFURBISHMENT_TITLE;
+        }
+
+        if (AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(normalizedService)) {
+            return AIR_CONDITIONING_INSTALLATION_TITLE;
+        }
+
+        return "Service";
+    }
+
+    private boolean isBoilerTypeHelpLead(QuoteSessionState state, String serviceType) {
+        return BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim())
+                && state != null
+                && state.getBoilerType() == BoilerType.OTHER;
     }
 
     private String formatHotWaterAnswer(QuoteSessionState state) {

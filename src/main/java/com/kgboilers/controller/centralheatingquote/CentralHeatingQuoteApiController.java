@@ -19,6 +19,7 @@ import com.kgboilers.dto.centralheatingquote.InstallationMoveDistanceRequestDto;
 import com.kgboilers.dto.centralheatingquote.InstallationPipeDistanceRequestDto;
 import com.kgboilers.dto.centralheatingquote.InstallationPositionRequestDto;
 import com.kgboilers.dto.centralheatingquote.AddAnotherInstallationRequestDto;
+import com.kgboilers.dto.centralheatingquote.IssueDetailsRequestDto;
 import com.kgboilers.model.centralheatingquote.CentralHeatingQuoteSessionState;
 import com.kgboilers.model.centralheatingquote.enums.CentralHeatingQuoteStep;
 import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
@@ -151,9 +152,22 @@ public class CentralHeatingQuoteApiController {
 
         CentralHeatingQuoteStep nextStep = wizardService.updateRadiatorIssues(
                 state,
-                request.getRadiatorIssues(),
-                request.getOtherIssueDetails()
+                request.getRadiatorIssues()
         );
+        sessionService.saveState(session, state);
+        return success(nextStep);
+    }
+
+    @PostMapping("/issue-details")
+    public ResponseEntity<QuoteResponseDto> setIssueDetails(@RequestBody @Valid IssueDetailsRequestDto request,
+                                                            HttpSession session) {
+        CentralHeatingQuoteSessionState state = sessionService.getState(session);
+
+        if (!wizardService.canAccessStep(state, CentralHeatingQuoteStep.ISSUE_DETAILS)) {
+            return sessionExpired();
+        }
+
+        CentralHeatingQuoteStep nextStep = wizardService.updateIssueDetails(state, request.getIssueDetails());
         sessionService.saveState(session, state);
         return success(nextStep);
     }

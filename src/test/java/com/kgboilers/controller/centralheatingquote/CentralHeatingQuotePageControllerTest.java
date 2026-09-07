@@ -82,7 +82,7 @@ class CentralHeatingQuotePageControllerTest {
         String view = controller.radiatorCountPage(session, model);
 
         assertEquals("central-heating-quote/radiator-count", view);
-        verify(model).addAttribute("backUrl", "/central-heating-quote/fuel-type");
+        verify(model).addAttribute("backUrl", "/central-heating-quote/boiler-type");
     }
 
     @Test
@@ -126,7 +126,7 @@ class CentralHeatingQuotePageControllerTest {
         String view = controller.radiatorIssuesPage(session, model);
 
         assertEquals("central-heating-quote/radiator-issues", view);
-        verify(model).addAttribute("backUrl", "/central-heating-quote/magnetic-filter");
+        verify(model).addAttribute("backUrl", "/central-heating-quote");
         verify(model).addAttribute(eq("radiatorIssueOptions"), any());
     }
 
@@ -142,7 +142,7 @@ class CentralHeatingQuotePageControllerTest {
         String view = controller.trvInstallationQuantityPage(session, model);
 
         assertEquals("central-heating-quote/trv-installation-quantity", view);
-        verify(model).addAttribute("backUrl", "/central-heating-quote/radiator-issues");
+        verify(model).addAttribute("backUrl", "/central-heating-quote/magnetic-filter");
         verify(model).addAttribute("existingTrvValvesQuantity", 6);
         verify(model).addAttribute("existingLockshieldValvesQuantity", 6);
         verify(model).addAttribute("existingTowelRailValvesQuantity", 2);
@@ -158,7 +158,7 @@ class CentralHeatingQuotePageControllerTest {
         String view = controller.installationItemPage(session, model);
 
         assertEquals("central-heating-quote/installation-item", view);
-        verify(model).addAttribute("backUrl", "/central-heating-quote/radiator-issues");
+        verify(model).addAttribute("backUrl", "/central-heating-quote/magnetic-filter");
         verify(model).addAttribute("selectedInstallationItemType", InstallationItemType.RADIATOR);
         verify(model).addAttribute(eq("installationItemOptions"), any());
     }
@@ -295,7 +295,7 @@ class CentralHeatingQuotePageControllerTest {
         String view = controller.boilerTypePage(session, model);
 
         assertEquals("central-heating-quote/boiler-type", view);
-        verify(model).addAttribute("backUrl", "/central-heating-quote/bedrooms");
+        verify(model).addAttribute("backUrl", "/central-heating-quote/property-type");
     }
 
     @Test

@@ -830,6 +830,10 @@
     transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
+.boiler-make-option[hidden] {
+    display: none;
+}
+
 .boiler-make-option:hover {
     border-color: #ff7a59;
     box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);

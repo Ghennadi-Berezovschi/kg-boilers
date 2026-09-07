@@ -35,11 +35,7 @@
                       rows="5"
                       maxlength="500"
                       th:text="${problemDetails}"
-                      th:placeholder="${plumbingService}
-                              ? 'For example: tap leaking under the sink, blocked toilet, low water pressure, shower not working'
-                              : (${gasCookerHobInstallationService}
-                              ? 'Example: new hob, cooker replacement, freestanding cooker connection'
-                              : 'For example: cylinder leaking, no hot water, low pressure, strange noise')"
+                      th:placeholder="${problemDetailsPlaceholder}"
                       style="width:100%; min-height:140px; padding:16px; resize:vertical;"></textarea>
 
             <div th:if="${gasCookerHobInstallationService}"

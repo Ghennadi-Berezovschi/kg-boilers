@@ -511,6 +511,7 @@ class QuotePageControllerTest {
         );
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
 
@@ -540,6 +541,7 @@ class QuotePageControllerTest {
         );
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
         when(relocationPricingService.getPrice(RelocationDistance.TWO_TO_THREE)).thenReturn(300);
@@ -576,6 +578,7 @@ class QuotePageControllerTest {
         );
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
 
@@ -603,6 +606,7 @@ class QuotePageControllerTest {
         );
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
 
@@ -643,6 +647,7 @@ class QuotePageControllerTest {
         );
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
 
@@ -677,6 +682,7 @@ class QuotePageControllerTest {
         );
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
         QuoteOptionalExtra selectedExtra = optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150);
@@ -749,6 +755,7 @@ class QuotePageControllerTest {
         QuoteOptionalExtra selectedExtra = optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150);
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
         when(relocationPricingService.getPrice(RelocationDistance.TWO_TO_THREE)).thenReturn(300);
@@ -843,6 +850,7 @@ class QuotePageControllerTest {
         QuoteOptionalExtra selectedExtra = optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150);
 
         when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
         when(sessionService.getSavedQuoteId(session)).thenReturn(null);
         when(boilerRecommendationService.recommend(state)).thenReturn(recommendation);
         when(relocationPricingService.getPrice(RelocationDistance.TWO_TO_THREE)).thenReturn(300);

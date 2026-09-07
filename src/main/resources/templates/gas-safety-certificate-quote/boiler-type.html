@@ -6,7 +6,7 @@
 
     <title>Boiler Type</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260907-1630')}">
 </head>
 <body>
 
@@ -93,11 +93,6 @@
 
     async function selectBoilerType(boilerType) {
         clearError();
-
-        if (boilerType === "other") {
-            showError("Please send us a photo of your boiler via WhatsApp or give us a call — we’ll help you identify which boiler you have.");
-            return;
-        }
 
         try {
             const response = await fetch(`${quoteApiBasePath}/boiler-type`, {

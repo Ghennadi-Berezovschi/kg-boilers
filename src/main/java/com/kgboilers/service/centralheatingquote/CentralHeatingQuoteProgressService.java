@@ -47,6 +47,7 @@ public class CentralHeatingQuoteProgressService {
         List<CentralHeatingQuoteStep> flow = new ArrayList<>();
         flow.add(CentralHeatingQuoteStep.START);
         flow.add(CentralHeatingQuoteStep.RADIATOR_ISSUES);
+        flow.add(CentralHeatingQuoteStep.ISSUE_DETAILS);
         flow.add(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP);
         flow.add(CentralHeatingQuoteStep.PROPERTY_TYPE);
         flow.add(CentralHeatingQuoteStep.BOILER_TYPE);
@@ -150,6 +151,7 @@ public class CentralHeatingQuoteProgressService {
                  POWER_FLUSH,
                  MAGNETIC_FILTER,
                  RADIATOR_ISSUES,
+                 ISSUE_DETAILS,
                  TRV_INSTALLATION_QUANTITY,
                  INSTALLATION_ITEM,
                  INSTALLATION_POSITION,

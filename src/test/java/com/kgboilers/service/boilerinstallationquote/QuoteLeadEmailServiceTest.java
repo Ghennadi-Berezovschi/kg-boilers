@@ -4,6 +4,7 @@ import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferPropert
 import com.kgboilers.config.properties.ContactProperties;
 import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
+import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
@@ -42,6 +43,7 @@ class QuoteLeadEmailServiceTest {
 
         ContactProperties contactProperties = new ContactProperties();
         contactProperties.setEmail("office@kgboilers.co.uk");
+        contactProperties.setWhatsapp("https://wa.me/447709023018");
         CompanyProperties companyProperties = new CompanyProperties();
         companyProperties.setName("K&G Boiler Services");
         QuoteOfferProperties quoteOfferProperties = new QuoteOfferProperties();
@@ -116,6 +118,58 @@ class QuoteLeadEmailServiceTest {
         assertTrue(businessMessage.getText().contains("Flue length price: £250"));
         assertTrue(businessMessage.getText().contains("Optional extras price: £150"));
         assertTrue(businessMessage.getText().contains("Status:"));
+    }
+
+    @Test
+    void sendLeadEmails_shouldUseBoilerTypeHelpCopyWhenInstallationBoilerTypeIsNotSure() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setFuel(FuelType.GAS);
+        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBedrooms(com.kgboilers.model.boilerinstallation.enums.Bedrooms.THREE);
+        state.setBoilerType(BoilerType.OTHER);
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "boiler-installation",
+                "Help me identify my boiler type",
+                0,
+                "Jane Smith",
+                "client@example.com",
+                "+44 7700 900123",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(),
+                0
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+        SimpleMailMessage businessMessage = messageCaptor.getAllValues().get(1);
+
+        assertEquals("Your K&G Boiler Services boiler type help request", clientMessage.getSubject());
+        assertTrue(clientMessage.getText().contains("You selected:\nOther / Not sure"));
+        assertTrue(clientMessage.getText().contains("help identify your boiler type"));
+        assertTrue(clientMessage.getText().contains("https://wa.me/447709023018"));
+        assertFalse(clientMessage.getText().contains("Your price including installation"));
+        assertFalse(clientMessage.getText().contains("Boiler price installation"));
+
+        assertEquals("New boiler installation lead: help identify boiler type", businessMessage.getSubject());
+        assertTrue(businessMessage.getText().contains("Customer selected Other / Not sure for boiler type."));
+        assertTrue(businessMessage.getText().contains("Customer details submitted in the contact form:"));
+        assertTrue(businessMessage.getText().contains("Name: Jane Smith"));
+        assertTrue(businessMessage.getText().contains("Email: client@example.com"));
+        assertTrue(businessMessage.getText().contains("Phone: +44 7700 900123"));
+        assertTrue(businessMessage.getText().contains("Contact the customer to help identify the boiler type"));
+        assertTrue(businessMessage.getText().contains("Boiler type: I'm not sure"));
+        assertFalse(businessMessage.getText().contains("Selected boiler:"));
     }
 
     @Test

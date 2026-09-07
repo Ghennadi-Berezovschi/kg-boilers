@@ -18,6 +18,8 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
     private static final String GAS_PIPEWORK_SERVICE = "gas-pipework-and-gas-leak-detection";
     private static final String GAS_COOKER_HOB_SERVICE = "gas-cooker-and-hob-installation";
     private static final String PLUMBING_SERVICE = "plumbing";
+    private static final String BATHROOM_REFURBISHMENT_SERVICE = "bathroom-refurbishment";
+    private static final String AIR_CONDITIONING_INSTALLATION_SERVICE = "air-conditioning-installation";
 
     private final QuoteWizardService wizardService;
 
@@ -141,6 +143,8 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
         return HOT_WATER_CYLINDER_SERVICE.equalsIgnoreCase(normalizedService)
                 || PLUMBING_SERVICE.equalsIgnoreCase(normalizedService)
                 || GAS_PIPEWORK_SERVICE.equalsIgnoreCase(normalizedService)
-                || GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(normalizedService);
+                || GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(normalizedService)
+                || BATHROOM_REFURBISHMENT_SERVICE.equalsIgnoreCase(normalizedService)
+                || AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(normalizedService);
     }
 }

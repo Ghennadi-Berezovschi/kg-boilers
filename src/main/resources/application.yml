@@ -121,6 +121,8 @@ kg:
       gas-pipework-and-gas-leak-detection: 15
       hot-water-cylinder: 15
       plumbing: 15
+      bathroom-refurbishment: 15
+      air-conditioning-installation: 15
     service-postcodes:
       boiler-repair:
         - "E16 4JJ"
@@ -135,6 +137,15 @@ kg:
         - "E16 4JJ"
         - "E4 8BJ"
       hot-water-cylinder:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      plumbing:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      bathroom-refurbishment:
+        - "E16 4JJ"
+        - "E4 8BJ"
+      air-conditioning-installation:
         - "E16 4JJ"
         - "E4 8BJ"
 

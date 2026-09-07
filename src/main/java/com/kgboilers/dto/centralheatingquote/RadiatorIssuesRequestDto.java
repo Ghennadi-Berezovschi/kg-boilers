@@ -11,6 +11,4 @@ public class RadiatorIssuesRequestDto {
 
     @NotEmpty(message = "Please select at least one radiator issue")
     private Set<RadiatorIssueType> radiatorIssues;
-
-    private String otherIssueDetails;
 }

@@ -20,18 +20,22 @@
            class="back-link"
            aria-label="Go back">← Back</a>
 
-        <h2 th:text="${serviceContactSummary} ? 'Leave your contact details' : 'Leave your details for your selected boiler'">
+        <h2 th:text="${boilerTypeHelpContact == true} ? 'Not sure what boiler you have?' : (${serviceContactSummary == true} ? 'Leave your contact details' : 'Leave your details for your selected boiler')">
             Leave your details for your selected boiler
         </h2>
-        <p class="section-subtitle" th:unless="${serviceContactSummary}">
-            We’ll use your name, email and phone number to contact you about the selected boiler.
+        <p class="section-subtitle" th:if="${boilerTypeHelpContact == true}">
+            Leave your name, email and phone number, and we will contact you to help identify your boiler type.
+            Or send us a photo of your boiler on WhatsApp.
         </p>
-        <p class="section-subtitle" th:if="${serviceContactSummary}">
-            Leave your name and phone number, and we will call you back to confirm the price and the right option.
+        <p class="section-subtitle" th:unless="${serviceContactSummary == true}">
+            We’ll use your name, email and phone number to contact you about the price and send a copy to your inbox.
+        </p>
+        <p class="section-subtitle" th:if="${serviceContactSummary == true and boilerTypeHelpContact != true}">
+            We’ll use your name, email and phone number to contact you about the price and send a copy to your inbox.
         </p>
 
         <div class="contact-page-grid">
-            <article class="summary-boiler-card contact-selected-card" th:unless="${serviceContactSummary}">
+            <article class="summary-boiler-card contact-selected-card" th:unless="${serviceContactSummary == true}">
                 <div class="summary-boiler-image-wrap">
                     <img class="summary-boiler-image"
                          th:src="${selectedBoilerImage + '?v=20260424-1115'}"
@@ -51,7 +55,7 @@
                 </div>
             </article>
 
-            <article class="summary-panel contact-selected-card" th:if="${serviceContactSummary}">
+            <article class="summary-panel contact-selected-card" th:if="${serviceContactSummary == true}">
                 <h3 class="summary-panel-title">Quote summary</h3>
                 <div class="summary-breakdown-list">
                     <div class="summary-breakdown-row">
@@ -101,7 +105,10 @@
 
             <div class="summary-panel contact-form-panel">
                 <div class="summary-success-banner" th:if="${contactSuccess}">
-                    <p>
+                    <p th:if="${boilerTypeHelpContact == true}">
+                        Thanks, we received your request. We will contact you soon to help identify your boiler type.
+                    </p>
+                    <p th:unless="${boilerTypeHelpContact == true}">
                         Thanks, we received your request
                         <strong th:if="${selectedBoilerLead != null}" th:text="${' for ' + selectedBoilerLead}">for your boiler</strong>.
                         We will contact you soon.
@@ -114,7 +121,7 @@
                 </a>
 
                 <div class="contact-form-panel-body" th:if="${!contactSuccess}">
-                    <div class="summary-selected-boiler has-selection" th:unless="${serviceContactSummary}">
+                    <div class="summary-selected-boiler has-selection" th:unless="${serviceContactSummary == true}">
                         <span class="summary-selected-label">Selected boiler</span>
                         <strong th:text="${selectedBoilerLabel}">Vaillant ecoTEC Plus 828 28kW Combi</strong>
                     </div>

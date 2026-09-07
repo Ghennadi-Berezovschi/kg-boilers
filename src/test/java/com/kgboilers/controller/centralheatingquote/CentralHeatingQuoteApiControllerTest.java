@@ -16,6 +16,7 @@ import com.kgboilers.dto.centralheatingquote.InstallationMoveDistanceRequestDto;
 import com.kgboilers.dto.centralheatingquote.InstallationPipeDistanceRequestDto;
 import com.kgboilers.dto.centralheatingquote.InstallationPositionRequestDto;
 import com.kgboilers.dto.centralheatingquote.AddAnotherInstallationRequestDto;
+import com.kgboilers.dto.centralheatingquote.IssueDetailsRequestDto;
 import com.kgboilers.model.centralheatingquote.CentralHeatingQuoteSessionState;
 import com.kgboilers.model.centralheatingquote.enums.CentralHeatingQuoteStep;
 import com.kgboilers.model.centralheatingquote.enums.InstallationItemType;
@@ -200,38 +201,54 @@ class CentralHeatingQuoteApiControllerTest {
     }
 
     @Test
-    void setRadiatorIssues_shouldRedirectToComingSoon() {
+    void setRadiatorIssues_shouldRedirectToIssueDetails() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, CentralHeatingQuoteStep.RADIATOR_ISSUES)).thenReturn(true);
         when(wizardService.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.RADIATOR_LEAK, RadiatorIssueType.SOMETHING_ELSE),
-                "Leak in kitchen radiator"
-        )).thenReturn(CentralHeatingQuoteStep.SUMMARY);
+                Set.of(RadiatorIssueType.RADIATOR_LEAK, RadiatorIssueType.SOMETHING_ELSE)
+        )).thenReturn(CentralHeatingQuoteStep.ISSUE_DETAILS);
 
         RadiatorIssuesRequestDto request = new RadiatorIssuesRequestDto();
         request.setRadiatorIssues(Set.of(RadiatorIssueType.RADIATOR_LEAK, RadiatorIssueType.SOMETHING_ELSE));
-        request.setOtherIssueDetails("Leak in kitchen radiator");
 
         ResponseEntity<QuoteResponseDto> response = controller.setRadiatorIssues(request, session);
 
         assertEquals(200, response.getStatusCode().value());
         assertTrue(response.getBody().isSuccess());
-        assertEquals("/central-heating-quote/summary", response.getBody().getNextStep());
+        assertEquals("/central-heating-quote/issue-details", response.getBody().getNextStep());
         verify(sessionService).saveState(session, state);
     }
 
     @Test
-    void setRadiatorIssues_shouldRedirectToInstallationItem_whenInstallRadiatorSelected() {
+    void setIssueDetails_shouldRedirectToPropertyOwnership() {
+        CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(state, CentralHeatingQuoteStep.ISSUE_DETAILS)).thenReturn(true);
+        when(wizardService.updateIssueDetails(state, "Leak in kitchen radiator"))
+                .thenReturn(CentralHeatingQuoteStep.PROPERTY_OWNERSHIP);
+
+        IssueDetailsRequestDto request = new IssueDetailsRequestDto();
+        request.setIssueDetails("Leak in kitchen radiator");
+
+        ResponseEntity<QuoteResponseDto> response = controller.setIssueDetails(request, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("/central-heating-quote/property-ownership", response.getBody().getNextStep());
+        verify(sessionService).saveState(session, state);
+    }
+
+    @Test
+    void setRadiatorIssues_shouldRedirectToIssueDetails_whenInstallRadiatorSelected() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, CentralHeatingQuoteStep.RADIATOR_ISSUES)).thenReturn(true);
         when(wizardService.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL),
-                null
-        )).thenReturn(CentralHeatingQuoteStep.INSTALLATION_ITEM);
+                Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL)
+        )).thenReturn(CentralHeatingQuoteStep.ISSUE_DETAILS);
 
         RadiatorIssuesRequestDto request = new RadiatorIssuesRequestDto();
         request.setRadiatorIssues(Set.of(RadiatorIssueType.INSTALL_RADIATOR_OR_TOWEL_RAIL));
@@ -240,20 +257,19 @@ class CentralHeatingQuoteApiControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertTrue(response.getBody().isSuccess());
-        assertEquals("/central-heating-quote/installation-item", response.getBody().getNextStep());
+        assertEquals("/central-heating-quote/issue-details", response.getBody().getNextStep());
         verify(sessionService).saveState(session, state);
     }
 
     @Test
-    void setRadiatorIssues_shouldRedirectToTrvInstallationQuantity_whenTrvInstallationSelected() {
+    void setRadiatorIssues_shouldRedirectToIssueDetails_whenTrvInstallationSelected() {
         CentralHeatingQuoteSessionState state = new CentralHeatingQuoteSessionState();
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, CentralHeatingQuoteStep.RADIATOR_ISSUES)).thenReturn(true);
         when(wizardService.updateRadiatorIssues(
                 state,
-                Set.of(RadiatorIssueType.INSTALL_TRV_VALVES),
-                null
-        )).thenReturn(CentralHeatingQuoteStep.TRV_INSTALLATION_QUANTITY);
+                Set.of(RadiatorIssueType.INSTALL_TRV_VALVES)
+        )).thenReturn(CentralHeatingQuoteStep.ISSUE_DETAILS);
 
         RadiatorIssuesRequestDto request = new RadiatorIssuesRequestDto();
         request.setRadiatorIssues(Set.of(RadiatorIssueType.INSTALL_TRV_VALVES));
@@ -262,7 +278,7 @@ class CentralHeatingQuoteApiControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertTrue(response.getBody().isSuccess());
-        assertEquals("/central-heating-quote/trv-installation-quantity", response.getBody().getNextStep());
+        assertEquals("/central-heating-quote/issue-details", response.getBody().getNextStep());
         verify(sessionService).saveState(session, state);
     }
 

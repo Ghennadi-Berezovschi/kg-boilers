@@ -140,7 +140,7 @@ public class CentralHeatingLeadEmailService {
                 Magnetic filter: %s
                 Requested work: %s
                 Valve quantities: %s
-                Other radiator issue: %s
+                Issue details: %s
                 Installation items:
                 %s
                 Optional extras: %s

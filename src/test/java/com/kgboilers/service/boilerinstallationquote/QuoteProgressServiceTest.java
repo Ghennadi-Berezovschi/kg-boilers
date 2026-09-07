@@ -24,8 +24,8 @@ class QuoteProgressServiceTest {
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FUEL_TYPE, false);
 
         assertEquals(1, progress.currentStepNumber());
-        assertEquals(6, progress.totalSteps());
-        assertEquals(17, progress.percentComplete());
+        assertEquals(16, progress.totalSteps());
+        assertEquals(6, progress.percentComplete());
         assertEquals("active", progress.stages().get(0).state());
     }
 
@@ -53,8 +53,22 @@ class QuoteProgressServiceTest {
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.RADIATOR_COUNT, false);
 
         assertEquals(11, progress.currentStepNumber());
-        assertEquals(14, progress.totalSteps());
-        assertEquals(79, progress.percentComplete());
+        assertEquals(13, progress.totalSteps());
+        assertEquals(85, progress.percentComplete());
+    }
+
+    @Test
+    void buildProgress_shouldSendNotSureInstallationToContactAfterBoilerType() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setFuel(FuelType.GAS);
+        state.setBoilerType(BoilerType.OTHER);
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.CONTACT, false);
+
+        assertEquals(6, progress.currentStepNumber());
+        assertEquals(6, progress.totalSteps());
+        assertEquals(100, progress.percentComplete());
     }
 
     @Test
@@ -93,8 +107,8 @@ class QuoteProgressServiceTest {
         );
 
         assertEquals(1, progress.currentStepNumber());
-        assertEquals(6, progress.totalSteps());
-        assertEquals(17, progress.percentComplete());
+        assertEquals(5, progress.totalSteps());
+        assertEquals(20, progress.percentComplete());
     }
 
     @Test
@@ -154,7 +168,7 @@ class QuoteProgressServiceTest {
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FAULT_CODE_DETAILS, false, "boiler-repair");
 
         assertEquals(7, progress.currentStepNumber());
-        assertEquals(9, progress.totalSteps());
+        assertEquals(10, progress.totalSteps());
     }
 
     @Test
@@ -166,9 +180,9 @@ class QuoteProgressServiceTest {
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.SUMMARY, false, "gas-safety-certificate");
 
-        assertEquals(4, progress.currentStepNumber());
-        assertEquals(5, progress.totalSteps());
-        assertEquals(80, progress.percentComplete());
+        assertEquals(5, progress.currentStepNumber());
+        assertEquals(6, progress.totalSteps());
+        assertEquals(83, progress.percentComplete());
     }
 
     @Test
