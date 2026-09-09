@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Air Conditioning Room Size</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            What <span style="color:#ff5a3c;">room sizes</span> need air conditioning?
+        </h2>
+        <p class="section-subtitle">
+            Select each room size you need and choose how many rooms.
+        </p>
+
+        <div class="gas-appliance-grid">
+            <label class="gas-appliance-card"
+                   th:each="size : ${roomSizeOptions}">
+                <input class="gas-appliance-checkbox air-conditioning-room-size-checkbox"
+                       type="checkbox"
+                       name="roomSizes"
+                       th:value="${size.value}"
+                       th:checked="${selectedRoomSizeQuantities.containsKey(size.value)}">
+                <span class="gas-appliance-title-stack">
+                    <span class="gas-appliance-title" th:text="${size.label}">16-25 m²</span>
+                    <span class="gas-appliance-note"
+                          th:if="${size.value == 'over-50-sqm'}">
+                        For rooms over 50 m², we will confirm the correct unit size after checking the room layout. Large rooms may need a higher-capacity unit or more than one indoor unit.
+                    </span>
+                </span>
+                <span class="gas-appliance-quantity-wrap">
+                    <span class="gas-appliance-quantity-label">Qty</span>
+                    <select class="gas-appliance-quantity"
+                            aria-label="Quantity"
+                            onclick="event.stopPropagation()">
+                        <option th:each="quantity : ${#numbers.sequence(1, 9)}"
+                                th:value="${quantity}"
+                                th:text="${quantity}"
+                                th:selected="${selectedRoomSizeQuantities.get(size.value) == quantity}">1</option>
+                    </select>
+                </span>
+                <span class="gas-appliance-pill">Add</span>
+            </label>
+        </div>
+
+        <div class="gas-appliance-actions">
+            <span class="gas-appliance-action-hint">Select all that apply</span>
+            <button type="button"
+                    class="gas-appliance-continue"
+                    onclick="submitRoomSizes()">
+                Continue
+            </button>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
+    const resultElement = document.getElementById("result");
+
+    async function submitRoomSizes() {
+        clearError();
+
+        const roomSizes = Array.from(document.querySelectorAll(".air-conditioning-room-size-checkbox:checked"))
+            .map(input => {
+                const card = input.closest(".gas-appliance-card");
+                const quantityInput = card?.querySelector(".gas-appliance-quantity");
+                const quantity = Number.parseInt(quantityInput?.value || "1", 10);
+
+                return {
+                    roomSize: input.value,
+                    quantity: Math.min(Math.max(quantity, 1), 9)
+                };
+            });
+
+        if (roomSizes.length === 0) {
+            showError("Please choose at least one room size.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${quoteApiBasePath}/air-conditioning-room-size`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ roomSizes })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Air conditioning room size error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+
+    function setLoading(isLoading) {
+        document.querySelectorAll(".air-conditioning-room-size-checkbox, .gas-appliance-quantity").forEach(input => {
+            input.disabled = isLoading;
+        });
+        const continueButton = document.querySelector(".gas-appliance-continue");
+        if (continueButton) {
+            continueButton.disabled = isLoading;
+            continueButton.textContent = isLoading ? "Saving..." : "Continue";
+        }
+    }
+</script>
+
+</body>
+</html>

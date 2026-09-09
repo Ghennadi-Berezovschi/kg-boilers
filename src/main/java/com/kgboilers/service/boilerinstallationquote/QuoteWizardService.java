@@ -16,6 +16,8 @@ import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDetailsExce
 import com.kgboilers.exception.boilerrepairquote.UnsupportedFaultCodeDisplayException;
 import com.kgboilers.exception.boilerrepairquote.UnsupportedRepairProblemException;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningRoomSizeSelection;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningUnitSelection;
 import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallation.enums.*;
 import com.kgboilers.model.boilerrepair.enums.BoilerAge;
@@ -160,9 +162,17 @@ public class QuoteWizardService {
                     ? state.hasGasAppliances()
                     : isGasCookerHob(service)
                     ? state.hasGasAppliances()
+                    : isAirConditioningInstallation(service)
+                    ? state.hasAirConditioningUnit()
                     : isSimpleServiceOnly(service) && state.hasPropertyType();
 
             case PLUMBING_PROBLEMS -> isPlumbing(service) && state.hasPropertyType();
+
+            case AIR_CONDITIONING_TYPE -> isAirConditioningInstallation(service) && state.hasPropertyType();
+
+            case AIR_CONDITIONING_ROOM_SIZE -> isAirConditioningInstallation(service) && state.hasAirConditioningInstallationType();
+
+            case AIR_CONDITIONING_CATALOG -> isAirConditioningInstallation(service) && state.hasAirConditioningRoomSize();
 
             case GAS_APPLIANCES -> isGasApplianceService(service) && state.hasPropertyType();
 
@@ -412,8 +422,14 @@ public class QuoteWizardService {
             state.setBoilerMake(null);
             state.setGasAppliances(null);
             state.setPlumbingProblems(null);
-            state.setCurrentStep(QuoteStep.PROBLEM_DETAILS);
-            return QuoteStep.PROBLEM_DETAILS;
+            state.setAirConditioningInstallationTypes(null);
+            state.setAirConditioningRoomSizes(null);
+            state.setAirConditioningUnits(null);
+            QuoteStep nextStep = isAirConditioningInstallation(service)
+                    ? QuoteStep.AIR_CONDITIONING_TYPE
+                    : QuoteStep.PROBLEM_DETAILS;
+            state.setCurrentStep(nextStep);
+            return nextStep;
         }
 
         if (shouldSkipBedrooms(service)) {
@@ -590,13 +606,90 @@ public class QuoteWizardService {
         return QuoteStep.PROBLEM_DETAILS;
     }
 
+    public QuoteStep updateAirConditioningInstallationType(QuoteSessionState state,
+                                                           List<AirConditioningInstallationType> installationTypes,
+                                                           String service) {
+        if (!isAirConditioningInstallation(service)) {
+            throw new IllegalArgumentException("Air conditioning installation type is only supported for air conditioning installation");
+        }
+
+        if (installationTypes == null || installationTypes.isEmpty()) {
+            throw new IllegalArgumentException("Please choose at least one air conditioning installation type");
+        }
+
+        boolean hasInvalidType = installationTypes.stream().anyMatch(type -> type == null);
+        if (hasInvalidType) {
+            throw new IllegalArgumentException("Unsupported air conditioning installation type");
+        }
+
+        state.setAirConditioningInstallationTypes(installationTypes.stream().distinct().toList());
+        state.setAirConditioningRoomSizes(null);
+        state.setAirConditioningUnits(null);
+        state.setProblemDetails(null);
+        state.setCurrentStep(QuoteStep.AIR_CONDITIONING_ROOM_SIZE);
+        return QuoteStep.AIR_CONDITIONING_ROOM_SIZE;
+    }
+
+    public QuoteStep updateAirConditioningRoomSize(QuoteSessionState state,
+                                                   List<AirConditioningRoomSizeSelection> roomSizes,
+                                                   String service) {
+        if (!isAirConditioningInstallation(service)) {
+            throw new IllegalArgumentException("Air conditioning room size is only supported for air conditioning installation");
+        }
+
+        if (roomSizes == null || roomSizes.isEmpty()) {
+            throw new IllegalArgumentException("Please choose at least one room size");
+        }
+
+        boolean invalidRoomSize = roomSizes.stream()
+                .anyMatch(selection -> selection == null
+                        || selection.getRoomSize() == null
+                        || selection.getQuantity() < 1
+                        || selection.getQuantity() > 9);
+        if (invalidRoomSize) {
+            throw new IllegalArgumentException("Room quantity must be between 1 and 9");
+        }
+
+        state.setAirConditioningRoomSizes(roomSizes);
+        state.setAirConditioningUnits(null);
+        state.setProblemDetails(null);
+        state.setCurrentStep(QuoteStep.AIR_CONDITIONING_CATALOG);
+        return QuoteStep.AIR_CONDITIONING_CATALOG;
+    }
+
+    public QuoteStep updateAirConditioningUnits(QuoteSessionState state,
+                                                List<AirConditioningUnitSelection> units,
+                                                String service) {
+        if (!isAirConditioningInstallation(service)) {
+            throw new IllegalArgumentException("Air conditioning unit is only supported for air conditioning installation");
+        }
+
+        if (units == null || units.isEmpty()) {
+            throw new IllegalArgumentException("Please choose at least one air conditioning unit");
+        }
+
+        boolean invalidUnit = units.stream()
+                .anyMatch(selection -> selection == null
+                        || selection.getUnit() == null
+                        || selection.getQuantity() < 1
+                        || selection.getQuantity() > 9);
+        if (invalidUnit) {
+            throw new IllegalArgumentException("Unit quantity must be between 1 and 9");
+        }
+
+        state.setAirConditioningUnits(units);
+        state.setProblemDetails(null);
+        state.setCurrentStep(QuoteStep.PROBLEM_DETAILS);
+        return QuoteStep.PROBLEM_DETAILS;
+    }
+
     public QuoteStep updateProblemDetails(QuoteSessionState state,
                                           String problemDetails,
                                           String service,
                                           GasApplianceType installationAppliance) {
         if (!isHotWaterCylinder(service)) {
             if (!isGasApplianceService(service) && !isPlumbing(service) && !isSimpleServiceOnly(service)) {
-                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder, gas appliance and plumbing services");
+                throw new IllegalArgumentException("Problem details are only supported for hot water cylinder, gas appliance, plumbing and service-only requests");
             }
         }
 
@@ -900,6 +993,9 @@ public class QuoteWizardService {
             return state.hasPostcode()
                     && state.hasOwnership()
                     && state.hasPropertyType()
+                    && (!isAirConditioningInstallation(service) || state.hasAirConditioningInstallationType())
+                    && (!isAirConditioningInstallation(service) || state.hasAirConditioningRoomSize())
+                    && (!isAirConditioningInstallation(service) || state.hasAirConditioningUnit())
                     && state.hasProblemDetails();
         }
 
@@ -1005,6 +1101,10 @@ public class QuoteWizardService {
         String normalizedService = service == null ? "" : service.trim();
         return BATHROOM_REFURBISHMENT_SERVICE.equalsIgnoreCase(normalizedService)
                 || AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(normalizedService);
+    }
+
+    private boolean isAirConditioningInstallation(String service) {
+        return AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
     }
 
     private boolean isPlumbing(String service) {

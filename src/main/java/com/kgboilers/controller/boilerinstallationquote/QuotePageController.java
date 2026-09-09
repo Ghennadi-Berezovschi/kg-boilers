@@ -6,6 +6,8 @@ import com.kgboilers.model.boilerinstallationquote.BoilerRecommendationResult;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.BoilerMake;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningInstallationType;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningRoomSize;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueType;
 import com.kgboilers.model.boilerinstallation.enums.FuelType;
@@ -16,6 +18,7 @@ import com.kgboilers.model.boilerinstallation.enums.HorizontalFlueShape;
 import com.kgboilers.model.boilerinstallation.enums.PlumbingProblem;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallation.enums.Relocation;
+import com.kgboilers.service.boilerinstallationquote.AirConditioningCatalogService;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
 import com.kgboilers.service.boilerinstallationquote.FlueClearancePricingService;
 import com.kgboilers.service.boilerinstallationquote.FlueLengthPricingService;
@@ -83,6 +86,7 @@ public class QuotePageController {
     private final QuoteProgressService quoteProgressService;
     private final int gasCookerInstallationPriceGbp;
     private final int gasHobInstallationPriceGbp;
+    private final AirConditioningCatalogService airConditioningCatalogService;
 
     public QuotePageController(QuoteSessionService sessionService,
                                QuoteWizardService wizardService,
@@ -100,7 +104,8 @@ public class QuotePageController {
                                QuotePictureStorageService quotePictureStorageService,
                                QuoteLeadEmailService quoteLeadEmailService,
                                QuoteOfferProperties quoteOfferProperties,
-                               QuoteProgressService quoteProgressService) {
+                               QuoteProgressService quoteProgressService,
+                               AirConditioningCatalogService airConditioningCatalogService) {
         this.sessionService = sessionService;
         this.wizardService = wizardService;
         this.relocationPricingService = relocationPricingService;
@@ -118,6 +123,7 @@ public class QuotePageController {
         this.quoteProgressService = quoteProgressService;
         this.gasCookerInstallationPriceGbp = gasCookerInstallationPriceGbp;
         this.gasHobInstallationPriceGbp = gasHobInstallationPriceGbp;
+        this.airConditioningCatalogService = airConditioningCatalogService;
     }
 
     @ModelAttribute
@@ -338,6 +344,76 @@ public class QuotePageController {
         model.addAttribute("gasCookerInstallationPriceGbp", gasCookerInstallationPriceGbp);
         model.addAttribute("selectedInstallationAppliance", getSelectedInstallationApplianceValue(state));
         return "boiler-installation-quote/problem-details";
+    }
+
+    @GetMapping("/air-conditioning-type")
+    public String airConditioningTypePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_TYPE, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.PROPERTY_TYPE, service));
+        model.addAttribute("airConditioningTypeOptions", AirConditioningInstallationType.values());
+        model.addAttribute("selectedAirConditioningTypes", state != null && state.getAirConditioningInstallationTypes() != null
+                ? state.getAirConditioningInstallationTypes().stream()
+                .map(AirConditioningInstallationType::getValue)
+                .toList()
+                : List.of());
+        return "boiler-installation-quote/air-conditioning-type";
+    }
+
+    @GetMapping("/air-conditioning-room-size")
+    public String airConditioningRoomSizePage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_ROOM_SIZE, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.AIR_CONDITIONING_TYPE, service));
+        model.addAttribute("roomSizeOptions", AirConditioningRoomSize.values());
+        Map<String, Integer> selectedRoomSizeQuantities = new LinkedHashMap<>();
+        if (state != null && state.getAirConditioningRoomSizes() != null) {
+            state.getAirConditioningRoomSizes().forEach(selection -> {
+                if (selection.getRoomSize() != null) {
+                    selectedRoomSizeQuantities.put(selection.getRoomSize().getValue(), selection.getQuantity());
+                }
+            });
+        }
+        model.addAttribute("selectedRoomSizeQuantities", selectedRoomSizeQuantities);
+        return "boiler-installation-quote/air-conditioning-room-size";
+    }
+
+    @GetMapping("/air-conditioning-catalog")
+    public String airConditioningCatalogPage(HttpSession session, Model model) {
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_CATALOG, service)) {
+            return redirectToStart(service);
+        }
+
+        model.addAttribute("backUrl", pathForService(QuoteStep.AIR_CONDITIONING_ROOM_SIZE, service));
+        model.addAttribute("airConditioningUnits", airConditioningCatalogService.getCatalogItems());
+        Map<String, Integer> selectedAirConditioningUnitQuantities = new LinkedHashMap<>();
+        if (state != null && state.getAirConditioningUnits() != null) {
+            state.getAirConditioningUnits().forEach(selection -> {
+                if (selection.getUnit() != null) {
+                    selectedAirConditioningUnitQuantities.put(selection.getUnit().getValue(), selection.getQuantity());
+                }
+            });
+        }
+        model.addAttribute("selectedAirConditioningUnitQuantities", selectedAirConditioningUnitQuantities);
+        boolean selectedOver50SquareMetres = state != null
+                && state.getAirConditioningRoomSizes() != null
+                && state.getAirConditioningRoomSizes().stream()
+                .anyMatch(selection -> selection.getRoomSize() == AirConditioningRoomSize.OVER_50_SQM);
+        model.addAttribute("selectedOver50SquareMetres", selectedOver50SquareMetres);
+        return "boiler-installation-quote/air-conditioning-catalog";
     }
 
     @GetMapping("/boiler-conversion")
@@ -1037,6 +1113,9 @@ public class QuotePageController {
             case "/quote/hot-water" -> QuoteStep.HOT_WATER;
             case "/quote/problem-details" -> QuoteStep.PROBLEM_DETAILS;
             case "/quote/plumbing-problems" -> QuoteStep.PLUMBING_PROBLEMS;
+            case "/quote/air-conditioning-type" -> QuoteStep.AIR_CONDITIONING_TYPE;
+            case "/quote/air-conditioning-room-size" -> QuoteStep.AIR_CONDITIONING_ROOM_SIZE;
+            case "/quote/air-conditioning-catalog" -> QuoteStep.AIR_CONDITIONING_CATALOG;
             case "/quote/gas-appliances" -> QuoteStep.GAS_APPLIANCES;
             case "/quote/boiler-conversion" -> QuoteStep.BOILER_CONVERSION;
             case "/quote/boiler-position" -> QuoteStep.BOILER_POSITION;
@@ -1427,7 +1506,9 @@ public class QuotePageController {
         }
 
         if (isSimpleServiceOnly(service)) {
-            return pathForService(QuoteStep.PROPERTY_TYPE, service);
+            return isAirConditioningInstallation(service)
+                    ? pathForService(QuoteStep.AIR_CONDITIONING_CATALOG, service)
+                    : pathForService(QuoteStep.PROPERTY_TYPE, service);
         }
 
         return QuoteStep.HOT_WATER.getPath();

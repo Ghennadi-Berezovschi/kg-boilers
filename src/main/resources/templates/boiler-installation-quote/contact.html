@@ -84,13 +84,61 @@
                         <span>Hot water</span>
                         <strong th:text="${state.hotWaterAvailable ? 'Yes' : 'No'}">Yes</strong>
                     </div>
-                    <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasProblemDetails()}">
-                        <span>Problem</span>
-                        <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
-                    </div>
                     <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasPlumbingProblems()}">
                         <span>Plumbing issues</span>
                         <strong th:text="${state.plumbingProblemsSummary}">Leaking tap</strong>
+                    </div>
+                    <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasAirConditioningInstallationType()}">
+                        <span>Air conditioning</span>
+                        <strong th:text="${state.airConditioningInstallationTypeSummary}">Bedroom installation</strong>
+                    </div>
+                    <div class="summary-breakdown-row" th:if="${state != null and state.hasAirConditioningRoomSize()}">
+                        <span>Room size</span>
+                        <strong th:text="${state.airConditioningRoomSizeSummary}">16-25 m²</strong>
+                    </div>
+                    <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasAirConditioningUnit()}">
+                        <span>Air conditioner</span>
+                        <div class="summary-air-conditioning-units">
+                            <div class="summary-air-conditioning-unit"
+                                 th:each="selection : ${state.airConditioningUnits}"
+                                 th:if="${selection.unit != null}">
+                                <strong class="summary-air-conditioning-unit-title"
+                                        th:text="${selection.unit.label + (selection.quantity > 1 ? ' x' + selection.quantity : '')}">
+                                    Daikin Sensira 2.5 kW
+                                </strong>
+                                <div class="summary-air-conditioning-unit-details">
+                                    <span>Cooling power</span>
+                                    <strong th:text="${selection.unit.coolingCapacity}">2.5 kW</strong>
+                                </div>
+                                <div class="summary-air-conditioning-unit-details">
+                                    <span>Room coverage</span>
+                                    <strong th:text="${selection.unit.roomCoverage}">Up to 15 m²</strong>
+                                </div>
+                                <div class="summary-air-conditioning-unit-details" th:if="${selection.warrantyYears > 0}">
+                                    <span>Manufacturer warranty</span>
+                                    <strong th:text="${selection.warrantyYears + ' years'}">5 years</strong>
+                                </div>
+                                <div class="summary-air-conditioning-unit-details" th:if="${selection.purchasePriceGbp > 0}">
+                                    <span>Unit price</span>
+                                    <strong>£<span th:text="${selection.purchasePriceGbp}">650</span></strong>
+                                </div>
+                                <div class="summary-air-conditioning-unit-details" th:if="${selection.standardInstallationWorksPriceGbp > 0}">
+                                    <span>Standard Installation Works</span>
+                                    <strong>£<span th:text="${selection.standardInstallationWorksPriceGbp}">550</span></strong>
+                                </div>
+                                <div class="summary-air-conditioning-unit-details" th:if="${selection.standardMaterialsPriceGbp > 0}">
+                                    <span>Standard Materials</span>
+                                    <strong>£<span th:text="${selection.standardMaterialsPriceGbp}">120</span></strong>
+                                </div>
+                            </div>
+                            <p class="summary-air-conditioning-note">
+                                Electrical supply from the consumer unit is not included and is priced separately if required.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="summary-breakdown-row summary-breakdown-row-long" th:if="${state != null and state.hasProblemDetails()}">
+                        <span th:text="${service == 'air-conditioning-installation' ? 'Installation details' : 'Problem'}">Problem</span>
+                        <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
                     </div>
                     <div class="summary-breakdown-row" th:if="${state != null and state.ownership != null}">
                         <span>Customer type</span>

@@ -129,6 +129,57 @@ class QuoteProgressServiceTest {
     }
 
     @Test
+    void buildProgress_shouldIncludeAirConditioningTypeForAirConditioningInstallation() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteProgressView progress = service.buildProgress(
+                state,
+                QuoteStep.AIR_CONDITIONING_TYPE,
+                false,
+                "air-conditioning-installation"
+        );
+
+        assertEquals(3, progress.currentStepNumber());
+        assertEquals(7, progress.totalSteps());
+        assertEquals(43, progress.percentComplete());
+    }
+
+    @Test
+    void buildProgress_shouldIncludeRoomSizeForAirConditioningInstallation() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteProgressView progress = service.buildProgress(
+                state,
+                QuoteStep.AIR_CONDITIONING_ROOM_SIZE,
+                false,
+                "air-conditioning-installation"
+        );
+
+        assertEquals(4, progress.currentStepNumber());
+        assertEquals(7, progress.totalSteps());
+        assertEquals(57, progress.percentComplete());
+    }
+
+    @Test
+    void buildProgress_shouldIncludeAirConditioningCatalogForAirConditioningInstallation() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+
+        QuoteProgressView progress = service.buildProgress(
+                state,
+                QuoteStep.AIR_CONDITIONING_CATALOG,
+                false,
+                "air-conditioning-installation"
+        );
+
+        assertEquals(5, progress.currentStepNumber());
+        assertEquals(7, progress.totalSteps());
+        assertEquals(71, progress.percentComplete());
+    }
+
+    @Test
     void buildProgress_shouldSkipHomeAndPropertyQuestionsForBoilerRepair() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");

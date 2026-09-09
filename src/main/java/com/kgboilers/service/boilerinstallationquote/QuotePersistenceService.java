@@ -330,6 +330,9 @@ public class QuotePersistenceService {
         answers.put("hotWaterAvailable", state.getHotWaterAvailable());
         answers.put("problemDetails", state.getProblemDetailsSummary());
         answers.put("plumbingProblems", state.getPlumbingProblemsSummary());
+        answers.put("airConditioningInstallationTypes", state.getAirConditioningInstallationTypeSummary());
+        answers.put("airConditioningRoomSize", state.getAirConditioningRoomSizeSummary());
+        answers.put("airConditioningUnit", state.getAirConditioningUnitSummary());
         answers.put("boilerAge", state.getBoilerAgeSummary());
         answers.put("boilerPosition", enumName(state.getBoilerPosition()));
         answers.put("boilerLocation", enumName(state.getBoilerLocation()));

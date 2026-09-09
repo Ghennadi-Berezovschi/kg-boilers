@@ -1,6 +1,8 @@
 package com.kgboilers.controller.boilerinstallationquote;
 
 import com.kgboilers.dto.boilerinstallationquote.*;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningRoomSizeSelection;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningUnitSelection;
 import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
@@ -8,6 +10,7 @@ import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
 import com.kgboilers.service.boilerinstallationquote.QuoteService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
 import com.kgboilers.service.boilerinstallationquote.QuoteWizardService;
+import com.kgboilers.service.boilerinstallationquote.AirConditioningCatalogService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +34,18 @@ public class QuoteWizardApiController {
     private final QuoteWizardService wizardService;
     private final QuoteSessionService sessionService;
     private final QuoteResponseFactory responseFactory;
+    private final AirConditioningCatalogService airConditioningCatalogService;
 
     public QuoteWizardApiController(QuoteService quoteService,
                                     QuoteWizardService wizardService,
                                     QuoteSessionService sessionService,
-                                    QuoteResponseFactory responseFactory) {
+                                    QuoteResponseFactory responseFactory,
+                                    AirConditioningCatalogService airConditioningCatalogService) {
         this.quoteService = quoteService;
         this.wizardService = wizardService;
         this.sessionService = sessionService;
         this.responseFactory = responseFactory;
+        this.airConditioningCatalogService = airConditioningCatalogService;
     }
 
     @PostMapping("/start")
@@ -322,6 +328,81 @@ public class QuoteWizardApiController {
         }
 
         QuoteStep nextStep = wizardService.updatePlumbingProblems(state, request.getProblems(), service);
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/air-conditioning-type")
+    public ResponseEntity<QuoteResponseDto> setAirConditioningType(@RequestBody @Valid AirConditioningTypeRequestDto request,
+                                                                   HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_TYPE, service)) {
+            return sessionExpired();
+        }
+
+        QuoteStep nextStep = wizardService.updateAirConditioningInstallationType(
+                state,
+                request.getAirConditioningInstallationTypes(),
+                service
+        );
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/air-conditioning-room-size")
+    public ResponseEntity<QuoteResponseDto> setAirConditioningRoomSize(@RequestBody @Valid AirConditioningRoomSizeRequestDto request,
+                                                                       HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_ROOM_SIZE, service)) {
+            return sessionExpired();
+        }
+
+        List<AirConditioningRoomSizeSelection> roomSizes = request.getRoomSizes().stream()
+                .map(item -> new AirConditioningRoomSizeSelection(item.getRoomSize(), item.getQuantity()))
+                .toList();
+
+        QuoteStep nextStep = wizardService.updateAirConditioningRoomSize(
+                state,
+                roomSizes,
+                service
+        );
+        sessionService.saveState(session, state);
+        return success(nextStep, service);
+    }
+
+    @PostMapping("/air-conditioning-catalog")
+    public ResponseEntity<QuoteResponseDto> setAirConditioningCatalog(@RequestBody @Valid AirConditioningUnitRequestDto request,
+                                                                      HttpSession session) {
+
+        QuoteSessionState state = sessionService.getState(session);
+        String service = getSelectedService(session);
+
+        if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_CATALOG, service)) {
+            return sessionExpired();
+        }
+
+        List<AirConditioningUnitSelection> units = request.getAirConditioningUnits().stream()
+                .map(item -> new AirConditioningUnitSelection(
+                        item.getAirConditioningUnit(),
+                        item.getQuantity(),
+                        airConditioningCatalogService.getPurchasePriceGbp(item.getAirConditioningUnit()),
+                        airConditioningCatalogService.getStandardInstallationWorksPriceGbp(item.getAirConditioningUnit()),
+                        airConditioningCatalogService.getStandardExtraMaterialsPriceGbp(item.getAirConditioningUnit()),
+                        airConditioningCatalogService.getWarrantyYears(item.getAirConditioningUnit())
+                ))
+                .toList();
+
+        QuoteStep nextStep = wizardService.updateAirConditioningUnits(
+                state,
+                units,
+                service
+        );
         sessionService.saveState(session, state);
         return success(nextStep, service);
     }

@@ -3,6 +3,9 @@ package com.kgboilers.service.boilerinstallationquote;
 import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferProperties;
 import com.kgboilers.config.properties.ContactProperties;
 import com.kgboilers.config.properties.CompanyProperties;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningInstallationType;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningRoomSize;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningUnit;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallation.enums.FlueLength;
@@ -12,6 +15,8 @@ import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.PropertyType;
 import com.kgboilers.model.boilerinstallation.enums.RadiatorCount;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningRoomSizeSelection;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningUnitSelection;
 import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
@@ -262,6 +267,82 @@ class QuoteLeadEmailServiceTest {
         assertTrue(businessMessage.getText().contains("Installation price:\n£140"));
         assertTrue(businessMessage.getText().contains("Gas appliances: Gas hob"));
         assertTrue(businessMessage.getText().contains("Problem: Install a new gas hob"));
+    }
+
+    @Test
+    void sendLeadEmails_shouldFormatAirConditioningUnitsAsReadablePriceBlocks() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.FLAT);
+        state.setAirConditioningInstallationTypes(List.of(
+                AirConditioningInstallationType.BEDROOM_INSTALLATION,
+                AirConditioningInstallationType.LIVING_ROOM_INSTALLATION
+        ));
+        state.setAirConditioningRoomSizes(List.of(
+                new AirConditioningRoomSizeSelection(AirConditioningRoomSize.UP_TO_15_SQM, 2),
+                new AirConditioningRoomSizeSelection(AirConditioningRoomSize.FROM_16_TO_25_SQM, 1)
+        ));
+        state.setAirConditioningUnits(List.of(
+                new AirConditioningUnitSelection(AirConditioningUnit.DAIKIN_SENSIRA_2_5, 2, 650, 550, 120, 5),
+                new AirConditioningUnitSelection(AirConditioningUnit.FUJITSU_STANDARD_5_2, 1, 1050, 550, 120, 5)
+        ));
+        state.setProblemDetails("Install new units");
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "air-conditioning-installation",
+                "Air Conditioning Installation",
+                0,
+                "Jane Smith",
+                "client@example.com",
+                "+44 7700 900123",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(),
+                0
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+        SimpleMailMessage businessMessage = messageCaptor.getAllValues().get(1);
+
+        assertTrue(clientMessage.getText().contains("Installation details:"));
+        assertTrue(clientMessage.getText().contains("Room size: Up to 15 m² x2, 16-25 m²"));
+        assertTrue(clientMessage.getText().contains("""
+                Air conditioners:
+                - Daikin Sensira 2.5 kW wall-mounted unit x2
+                  Cooling power: 2.5 kW
+                  Room coverage: Up to 15 m²
+                  Manufacturer warranty: 5 years
+                  Unit price: £650
+                  Standard Installation Works: £550
+                  Standard Materials: £120
+                - Fujitsu Standard 5.2 kW ASYG18KMTE
+                  Cooling power: 5.2 kW
+                  Room coverage: Up to 40 m²
+                  Manufacturer warranty: 5 years
+                  Unit price: £1050
+                  Standard Installation Works: £550
+                  Standard Materials: £120
+                """.stripTrailing()));
+        assertTrue(clientMessage.getText().contains(
+                "Note: Electrical supply from the consumer unit is not included and is priced separately if required."));
+        assertFalse(clientMessage.getText().contains("Air conditioner: Daikin Sensira 2.5 kW wall-mounted unit (2.5 kW"));
+
+        assertTrue(businessMessage.getText().contains("Customer details submitted in the contact form:"));
+        assertTrue(businessMessage.getText().contains("Air conditioners:\n- Daikin Sensira 2.5 kW wall-mounted unit x2"));
+        assertTrue(businessMessage.getText().contains(
+                "Note: Electrical supply from the consumer unit is not included and is priced separately if required."));
+        assertTrue(businessMessage.getText().contains("Installation details: Install new units"));
+        assertFalse(businessMessage.getText().contains("Gas appliances:"));
+        assertFalse(businessMessage.getText().contains("Problem details: Install new units"));
     }
 
     @Test

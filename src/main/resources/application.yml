@@ -109,6 +109,44 @@ kg:
   uploads:
     quote-pictures-dir: ${QUOTE_PICTURES_DIR:${UPLOADS_DIR:uploads/quote-pictures}}
 
+  air-conditioning:
+    catalog:
+      purchase-prices-gbp:
+        daikin-sensira-2-5: 650
+        daikin-sensira-3-5: 750
+        daikin-sensira-5-0: 950
+        fujitsu-standard-2-5: 700
+        fujitsu-standard-3-4: 765
+        fujitsu-standard-5-2: 1050
+      standard-installation-works-prices-gbp:
+        daikin-sensira-2-5: 550
+        daikin-sensira-3-5: 550
+        daikin-sensira-5-0: 550
+        fujitsu-standard-2-5: 550
+        fujitsu-standard-3-4: 550
+        fujitsu-standard-5-2: 550
+      standard-extra-materials-prices-gbp:
+        daikin-sensira-2-5: 120
+        daikin-sensira-3-5: 120
+        daikin-sensira-5-0: 120
+        fujitsu-standard-2-5: 120
+        fujitsu-standard-3-4: 120
+        fujitsu-standard-5-2: 120
+      warranty-years:
+        daikin-sensira-2-5: 5
+        daikin-sensira-3-5: 5
+        daikin-sensira-5-0: 5
+        fujitsu-standard-2-5: 5
+        fujitsu-standard-3-4: 5
+        fujitsu-standard-5-2: 5
+      image-urls:
+        daikin-sensira-2-5: "https://static.wixstatic.com/media/2d7784_0a3bd67a168248abab5e335738d36c99~mv2.webp/v1/fit/w_500%2Ch_500%2Cq_90/file.webp"
+        daikin-sensira-3-5: "https://static.wixstatic.com/media/2d7784_0a3bd67a168248abab5e335738d36c99~mv2.webp/v1/fit/w_500%2Ch_500%2Cq_90/file.webp"
+        daikin-sensira-5-0: "https://static.wixstatic.com/media/2d7784_0a3bd67a168248abab5e335738d36c99~mv2.webp/v1/fit/w_500%2Ch_500%2Cq_90/file.webp"
+        fujitsu-standard-2-5: "https://cdn.technomarket.bg/ng/media/cache/mid_thumb/uploads/library/product/09226022/67f610dc6f6a6.jpg.webp"
+        fujitsu-standard-3-4: "https://cdn.technomarket.bg/ng/media/cache/mid_thumb/uploads/library/product/09226022/67f610dc6f6a6.jpg.webp"
+        fujitsu-standard-5-2: "https://cdn.technomarket.bg/ng/media/cache/mid_thumb/uploads/library/product/09226022/67f610dc6f6a6.jpg.webp"
+
   location:
     postcode: "E16 4JJ"
     postcodes:

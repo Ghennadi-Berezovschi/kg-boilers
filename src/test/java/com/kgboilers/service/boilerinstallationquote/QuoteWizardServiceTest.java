@@ -1,8 +1,13 @@
 package com.kgboilers.service.boilerinstallationquote;
 
 import com.kgboilers.exception.boilerinstallationquote.UnsupportedBedroomsException;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningRoomSizeSelection;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningUnitSelection;
 import com.kgboilers.model.boilerinstallationquote.GasApplianceSelection;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningInstallationType;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningRoomSize;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningUnit;
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
@@ -226,6 +231,101 @@ class QuoteWizardServiceTest {
 
         assertEquals(QuoteStep.GAS_APPLIANCES, nextStep);
         assertEquals(PropertyType.HOUSE, state.getPropertyType());
+    }
+
+    @Test
+    void updatePropertyType_shouldAskAirConditioningTypeForAirConditioningInstallation() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updatePropertyType(state, PropertyType.HOUSE, "air-conditioning-installation");
+
+        assertEquals(QuoteStep.AIR_CONDITIONING_TYPE, nextStep);
+        assertEquals(PropertyType.HOUSE, state.getPropertyType());
+        assertNull(state.getBedrooms());
+        assertNull(state.getAirConditioningInstallationTypes());
+    }
+
+    @Test
+    void updateAirConditioningInstallationType_shouldReturnRoomSize() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateAirConditioningInstallationType(
+                state,
+                List.of(
+                        AirConditioningInstallationType.BEDROOM_INSTALLATION,
+                        AirConditioningInstallationType.KITCHEN_INSTALLATION
+                ),
+                "air-conditioning-installation"
+        );
+
+        assertEquals(QuoteStep.AIR_CONDITIONING_ROOM_SIZE, nextStep);
+        assertEquals(
+                List.of(
+                        AirConditioningInstallationType.BEDROOM_INSTALLATION,
+                        AirConditioningInstallationType.KITCHEN_INSTALLATION
+                ),
+                state.getAirConditioningInstallationTypes()
+        );
+        assertEquals("Bedroom installation, Kitchen installation", state.getAirConditioningInstallationTypeSummary());
+        assertNull(state.getAirConditioningRoomSizes());
+        assertEquals(QuoteStep.AIR_CONDITIONING_ROOM_SIZE, state.getCurrentStep());
+    }
+
+    @Test
+    void updateAirConditioningRoomSize_shouldReturnProblemDetails() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setAirConditioningInstallationTypes(List.of(AirConditioningInstallationType.BEDROOM_INSTALLATION));
+
+        QuoteStep nextStep = service.updateAirConditioningRoomSize(
+                state,
+                List.of(
+                        new AirConditioningRoomSizeSelection(AirConditioningRoomSize.UP_TO_15_SQM, 2),
+                        new AirConditioningRoomSizeSelection(AirConditioningRoomSize.FROM_16_TO_25_SQM, 1)
+                ),
+                "air-conditioning-installation"
+        );
+
+        assertEquals(QuoteStep.AIR_CONDITIONING_CATALOG, nextStep);
+        assertEquals(
+                List.of(
+                        new AirConditioningRoomSizeSelection(AirConditioningRoomSize.UP_TO_15_SQM, 2),
+                        new AirConditioningRoomSizeSelection(AirConditioningRoomSize.FROM_16_TO_25_SQM, 1)
+                ),
+                state.getAirConditioningRoomSizes()
+        );
+        assertEquals("Up to 15 m² x2, 16-25 m²", state.getAirConditioningRoomSizeSummary());
+        assertEquals(QuoteStep.AIR_CONDITIONING_CATALOG, state.getCurrentStep());
+    }
+
+    @Test
+    void updateAirConditioningUnits_shouldReturnProblemDetails() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setAirConditioningRoomSizes(List.of(
+                new AirConditioningRoomSizeSelection(AirConditioningRoomSize.UP_TO_15_SQM, 1)
+        ));
+
+        QuoteStep nextStep = service.updateAirConditioningUnits(
+                state,
+                List.of(
+                        new AirConditioningUnitSelection(AirConditioningUnit.DAIKIN_SENSIRA_2_5, 2),
+                        new AirConditioningUnitSelection(AirConditioningUnit.FUJITSU_STANDARD_3_4, 1)
+                ),
+                "air-conditioning-installation"
+        );
+
+        assertEquals(QuoteStep.PROBLEM_DETAILS, nextStep);
+        assertEquals(
+                List.of(
+                        new AirConditioningUnitSelection(AirConditioningUnit.DAIKIN_SENSIRA_2_5, 2),
+                        new AirConditioningUnitSelection(AirConditioningUnit.FUJITSU_STANDARD_3_4, 1)
+                ),
+                state.getAirConditioningUnits()
+        );
+        assertEquals(
+                "Daikin Sensira 2.5 kW wall-mounted unit (2.5 kW, Up to 15 m²) x2, Fujitsu Standard 3.4 kW ASEH12KMCG (3.4 kW, Up to 28 m²)",
+                state.getAirConditioningUnitSummary()
+        );
+        assertEquals(QuoteStep.PROBLEM_DETAILS, state.getCurrentStep());
     }
 
     @Test

@@ -679,6 +679,49 @@
     overflow-wrap: anywhere;
 }
 
+.summary-air-conditioning-units {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+}
+
+.summary-air-conditioning-unit {
+    display: grid;
+    gap: 7px;
+    padding: 12px;
+    border: 1px solid #dbe3ec;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.summary-air-conditioning-unit-title {
+    color: #1d3f8f;
+    font-size: 14px;
+    line-height: 1.35;
+    white-space: normal;
+}
+
+.summary-air-conditioning-unit-details {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.summary-air-conditioning-unit-details strong {
+    color: #1f2f57;
+    font-weight: 900;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.summary-air-conditioning-unit-details:nth-last-child(-n + 3) strong {
+    color: #c71818;
+}
+
 .summary-breakdown-row-selected-boiler > span {
     color: #1f2f57;
     font-weight: 800;
@@ -2215,7 +2258,7 @@
     }
 
     .gas-appliance-card {
-        grid-template-columns: 28px minmax(0, 1fr) auto;
+        grid-template-columns: 28px minmax(0, 1fr) auto auto;
         grid-template-areas: none;
         min-height: 54px;
         padding: 10px 12px;
@@ -2595,6 +2638,19 @@
     line-height: 1.2;
 }
 
+.gas-appliance-title-stack {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.gas-appliance-note {
+    color: #69768d;
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
 .gas-appliance-pill {
     padding: 5px 10px;
     border-radius: 999px;
@@ -2643,6 +2699,12 @@
 .gas-appliance-card:has(.gas-appliance-checkbox:checked) .gas-appliance-pill {
     background: #ff5a3c;
     color: #ffffff;
+    font-size: 0;
+}
+
+.gas-appliance-card:has(.gas-appliance-checkbox:checked) .gas-appliance-pill::before {
+    content: "Added";
+    font-size: 12px;
 }
 
 .plumbing-problem-card {
@@ -2772,6 +2834,172 @@
     margin-top: 18px;
 }
 
+.air-conditioning-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 920px;
+    margin-top: 26px;
+}
+
+.air-conditioning-unit-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    min-width: 0;
+    padding: 18px;
+    border: 2px solid #dbe3ec;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 16px 32px rgba(37, 52, 93, 0.06);
+    cursor: pointer;
+}
+
+.air-conditioning-unit-card:hover {
+    border-color: #2f67e8;
+    box-shadow: 0 18px 36px rgba(47, 103, 232, 0.12);
+}
+
+.air-conditioning-unit-card:has(.air-conditioning-unit-checkbox:checked) {
+    border-color: #ff5a3c;
+    box-shadow: 0 18px 36px rgba(255, 90, 60, 0.13);
+    background: #fff5f2;
+}
+
+.air-conditioning-unit-card:has(.air-conditioning-unit-checkbox:checked) .gas-appliance-pill {
+    background: #ff5a3c;
+    color: #ffffff;
+    font-size: 0;
+}
+
+.air-conditioning-unit-card:has(.air-conditioning-unit-checkbox:checked) .gas-appliance-pill::before {
+    content: "Added";
+    font-size: 12px;
+}
+
+.air-conditioning-unit-checkbox {
+    position: absolute;
+    z-index: 2;
+    top: 14px;
+    right: 14px;
+    width: 22px;
+    height: 22px;
+    accent-color: #ff5a3c;
+}
+
+.air-conditioning-unit-image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 154px;
+    margin: 0 0 4px;
+    padding: 10px 42px 10px 14px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e6edf5;
+    overflow: hidden;
+}
+
+.air-conditioning-unit-image {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: 140px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.air-conditioning-unit-title {
+    margin: 0;
+    color: #1d3f8f;
+    font-size: 21px;
+    font-weight: 900;
+    line-height: 1.16;
+}
+
+.air-conditioning-unit-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: #63718a;
+    font-size: 15px;
+    line-height: 1.28;
+}
+
+.air-conditioning-unit-meta strong {
+    color: #25345d;
+    font-weight: 900;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.air-conditioning-standard-prices {
+    margin-top: 2px;
+    border-top: 1px solid #e5edf6;
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #e6edf5;
+    border-radius: 8px;
+    background: #f8fbff;
+}
+
+.air-conditioning-standard-prices .air-conditioning-unit-meta {
+    font-size: 14px;
+}
+
+.air-conditioning-standard-prices .air-conditioning-unit-meta strong {
+    color: #c71818;
+}
+
+.air-conditioning-price-note,
+.summary-air-conditioning-note {
+    margin: 0;
+    color: #69768d;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.air-conditioning-large-room-note {
+    max-width: 740px;
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border: 1px solid #c9dbff;
+    border-radius: 8px;
+    background: #f4f8ff;
+    color: #37517f;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.air-conditioning-unit-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 2px;
+}
+
+.air-conditioning-unit-footer .gas-appliance-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    min-height: 30px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #ff5a3c;
+    color: #ffffff;
+    box-shadow: 0 10px 20px rgba(255, 90, 60, 0.18);
+}
+
+.air-conditioning-unit-card:not(:has(.air-conditioning-unit-checkbox:checked)):hover .air-conditioning-unit-footer .gas-appliance-pill {
+    background: #e94b31;
+}
+
 @media (max-width: 640px) {
     .gas-appliance-actions {
         align-items: stretch;
@@ -2819,5 +3047,58 @@
 
     .problem-details-actions .card-cta {
         width: 100%;
+    }
+
+    .air-conditioning-catalog-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .air-conditioning-unit-card {
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .air-conditioning-unit-checkbox {
+        top: 12px;
+        right: 12px;
+    }
+
+    .air-conditioning-unit-image-wrap {
+        min-height: 122px;
+        margin-bottom: 2px;
+        padding: 8px 40px 8px 10px;
+    }
+
+    .air-conditioning-unit-image {
+        max-width: 300px;
+        height: 112px;
+    }
+
+    .air-conditioning-unit-title {
+        font-size: 18px;
+    }
+
+    .air-conditioning-unit-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .air-conditioning-unit-meta strong {
+        text-align: left;
+        white-space: normal;
+    }
+
+    .air-conditioning-unit-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .air-conditioning-unit-footer .gas-appliance-pill,
+    .air-conditioning-unit-footer .gas-appliance-quantity-wrap {
+        align-self: stretch;
+        justify-content: center;
     }
 }

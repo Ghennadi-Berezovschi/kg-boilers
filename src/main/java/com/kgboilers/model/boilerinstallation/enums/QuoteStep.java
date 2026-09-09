@@ -24,6 +24,12 @@ public enum QuoteStep {
 
     PLUMBING_PROBLEMS("/quote/plumbing-problems"),
 
+    AIR_CONDITIONING_TYPE("/quote/air-conditioning-type"),
+
+    AIR_CONDITIONING_ROOM_SIZE("/quote/air-conditioning-room-size"),
+
+    AIR_CONDITIONING_CATALOG("/quote/air-conditioning-catalog"),
+
     GAS_APPLIANCES("/quote/gas-appliances"),
 
     BOILER_AGE("/quote/boiler-age"),
@@ -109,6 +115,12 @@ public enum QuoteStep {
             case PROBLEM_DETAILS -> HOT_WATER;
 
             case PLUMBING_PROBLEMS -> PROPERTY_TYPE;
+
+            case AIR_CONDITIONING_TYPE -> PROPERTY_TYPE;
+
+            case AIR_CONDITIONING_ROOM_SIZE -> AIR_CONDITIONING_TYPE;
+
+            case AIR_CONDITIONING_CATALOG -> AIR_CONDITIONING_ROOM_SIZE;
 
             case GAS_APPLIANCES -> BOILER_MAKE;
 

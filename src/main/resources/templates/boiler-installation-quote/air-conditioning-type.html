@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Air Conditioning Installation Type</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            What type of <span style="color:#ff5a3c;">air conditioning</span> installation do you need?
+        </h2>
+        <p class="section-subtitle">Select all that apply.</p>
+
+        <div class="gas-appliance-grid">
+            <label class="gas-appliance-card"
+                   th:each="type : ${airConditioningTypeOptions}">
+                <input class="gas-appliance-checkbox air-conditioning-type-checkbox"
+                       type="checkbox"
+                       name="airConditioningInstallationTypes"
+                       th:value="${type.value}"
+                       th:checked="${#lists.contains(selectedAirConditioningTypes, type.value)}">
+                <span class="gas-appliance-title" th:text="${type.label}">Bedroom installation</span>
+                <span class="gas-appliance-pill">Add</span>
+            </label>
+        </div>
+
+        <div class="gas-appliance-actions">
+            <span class="gas-appliance-action-hint">Select all that apply</span>
+            <button type="button"
+                    class="gas-appliance-continue"
+                    onclick="submitAirConditioningTypes()">
+                Continue
+            </button>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
+    const resultElement = document.getElementById("result");
+
+    async function submitAirConditioningTypes() {
+        clearError();
+
+        const airConditioningInstallationTypes = Array.from(document.querySelectorAll(".air-conditioning-type-checkbox:checked"))
+            .map(input => input.value)
+            .filter(Boolean);
+
+        if (airConditioningInstallationTypes.length === 0) {
+            showError("Please choose at least one air conditioning installation type.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${quoteApiBasePath}/air-conditioning-type`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ airConditioningInstallationTypes })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Air conditioning type error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+
+    function setLoading(isLoading) {
+        document.querySelectorAll(".air-conditioning-type-checkbox").forEach(input => {
+            input.disabled = isLoading;
+        });
+        const continueButton = document.querySelector(".gas-appliance-continue");
+        if (continueButton) {
+            continueButton.disabled = isLoading;
+            continueButton.textContent = isLoading ? "Saving..." : "Continue";
+        }
+    }
+</script>
+
+</body>
+</html>

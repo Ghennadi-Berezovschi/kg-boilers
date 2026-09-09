@@ -45,6 +45,7 @@ import com.kgboilers.service.boilerinstallationquote.QuoteResponseFactory;
 import com.kgboilers.service.boilerinstallationquote.QuoteService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
 import com.kgboilers.service.boilerinstallationquote.QuoteWizardService;
+import com.kgboilers.service.boilerinstallationquote.AirConditioningCatalogService;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +68,7 @@ class QuoteWizardApiControllerTest {
     private QuoteWizardService wizardService;
     private QuoteSessionService sessionService;
     private QuoteResponseFactory responseFactory;
+    private AirConditioningCatalogService airConditioningCatalogService;
     private HttpSession session;
     private QuoteWizardApiController controller;
 
@@ -75,6 +77,7 @@ class QuoteWizardApiControllerTest {
         quoteService = mock(QuoteService.class);
         wizardService = mock(QuoteWizardService.class);
         sessionService = mock(QuoteSessionService.class);
+        airConditioningCatalogService = mock(AirConditioningCatalogService.class);
         responseFactory = new QuoteResponseFactory();
         session = mock(HttpSession.class);
 
@@ -82,7 +85,8 @@ class QuoteWizardApiControllerTest {
                 quoteService,
                 wizardService,
                 sessionService,
-                responseFactory
+                responseFactory,
+                airConditioningCatalogService
         );
     }
 

@@ -88,6 +88,27 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
             }
         }
 
+        if (uri.equals("/quote/air-conditioning-type")) {
+            if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_TYPE, service)) {
+                response.sendRedirect("/quote");
+                return false;
+            }
+        }
+
+        if (uri.equals("/quote/air-conditioning-room-size")) {
+            if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_ROOM_SIZE, service)) {
+                response.sendRedirect("/quote");
+                return false;
+            }
+        }
+
+        if (uri.equals("/quote/air-conditioning-catalog")) {
+            if (!canAccessStep(state, QuoteStep.AIR_CONDITIONING_CATALOG, service)) {
+                response.sendRedirect("/quote");
+                return false;
+            }
+        }
+
         if (uri.equals("/quote/boiler-type")) {
             if (!canAccessStep(state, QuoteStep.BOILER_TYPE, service)) {
                 response.sendRedirect("/quote");

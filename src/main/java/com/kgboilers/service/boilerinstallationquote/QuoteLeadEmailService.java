@@ -7,6 +7,7 @@ import com.kgboilers.model.boilerinstallation.enums.BoilerType;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallationquote.UploadedPicture;
+import com.kgboilers.model.boilerinstallationquote.AirConditioningUnitSelection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.MailException;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,6 +36,8 @@ public class QuoteLeadEmailService {
     private static final String BATHROOM_REFURBISHMENT_TITLE = "Bathroom Refurbishment";
     private static final String AIR_CONDITIONING_INSTALLATION_SERVICE = "air-conditioning-installation";
     private static final String AIR_CONDITIONING_INSTALLATION_TITLE = "Air Conditioning Installation";
+    private static final String AIR_CONDITIONING_ELECTRICAL_SUPPLY_NOTE =
+            "Electrical supply from the consumer unit is not included and is priced separately if required.";
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
@@ -406,7 +410,7 @@ public class QuoteLeadEmailService {
                 Thank you for choosing %s.
                 We received your %s request.
 
-                Problem details:
+                %s:
                 %s
 
                 We will contact you soon to confirm the right option and price.
@@ -414,7 +418,8 @@ public class QuoteLeadEmailService {
                 clientName,
                 companyProperties.getName(),
                 serviceTitle,
-                state == null ? "" : state.getProblemDetailsSummary()
+                serviceRequestDetailsHeading(serviceTitle),
+                buildServiceRequestDetails(state, serviceTitle)
         );
     }
 
@@ -438,23 +443,127 @@ public class QuoteLeadEmailService {
                 Phone: %s
 
                 Quote answers:
-                Postcode: %s
-                Ownership: %s
-                Property: %s
-                Gas appliances: %s
-                Problem details: %s
+                %s
                 """.formatted(
                 serviceTitle,
                 serviceTitle,
                 stateSafe(clientName),
                 stateSafe(clientEmail),
                 stateSafe(clientPhone),
-                stateSafe(state == null ? null : state.getPostcode()),
-                stateSafe(state == null ? null : state.getOwnership()),
-                stateSafe(state == null ? null : state.getPropertyType()),
-                state == null ? "" : state.getGasAppliancesSummary(),
-                state == null ? "" : state.getProblemDetailsSummary()
+                buildServiceRequestBusinessAnswers(state, serviceTitle)
         );
+    }
+
+    private String buildServiceRequestBusinessAnswers(QuoteSessionState state, String serviceTitle) {
+        if (state == null) {
+            return "";
+        }
+
+        if (AIR_CONDITIONING_INSTALLATION_TITLE.equals(serviceTitle)) {
+            return """
+                    Postcode: %s
+                    Ownership: %s
+                    Property: %s
+                    Air conditioning type: %s
+                    Room size: %s
+                    Air conditioners:
+                    %s
+                    Note: %s
+                    Installation details: %s
+                    """.formatted(
+                    stateSafe(state.getPostcode()),
+                    stateSafe(state.getOwnership()),
+                    stateSafe(state.getPropertyType()),
+                    state.getAirConditioningInstallationTypeSummary(),
+                    state.getAirConditioningRoomSizeSummary(),
+                    formatAirConditioningUnitsForEmail(state),
+                    AIR_CONDITIONING_ELECTRICAL_SUPPLY_NOTE,
+                    state.getProblemDetailsSummary()
+            ).trim();
+        }
+
+        return """
+                Postcode: %s
+                Ownership: %s
+                Property: %s
+                Gas appliances: %s
+                Problem details: %s
+                """.formatted(
+                stateSafe(state.getPostcode()),
+                stateSafe(state.getOwnership()),
+                stateSafe(state.getPropertyType()),
+                state.getGasAppliancesSummary(),
+                state.getProblemDetailsSummary()
+        ).trim();
+    }
+
+    private String buildServiceRequestDetails(QuoteSessionState state, String serviceTitle) {
+        if (state == null) {
+            return "";
+        }
+
+        if (AIR_CONDITIONING_INSTALLATION_TITLE.equals(serviceTitle)
+                && state.hasAirConditioningInstallationType()) {
+            return """
+                    Air conditioning type: %s
+                    Room size: %s
+                    Air conditioners:
+                    %s
+                    Note: %s
+                    Details: %s
+                    """.formatted(
+                    state.getAirConditioningInstallationTypeSummary(),
+                    state.getAirConditioningRoomSizeSummary(),
+                    formatAirConditioningUnitsForEmail(state),
+                    AIR_CONDITIONING_ELECTRICAL_SUPPLY_NOTE,
+                    state.getProblemDetailsSummary()
+            ).trim();
+        }
+
+        return state.getProblemDetailsSummary();
+    }
+
+    private String serviceRequestDetailsHeading(String serviceTitle) {
+        return AIR_CONDITIONING_INSTALLATION_TITLE.equals(serviceTitle)
+                ? "Installation details"
+                : "Problem details";
+    }
+
+    private String formatAirConditioningUnitsForEmail(QuoteSessionState state) {
+        if (state == null || !state.hasAirConditioningUnit()) {
+            return "";
+        }
+
+        return state.getAirConditioningUnits().stream()
+                .filter(selection -> selection != null && selection.getUnit() != null)
+                .map(this::formatAirConditioningUnitForEmail)
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String formatAirConditioningUnitForEmail(AirConditioningUnitSelection selection) {
+        String quantity = selection.getQuantity() > 1 ? " x" + selection.getQuantity() : "";
+        return """
+                - %s%s
+                  Cooling power: %s
+                  Room coverage: %s
+                  Manufacturer warranty: %s
+                  Unit price: £%s
+                  Standard Installation Works: £%s
+                  Standard Materials: £%s
+                """.formatted(
+                selection.getUnit().getLabel(),
+                quantity,
+                selection.getUnit().getCoolingCapacity(),
+                selection.getUnit().getRoomCoverage(),
+                formatWarranty(selection.getWarrantyYears()),
+                selection.getPurchasePriceGbp(),
+                selection.getStandardInstallationWorksPriceGbp(),
+                selection.getStandardMaterialsPriceGbp()
+        ).stripTrailing();
+    }
+
+    private String formatWarranty(int warrantyYears) {
+        return warrantyYears > 0 ? warrantyYears + " years" : "Not specified";
     }
 
     private String buildHotWaterCylinderBusinessEmailBody(QuoteSessionState state,

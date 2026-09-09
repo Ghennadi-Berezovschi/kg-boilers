@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Air Conditioning Catalog</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260908-2018')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section">
+
+        <a th:if="${backUrl != null}"
+           th:href="${backUrl}"
+           class="back-link"
+           aria-label="Go back">← Back</a>
+
+        <h2>
+            Choose your <span style="color:#ff5a3c;">air conditioner</span>
+        </h2>
+        <p class="section-subtitle">
+            Select each unit you want and choose how many.
+        </p>
+        <p class="air-conditioning-large-room-note"
+           th:if="${selectedOver50SquareMetres}">
+            For rooms over 50 m², we may recommend a larger unit or more than one indoor unit after checking your room layout.
+        </p>
+
+        <div class="air-conditioning-catalog-grid">
+            <label class="air-conditioning-unit-card"
+                   th:each="item : ${airConditioningUnits}"
+                   th:with="unit=${item.unit}">
+                <input class="air-conditioning-unit-checkbox"
+                       type="checkbox"
+                       name="airConditioningUnits"
+                       th:value="${unit.value}"
+                       th:checked="${selectedAirConditioningUnitQuantities.containsKey(unit.value)}">
+                <span class="air-conditioning-unit-image-wrap"
+                      th:if="${item.imageUrl != null and !item.imageUrl.isBlank()}">
+                    <img class="air-conditioning-unit-image"
+                         th:src="${item.imageUrl}"
+                         th:alt="${unit.brand + ' ' + unit.model}">
+                </span>
+
+                <h3 class="air-conditioning-unit-title" th:text="${unit.label}">Daikin Sensira 2.5 kW wall-mounted unit</h3>
+
+                <div class="air-conditioning-unit-meta">
+                    <span>Cooling power</span>
+                    <strong th:text="${unit.coolingCapacity}">2.5 kW</strong>
+                </div>
+                <div class="air-conditioning-unit-meta">
+                    <span>Room coverage</span>
+                    <strong th:text="${unit.roomCoverage}">Up to 25 m²</strong>
+                </div>
+                <div class="air-conditioning-unit-meta" th:if="${item.warrantyYears > 0}">
+                    <span>Manufacturer warranty</span>
+                    <strong th:text="${item.warrantyYears + ' years'}">5 years</strong>
+                </div>
+                <div class="air-conditioning-standard-prices">
+                    <div class="air-conditioning-unit-meta">
+                        <span>Unit price</span>
+                        <strong>£<span th:text="${item.purchasePriceGbp}">650</span></strong>
+                    </div>
+                    <div class="air-conditioning-unit-meta">
+                        <span>Standard Installation Works</span>
+                        <strong>£<span th:text="${item.standardInstallationWorksPriceGbp}">550</span></strong>
+                    </div>
+                    <div class="air-conditioning-unit-meta">
+                        <span>Standard Materials</span>
+                        <strong>£<span th:text="${item.standardExtraMaterialsPriceGbp}">120</span></strong>
+                    </div>
+                </div>
+                <p class="air-conditioning-price-note">
+                    Electrical supply from the consumer unit is not included and is priced separately if required.
+                </p>
+
+                <div class="air-conditioning-unit-footer">
+                    <span class="gas-appliance-quantity-wrap">
+                        <span class="gas-appliance-quantity-label">Qty</span>
+                        <select class="gas-appliance-quantity air-conditioning-unit-quantity"
+                                aria-label="Quantity"
+                                onclick="event.stopPropagation()">
+                            <option th:each="quantity : ${#numbers.sequence(1, 9)}"
+                                    th:value="${quantity}"
+                                    th:text="${quantity}"
+                                    th:selected="${selectedAirConditioningUnitQuantities.get(unit.value) == quantity}">1</option>
+                        </select>
+                    </span>
+                    <span class="gas-appliance-pill">Add</span>
+                </div>
+            </label>
+        </div>
+
+        <div class="gas-appliance-actions">
+            <span class="gas-appliance-action-hint">Select all that apply</span>
+            <button type="button"
+                    class="gas-appliance-continue"
+                    onclick="submitAirConditioningUnits()">
+                Continue
+            </button>
+        </div>
+
+        <p id="result" class="quote-result" aria-live="polite"></p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const quoteApiBasePath = /*[[${quoteApiBasePath}]]*/ "/quote";
+    const resultElement = document.getElementById("result");
+
+    async function submitAirConditioningUnits() {
+        clearError();
+
+        const airConditioningUnits = Array.from(document.querySelectorAll(".air-conditioning-unit-checkbox:checked"))
+            .map(input => {
+                const card = input.closest(".air-conditioning-unit-card");
+                const quantityInput = card?.querySelector(".air-conditioning-unit-quantity");
+                const quantity = Number.parseInt(quantityInput?.value || "1", 10);
+
+                return {
+                    airConditioningUnit: input.value,
+                    quantity: Math.min(Math.max(quantity, 1), 9)
+                };
+            });
+
+        if (airConditioningUnits.length === 0) {
+            showError("Please choose at least one air conditioning unit.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${quoteApiBasePath}/air-conditioning-catalog`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ airConditioningUnits })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                handleError(data);
+                return;
+            }
+
+            window.location.href = data.nextStep;
+        } catch (error) {
+            console.error("Air conditioning catalog error:", error);
+            showError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function handleError(data) {
+        const message = data?.message;
+        showError(message || "Something went wrong. Please try again.");
+    }
+
+    function showError(message) {
+        resultElement.textContent = "❌ " + message;
+    }
+
+    function clearError() {
+        resultElement.textContent = "";
+    }
+
+    function setLoading(isLoading) {
+        document.querySelectorAll(".air-conditioning-unit-checkbox, .air-conditioning-unit-quantity").forEach(input => {
+            input.disabled = isLoading;
+        });
+        const continueButton = document.querySelector(".gas-appliance-continue");
+        if (continueButton) {
+            continueButton.disabled = isLoading;
+            continueButton.textContent = isLoading ? "Saving..." : "Continue";
+        }
+    }
+</script>
+
+</body>
+</html>

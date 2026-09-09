@@ -33,6 +33,7 @@ import com.kgboilers.model.boilerinstallation.enums.RelocationDistance;
 import com.kgboilers.model.boilerinstallation.enums.SlopedRoofPosition;
 import com.kgboilers.model.boilerinstallation.enums.VerticalFlueType;
 import com.kgboilers.service.boilerinstallationquote.BoilerRecommendationService;
+import com.kgboilers.service.boilerinstallationquote.AirConditioningCatalogService;
 import com.kgboilers.service.boilerinstallationquote.FlueClearancePricingService;
 import com.kgboilers.service.boilerinstallationquote.FlueLengthPricingService;
 import com.kgboilers.service.boilerinstallationquote.FluePositionPricingService;
@@ -74,6 +75,7 @@ class QuotePageControllerTest {
     private QuoteLeadEmailService quoteLeadEmailService;
     private QuoteOfferProperties quoteOfferProperties;
     private QuoteProgressService quoteProgressService;
+    private AirConditioningCatalogService airConditioningCatalogService;
     private HttpSession session;
     private HttpServletRequest request;
     private HttpServletResponse response;
@@ -94,6 +96,7 @@ class QuotePageControllerTest {
         quotePictureStorageService = mock(QuotePictureStorageService.class);
         quoteLeadEmailService = mock(QuoteLeadEmailService.class);
         quoteProgressService = mock(QuoteProgressService.class);
+        airConditioningCatalogService = mock(AirConditioningCatalogService.class);
         quoteOfferProperties = new QuoteOfferProperties();
         quoteOfferProperties.setIncludedItems(java.util.List.of(
                 "Boiler installation",
@@ -131,7 +134,8 @@ class QuotePageControllerTest {
                 quotePictureStorageService,
                 quoteLeadEmailService,
                 quoteOfferProperties,
-                quoteProgressService
+                quoteProgressService,
+                airConditioningCatalogService
         );
     }
 

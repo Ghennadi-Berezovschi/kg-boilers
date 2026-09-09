@@ -106,6 +106,11 @@ public class QuoteProgressService {
         }
 
         if (isSimpleServiceOnly(service)) {
+            if (AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
+                flow.add(QuoteStep.AIR_CONDITIONING_TYPE);
+                flow.add(QuoteStep.AIR_CONDITIONING_ROOM_SIZE);
+                flow.add(QuoteStep.AIR_CONDITIONING_CATALOG);
+            }
             flow.add(QuoteStep.PROBLEM_DETAILS);
             flow.add(QuoteStep.CONTACT);
             return flow;

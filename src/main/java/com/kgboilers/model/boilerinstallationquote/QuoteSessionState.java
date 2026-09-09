@@ -1,6 +1,7 @@
 package com.kgboilers.model.boilerinstallationquote;
 
 import com.kgboilers.model.boilerinstallation.enums.Bedrooms;
+import com.kgboilers.model.boilerinstallation.enums.AirConditioningInstallationType;
 import com.kgboilers.model.boilerinstallation.enums.BathShowerCount;
 import com.kgboilers.model.boilerinstallation.enums.BoilerCondition;
 import com.kgboilers.model.boilerinstallation.enums.BoilerFloorLevel;
@@ -87,6 +88,9 @@ public class QuoteSessionState implements Serializable {
     private Boolean hotWaterAvailable;
     private String problemDetails;
     private List<PlumbingProblem> plumbingProblems;
+    private List<AirConditioningInstallationType> airConditioningInstallationTypes;
+    private List<AirConditioningRoomSizeSelection> airConditioningRoomSizes;
+    private List<AirConditioningUnitSelection> airConditioningUnits;
     private List<UploadedPicture> uploadedPictures = List.of();
 
     private QuoteStep currentStep = QuoteStep.START;
@@ -225,6 +229,18 @@ public class QuoteSessionState implements Serializable {
 
     public boolean hasPlumbingProblems() {
         return plumbingProblems != null && !plumbingProblems.isEmpty();
+    }
+
+    public boolean hasAirConditioningInstallationType() {
+        return airConditioningInstallationTypes != null && !airConditioningInstallationTypes.isEmpty();
+    }
+
+    public boolean hasAirConditioningRoomSize() {
+        return airConditioningRoomSizes != null && !airConditioningRoomSizes.isEmpty();
+    }
+
+    public boolean hasAirConditioningUnit() {
+        return airConditioningUnits != null && !airConditioningUnits.isEmpty();
     }
 
     public boolean hasUploadedPictures() {
@@ -424,6 +440,38 @@ public class QuoteSessionState implements Serializable {
 
         return plumbingProblems.stream()
                 .map(PlumbingProblem::getLabel)
+                .collect(Collectors.joining(", "));
+    }
+
+    public String getAirConditioningInstallationTypeSummary() {
+        if (!hasAirConditioningInstallationType()) {
+            return "";
+        }
+
+        return airConditioningInstallationTypes.stream()
+                .map(AirConditioningInstallationType::getLabel)
+                .collect(Collectors.joining(", "));
+    }
+
+    public String getAirConditioningRoomSizeSummary() {
+        if (!hasAirConditioningRoomSize()) {
+            return "";
+        }
+
+        return airConditioningRoomSizes.stream()
+                .map(AirConditioningRoomSizeSelection::getSummary)
+                .filter(summary -> summary != null && !summary.isBlank())
+                .collect(Collectors.joining(", "));
+    }
+
+    public String getAirConditioningUnitSummary() {
+        if (!hasAirConditioningUnit()) {
+            return "";
+        }
+
+        return airConditioningUnits.stream()
+                .map(AirConditioningUnitSelection::getSummary)
+                .filter(summary -> summary != null && !summary.isBlank())
                 .collect(Collectors.joining(", "));
     }
 
