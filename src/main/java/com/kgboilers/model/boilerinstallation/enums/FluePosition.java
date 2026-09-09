@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum FluePosition {
 
     UNDER_STRUCTURE("under-structure"),
-    OPEN_AREA("open-area");
+    OPEN_AREA("open-area"),
+    NOT_SURE("not-sure");
 
     private final String value;
 

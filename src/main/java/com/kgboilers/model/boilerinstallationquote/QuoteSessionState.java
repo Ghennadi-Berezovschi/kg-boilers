@@ -300,6 +300,10 @@ public class QuoteSessionState implements Serializable {
             return "";
         }
 
+        if (flueLength == FlueLength.NOT_SURE) {
+            return "Not sure";
+        }
+
         return flueLength.getValue() + " metres";
     }
 
@@ -327,6 +331,7 @@ public class QuoteSessionState implements Serializable {
         return switch (fluePosition) {
             case UNDER_STRUCTURE -> "Under balcony or structure";
             case OPEN_AREA -> "Open area";
+            case NOT_SURE -> "Not sure";
         };
     }
 

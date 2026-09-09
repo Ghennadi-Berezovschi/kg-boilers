@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedBoilerDivider = form.querySelector(".js-selected-boiler-divider");
     const selectedBoilerName = form.querySelector(".js-selected-boiler-name");
     const selectedBoilerPrice = form.querySelector(".js-selected-boiler-price");
-    const sendQuoteButton = form.querySelector(".js-send-quote-btn");
-    const sendQuoteCopy = form.querySelector(".js-send-quote-copy");
+    const sendQuoteButtons = Array.from(form.querySelectorAll(".js-send-quote-btn"));
+    const sendQuoteCopies = Array.from(form.querySelectorAll(".js-send-quote-copy"));
     const priceNodes = Array.from(form.querySelectorAll(".js-boiler-total, .js-featured-total"));
     const totalExtrasNode = form.querySelector(".js-total-selected-extras");
     const breakdownContainer = form.querySelector(".js-optional-extras-breakdown");
@@ -23,6 +23,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedBoilerBasePrice = 0;
 
     const formatPrice = (value) => String(Math.max(0, Math.round(value)));
+    const setSendQuoteDisabled = (disabled) => {
+        sendQuoteButtons.forEach((button) => {
+            button.disabled = disabled;
+        });
+    };
+    const setSendQuoteCopy = (copy) => {
+        sendQuoteCopies.forEach((node) => {
+            node.textContent = copy;
+        });
+    };
     const getQuantityInput = (extraId) => quantityInputs.find((input) => input.dataset.extraId === extraId);
     const getQuantity = (extraId) => {
         const input = getQuantityInput(extraId);
@@ -135,6 +145,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chooseButtons.forEach((button) => {
         button.addEventListener("click", () => {
+            const wasSelected = button.classList.contains("is-selected");
+
+            if (wasSelected) {
+                selectedBoilerBasePrice = 0;
+                if (selectedBoilerInput) {
+                    selectedBoilerInput.value = "";
+                }
+                if (selectedBoilerPanel) {
+                    selectedBoilerPanel.hidden = true;
+                }
+                if (selectedBoilerDivider) {
+                    selectedBoilerDivider.hidden = true;
+                }
+                chooseButtons.forEach((item) => {
+                    item.classList.remove("is-selected");
+                    item.textContent = "Choose";
+                    const card = item.closest(".summary-boiler-card");
+                    if (card) {
+                        card.classList.remove("is-selected");
+                    }
+                });
+                setSendQuoteDisabled(true);
+                setSendQuoteCopy("Choose a boiler first, then send your quote details.");
+                updatePrices();
+                return;
+            }
+
             const boilerLabel = button.dataset.boilerLabel || "";
             const boilerModel = button.dataset.boilerModel || boilerLabel;
             selectedBoilerBasePrice = Number(button.dataset.boilerPrice || 0);
@@ -151,12 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (selectedBoilerName) {
                 selectedBoilerName.textContent = boilerModel;
             }
-            if (sendQuoteButton) {
-                sendQuoteButton.disabled = false;
-            }
-            if (sendQuoteCopy) {
-                sendQuoteCopy.textContent = "Review your extras, then send your quote details.";
-            }
+            setSendQuoteDisabled(false);
+            setSendQuoteCopy("Review your extras, then send your quote details.");
 
             chooseButtons.forEach((item) => {
                 item.classList.toggle("is-selected", item === button);
@@ -174,9 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", (event) => {
         if (selectedBoilerInput && !selectedBoilerInput.value) {
             event.preventDefault();
-            if (sendQuoteCopy) {
-                sendQuoteCopy.textContent = "Please choose a boiler before sending your quote.";
-            }
+            setSendQuoteCopy("Please choose a boiler before sending your quote.");
         }
     });
 

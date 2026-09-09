@@ -328,6 +328,21 @@
     margin-bottom: 10px;
 }
 
+.fuel-icon-question {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    margin: 8px auto 22px;
+    border-radius: 50%;
+    background: #fff4ef;
+    color: #ff5a3c;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1;
+}
+
 .power-flush-photo {
     display: block;
     width: 144px;
@@ -564,8 +579,8 @@
 .summary-offer-layout {
     margin-top: 30px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    gap: 28px;
     align-items: start;
 }
 
@@ -1524,7 +1539,7 @@
 }
 
 .summary-sidebar-copy {
-    color: var(--blue-light);
+    color: #64748b;
 }
 
 .summary-boiler-grid {
@@ -1536,13 +1551,13 @@
 .summary-boiler-card {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     align-items: stretch;
     overflow: hidden;
     background: #ffffff;
     border: 1px solid #dbe3ec;
-    border-radius: 18px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
 }
 
 .summary-boiler-card-featured {
@@ -1556,17 +1571,16 @@
 }
 
 .summary-boiler-badge {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 2;
-    padding: 7px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
     border-radius: 999px;
     background: #1f2f57;
     color: #ffffff;
     font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
@@ -1577,14 +1591,14 @@
     align-items: center;
     justify-content: center;
     min-height: 100%;
-    padding: 6px 4px;
+    padding: 22px 18px;
     background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
     border-left: 1px solid #e2e8f0;
 }
 
 .summary-boiler-image {
     width: 100%;
-    max-width: 285px;
+    max-width: 315px;
     height: 360px;
     display: block;
     margin: 0 auto;
@@ -1595,14 +1609,22 @@
 .summary-boiler-body {
     grid-column: 1;
     grid-row: 1;
-    padding: 22px;
+    padding: 24px;
+}
+
+.summary-boiler-kicker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
 .summary-boiler-brand {
-    margin: 0 0 8px;
+    margin: 0;
     font-size: 13px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: #ff5a3c;
 }
@@ -1617,9 +1639,9 @@
 .summary-boiler-price-block {
     display: grid;
     gap: 4px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     padding: 14px 16px;
-    border-radius: 16px;
+    border-radius: 14px;
     background: #f8fafc;
     border: 1px solid #dbe3ec;
 }
@@ -1638,15 +1660,73 @@
     color: #111827;
 }
 
+.summary-boiler-price-lines {
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #e6edf5;
+}
+
+.summary-boiler-price-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #64748b;
+}
+
+.summary-boiler-price-line strong {
+    flex: 0 0 auto;
+    color: #1f2f57;
+    white-space: nowrap;
+}
+
+.summary-boiler-standard-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 10px;
+    padding-top: 2px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.summary-boiler-standard-items span {
+    overflow-wrap: anywhere;
+}
+
 .summary-boiler-meta {
     display: grid;
-    gap: 8px;
+    gap: 0;
     margin-bottom: 14px;
-    color: var(--blue-light);
+    color: #64748b;
+    border-top: 1px solid #e6edf5;
+    border-bottom: 1px solid #e6edf5;
+}
+
+.summary-boiler-meta-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.85fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 9px 0;
+    line-height: 1.35;
+}
+
+.summary-boiler-meta-row + .summary-boiler-meta-row {
+    border-top: 1px solid #eef3f8;
+}
+
+.summary-boiler-meta-row span {
+    color: #64748b;
 }
 
 .summary-boiler-meta strong {
-    color: #334155;
+    color: #1f2f57;
+    text-align: right;
 }
 
 .summary-boiler-actions {
@@ -1687,11 +1767,9 @@
 .summary-send-quote-card {
     display: grid;
     gap: 10px;
-    margin: 12px 0 18px;
-    padding: 16px;
-    border: 1px solid #dbe3ec;
-    border-radius: 16px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    margin: 8px 0 18px;
+    padding: 0 0 18px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .summary-send-quote-title {
@@ -1710,6 +1788,31 @@
     cursor: not-allowed;
     opacity: 0.55;
     box-shadow: none;
+}
+
+.summary-bottom-quote-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 24px;
+    padding: 18px 20px;
+    border: 1px solid #dbe3ec;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.summary-bottom-quote-title {
+    margin: 0 0 6px;
+    color: #1f2f57;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.summary-bottom-send-quote-btn {
+    width: auto;
+    min-width: 180px;
 }
 
 .summary-boiler-fit {
@@ -1885,20 +1988,24 @@
     position: sticky;
     top: 20px;
     grid-template-columns: minmax(0, 1fr) 220px;
-    background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
+    overflow: hidden;
+    background: linear-gradient(180deg, #f8fbff 0%, #edf4fb 100%);
 }
 
 .contact-selected-card .summary-boiler-body {
     position: relative;
     z-index: 1;
-    padding-right: 10px;
-    background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 12px;
+    background: transparent;
 }
 
 .contact-selected-card .summary-boiler-image-wrap {
     overflow: hidden;
-    padding: 8px 0;
-    background: linear-gradient(180deg, #f5f7fb 0%, #edf2f8 100%);
+    padding: 14px 0;
+    background: #ffffff;
     border-left: none;
 }
 
@@ -1907,6 +2014,16 @@
     max-width: none;
     height: 330px;
     object-position: center center;
+}
+
+.contact-selected-card .summary-boiler-title {
+    margin-bottom: 18px;
+}
+
+.contact-selected-price-block {
+    margin-bottom: 0;
+    background: #ffffff;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
 }
 
 .contact-form-panel {
@@ -1980,6 +2097,7 @@
 .summary-selected-extras {
     display: grid;
     gap: 12px;
+    margin-bottom: 20px;
 }
 
 .contact-selected-extra-list {
@@ -1994,6 +2112,12 @@
     justify-content: space-between;
     gap: 16px;
     color: #334155;
+}
+
+.contact-selected-extra-total {
+    padding-top: 12px;
+    border-top: 1px solid #cbd5e1;
+    font-weight: 800;
 }
 
 .contact-selected-extra-item strong,
@@ -2337,6 +2461,13 @@
         object-fit: contain;
     }
 
+    .fuel-icon-question {
+        width: 58px;
+        height: 58px;
+        min-height: 58px;
+        font-size: 34px;
+    }
+
     .power-flush-photo {
         grid-area: icon;
         width: 72px;
@@ -2503,7 +2634,7 @@
 
     .summary-offer-sidebar {
         position: static;
-        order: -1;
+        order: 0;
     }
 
     .summary-breakdown-card {
@@ -2544,15 +2675,16 @@
 
     .summary-boiler-image-wrap {
         grid-column: auto;
-        grid-row: auto;
-        min-height: 300px;
+        grid-row: 1;
+        min-height: 230px;
         border-left: none;
-        border-top: 1px solid #e2e8f0;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .summary-boiler-image {
-        max-width: 260px;
-        height: 300px;
+        max-width: 245px;
+        height: 230px;
     }
 
     .summary-boiler-price-value {
@@ -2565,7 +2697,26 @@
 
     .summary-boiler-body {
         grid-column: auto;
-        grid-row: auto;
+        grid-row: 2;
+        padding: 18px;
+    }
+
+    .summary-boiler-kicker {
+        align-items: flex-start;
+    }
+
+    .summary-boiler-title {
+        font-size: 20px;
+    }
+
+    .summary-boiler-meta-row {
+        grid-template-columns: 1fr;
+        gap: 3px;
+        padding: 10px 0;
+    }
+
+    .summary-boiler-meta strong {
+        text-align: left;
     }
 
     .summary-boiler-actions {
@@ -2577,6 +2728,18 @@
         min-width: 0;
     }
 
+    .summary-bottom-quote-card {
+        display: grid;
+        gap: 14px;
+        margin-top: 20px;
+        padding: 16px;
+    }
+
+    .summary-bottom-send-quote-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
     .contact-page-grid {
         grid-template-columns: 1fr;
         gap: 18px;
@@ -2584,6 +2747,22 @@
 
     .contact-selected-card {
         position: static;
+    }
+
+    .contact-selected-card .summary-boiler-body {
+        justify-content: flex-start;
+        padding-right: 18px;
+    }
+
+    .contact-selected-card .summary-boiler-image-wrap {
+        min-height: 220px;
+        padding: 14px 0;
+    }
+
+    .contact-selected-card .summary-boiler-image {
+        width: 240px;
+        max-width: 86%;
+        height: 230px;
     }
 
     .summary-contact-fields {

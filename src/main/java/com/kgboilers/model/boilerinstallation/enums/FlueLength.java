@@ -9,7 +9,8 @@ public enum FlueLength {
     TWO_TO_THREE("2-3"),
     FOUR_TO_FIVE("4-5"),
     SIX_TO_SEVEN("6-7"),
-    SEVEN_PLUS("7+");
+    SEVEN_PLUS("7+"),
+    NOT_SURE("not-sure");
 
     private final String value;
 

@@ -19,5 +19,6 @@ class FlueLengthPricingServiceTest {
         assertEquals(500, service.getPrice(FlueLength.FOUR_TO_FIVE));
         assertEquals(700, service.getPrice(FlueLength.SIX_TO_SEVEN));
         assertEquals(900, service.getPrice(FlueLength.SEVEN_PLUS));
+        assertEquals(0, service.getPrice(FlueLength.NOT_SURE));
     }
 }

@@ -1081,7 +1081,7 @@ public class QuotePageController {
 
         List<com.kgboilers.model.boilerinstallationquote.BoilerModel> sortedBoilers = recommendation.getBoilers().stream()
                 .sorted(Comparator
-                        .comparingInt((com.kgboilers.model.boilerinstallationquote.BoilerModel boiler) -> boiler.getAveragePriceGbp() == null ? Integer.MAX_VALUE : boiler.getAveragePriceGbp())
+                        .comparingInt(com.kgboilers.model.boilerinstallationquote.BoilerModel::getTotalPriceGbp)
                         .thenComparing(com.kgboilers.model.boilerinstallationquote.BoilerModel::getBrand, Comparator.nullsLast(String::compareToIgnoreCase))
                         .thenComparing(com.kgboilers.model.boilerinstallationquote.BoilerModel::getModel, Comparator.nullsLast(String::compareToIgnoreCase)))
                 .toList();
@@ -1687,9 +1687,7 @@ public class QuotePageController {
                                       int optionalExtrasPriceGbp,
                                       String image) {
         int totalPriceGbp() {
-            int catalogPriceGbp = boiler != null && boiler.getAveragePriceGbp() != null
-                    ? boiler.getAveragePriceGbp()
-                    : 0;
+            int catalogPriceGbp = boiler != null ? boiler.getTotalPriceGbp() : 0;
             return catalogPriceGbp + installationExtrasPriceGbp + optionalExtrasPriceGbp;
         }
     }

@@ -258,7 +258,7 @@ public class QuotePersistenceService {
         int extrasTotalPriceGbp = relocationPriceGbp + flueLengthPriceGbp + fluePositionPriceGbp + flueClearancePriceGbp + horizontalFlueShapePriceGbp + heatOnlyConversionPriceGbp;
         BoilerModel primaryBoiler = getPrimaryBoiler(recommendation);
         Integer installationPriceGbp = primaryBoiler != null
-                ? primaryBoiler.getAveragePriceGbp() + extrasTotalPriceGbp + optionalExtrasPriceGbp
+                ? primaryBoiler.getTotalPriceGbp() + extrasTotalPriceGbp + optionalExtrasPriceGbp
                 : null;
 
         return new MapSqlParameterSource()
@@ -393,6 +393,9 @@ public class QuotePersistenceService {
                     boilerData.put("model", boiler.getModel());
                     boilerData.put("powerKw", boiler.getPowerKw());
                     boilerData.put("averagePriceGbp", boiler.getAveragePriceGbp());
+                    boilerData.put("standardInstallationGbp", boiler.getStandardInstallationGbp());
+                    boilerData.put("standardItemsTotalGbp", boiler.getStandardItemsTotalGbp());
+                    boilerData.put("totalPriceGbp", boiler.getTotalPriceGbp());
                     boilerData.put("image", boiler.getImage());
                     return boilerData;
                 })

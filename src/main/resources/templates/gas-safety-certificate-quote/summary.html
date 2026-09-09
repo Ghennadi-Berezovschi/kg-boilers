@@ -358,8 +358,8 @@
                             <div class="summary-boiler-price-block">
                                 <span class="summary-boiler-price-label">Boiler price installation</span>
                                 <strong class="summary-boiler-price-value">£<span class="js-boiler-total"
-                                                                                  th:attr="data-base-price=${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
-                                                                                  th:text="${boiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">1000</span></strong>
+                                                                                  th:attr="data-base-price=${boiler.totalPriceGbp + recommendedBoilerExtraPriceGbp}"
+                                                                                  th:text="${boiler.totalPriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">1000</span></strong>
                             </div>
 
                             <div class="summary-boiler-meta">
@@ -464,8 +464,8 @@
                         </p>
                         <div class="summary-sidebar-price-row">
                             <strong>£<span class="js-featured-total"
-                                            th:attr="data-base-price=${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp}"
-                                            th:text="${featuredBoiler.averagePriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">3000</span></strong>
+                                            th:attr="data-base-price=${featuredBoiler.totalPriceGbp + recommendedBoilerExtraPriceGbp}"
+                                            th:text="${featuredBoiler.totalPriceGbp + recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">3000</span></strong>
                         </div>
                     </div>
 

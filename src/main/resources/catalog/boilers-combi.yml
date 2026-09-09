@@ -9,7 +9,14 @@ kg:
         radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1750
+        averagePriceGbp: 750
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 60
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-combi.png"
         dimensions: "W 390mm x D 280mm x H 700mm"
         hotWaterFlowRate: "10.2 litres/min"
@@ -23,7 +30,14 @@ kg:
         radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1850
+        averagePriceGbp: 850
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 60
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-combi.png"
         dimensions: "W 390mm x D 280mm x H 700mm"
         hotWaterFlowRate: "12.3 litres/min"
@@ -37,7 +51,14 @@ kg:
         radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 2499
+        averagePriceGbp: 1200
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
         dimensions: "W 390mm x D 295mm x H 702mm"
         hotWaterFlowRate: "10.4 litres/min"
@@ -51,7 +72,14 @@ kg:
         radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 2399
+        averagePriceGbp: 1350
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
         dimensions: "W 390mm x D 295mm x H 702mm"
         hotWaterFlowRate: "12.2 litres/min"
@@ -65,7 +93,14 @@ kg:
         radiatorsMax: 16
         bathroomsMin: 2
         bathroomsMax: 2
-        averagePriceGbp: 2699
+        averagePriceGbp: 1500
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
         dimensions: "W 390mm x D 295mm x H 702mm"
         hotWaterFlowRate: "14.1 litres/min"
@@ -79,7 +114,14 @@ kg:
         radiatorsMax: 18
         bathroomsMin: 2
         bathroomsMax: 2
-        averagePriceGbp: 3199
+        averagePriceGbp: 1900
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
         dimensions: "W 440mm x D 338mm x H 720mm"
         hotWaterFlowRate: "14.6 litres/min"
@@ -93,7 +135,14 @@ kg:
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 3
-        averagePriceGbp: 3499
+        averagePriceGbp: 2000
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
         dimensions: "W 440mm x D 386mm x H 720mm"
         hotWaterFlowRate: "16.3 litres/min"
@@ -107,7 +156,14 @@ kg:
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 3
-        averagePriceGbp: 3799
+        averagePriceGbp: 2600
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 60
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/worcester-bosch-8000-plus.png"
         dimensions: "W 440mm x D 365mm x H 780mm"
         hotWaterFlowRate: "18.2 litres/min"

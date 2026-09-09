@@ -43,14 +43,35 @@
                 </div>
 
                 <div class="summary-boiler-body">
-                    <p class="summary-boiler-brand" th:text="${selectedBoiler.brand}">Brand</p>
+                    <div class="summary-boiler-kicker">
+                        <p class="summary-boiler-brand" th:text="${selectedBoiler.brand}">Brand</p>
+                    </div>
                     <h3 class="summary-boiler-title" th:text="${selectedBoiler.model}">Boiler model</h3>
 
-                    <div class="summary-boiler-meta">
-                        <span>
-                            Boiler price installation:
-                            <strong>£<span th:text="${selectedBoilerPriceGbp}">1000</span></strong>
-                        </span>
+                    <div class="summary-boiler-price-block contact-selected-price-block">
+                        <span class="summary-boiler-price-label">Boiler + standard installation</span>
+                        <strong class="summary-boiler-price-value">£<span th:text="${selectedBoilerPriceGbp}">1000</span></strong>
+                        <div class="summary-boiler-price-lines">
+                            <div class="summary-boiler-price-line">
+                                <span>Boiler supply</span>
+                                <strong>£<span th:text="${selectedBoiler.averagePriceGbp}">850</span></strong>
+                            </div>
+                            <div class="summary-boiler-price-line">
+                                <span>Standard installation</span>
+                                <strong>£<span th:text="${selectedBoiler.standardInstallationGbp}">700</span></strong>
+                            </div>
+                            <div class="summary-boiler-price-line">
+                                <span>Standard included parts</span>
+                                <strong>£<span th:text="${selectedBoiler.standardItemsTotalGbp}">250</span></strong>
+                            </div>
+                            <div class="summary-boiler-standard-items" th:if="${selectedBoiler.standardItems != null}">
+                                <span>Magnetic filter £<span th:text="${selectedBoiler.standardItems.magneticFilterGbp}">60</span></span>
+                                <span>Scale reducer £<span th:text="${selectedBoiler.standardItems.scaleReducerGbp}">20</span></span>
+                                <span>Room thermostat £<span th:text="${selectedBoiler.standardItems.roomThermostatGbp}">60</span></span>
+                                <span>CO alarm £<span th:text="${selectedBoiler.standardItems.coAlarmGbp}">20</span></span>
+                                <span>Pipes and fittings £<span th:text="${selectedBoiler.standardItems.pipesAndFittingsGbp}">90</span></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </article>
@@ -185,7 +206,7 @@
                             </div>
                         </div>
                         <div class="contact-selected-extra-total">
-                            Optional extras total:
+                            Total selected extras
                             <strong>£<span th:text="${selectedOptionalExtrasPriceGbp}">0</span></strong>
                         </div>
                     </div>

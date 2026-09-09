@@ -21,6 +21,7 @@ public class FluePositionPricingService {
         return switch (fluePosition) {
             case UNDER_STRUCTURE -> fluePositionPricingProperties.underStructure();
             case OPEN_AREA -> fluePositionPricingProperties.openArea();
+            case NOT_SURE -> 0;
         };
     }
 }

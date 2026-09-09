@@ -952,6 +952,19 @@ class QuoteWizardServiceTest {
     }
 
     @Test
+    void updateFluePosition_shouldAllowNotSureAndReturnFlueClearance_forHorizontalFlue() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFlueType(FlueType.HORIZONTAL);
+
+        QuoteStep nextStep = service.updateFluePosition(state, FluePosition.NOT_SURE);
+
+        assertEquals(QuoteStep.FLUE_CLEARANCE, nextStep);
+        assertEquals(FluePosition.NOT_SURE, state.getFluePosition());
+        assertEquals("Not sure", state.getFluePositionSummary());
+        assertEquals(QuoteStep.FLUE_CLEARANCE, state.getCurrentStep());
+    }
+
+    @Test
     void updateFlueClearance_shouldSetFlueClearanceAndReturnFluePropertyDistance() {
         QuoteSessionState state = new QuoteSessionState();
 

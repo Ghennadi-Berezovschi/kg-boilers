@@ -26,6 +26,7 @@ public class FlueLengthPricingService {
             case FOUR_TO_FIVE -> flueLengthPricingProperties.fourToFive();
             case SIX_TO_SEVEN -> flueLengthPricingProperties.sixToSeven();
             case SEVEN_PLUS -> flueLengthPricingProperties.sevenPlus();
+            case NOT_SURE -> 0;
         };
     }
 
@@ -35,7 +36,8 @@ public class FlueLengthPricingService {
                 FlueLength.TWO_TO_THREE.getValue(), flueLengthPricingProperties.twoToThree(),
                 FlueLength.FOUR_TO_FIVE.getValue(), flueLengthPricingProperties.fourToFive(),
                 FlueLength.SIX_TO_SEVEN.getValue(), flueLengthPricingProperties.sixToSeven(),
-                FlueLength.SEVEN_PLUS.getValue(), flueLengthPricingProperties.sevenPlus()
+                FlueLength.SEVEN_PLUS.getValue(), flueLengthPricingProperties.sevenPlus(),
+                FlueLength.NOT_SURE.getValue(), 0
         );
     }
 }

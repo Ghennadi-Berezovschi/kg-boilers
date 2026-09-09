@@ -130,7 +130,7 @@ public class BoilerRecommendationService {
     private Comparator<BoilerModel> exactMatchComparator(int requiredRadiators, int requiredBathShowerUnits) {
         return Comparator
                 .comparingInt((BoilerModel boiler) -> fitScore(boiler, requiredRadiators, requiredBathShowerUnits))
-                .thenComparingInt(boiler -> safeNumber(boiler.getAveragePriceGbp()))
+                .thenComparingInt(BoilerModel::getTotalPriceGbp)
                 .thenComparingInt(boiler -> safeNumber(boiler.getPowerKw()))
                 .thenComparing(boiler -> safeText(boiler.getBrand()))
                 .thenComparing(boiler -> safeText(boiler.getModel()));
@@ -140,7 +140,7 @@ public class BoilerRecommendationService {
         return Comparator
                 .comparingInt((BoilerModel boiler) -> mismatchScore(boiler, requiredRadiators, requiredBathShowerUnits))
                 .thenComparingInt(boiler -> fitScore(boiler, requiredRadiators, requiredBathShowerUnits))
-                .thenComparingInt(boiler -> safeNumber(boiler.getAveragePriceGbp()))
+                .thenComparingInt(BoilerModel::getTotalPriceGbp)
                 .thenComparingInt(boiler -> safeNumber(boiler.getPowerKw()))
                 .thenComparing(boiler -> safeText(boiler.getBrand()))
                 .thenComparing(boiler -> safeText(boiler.getModel()));
