@@ -528,7 +528,12 @@ class QuotePageControllerTest {
         verify(model).addAttribute("recommendedBoilerFallbackImage", "/images/boilers/heat-only.svg");
         verify(model).addAttribute("recommendedBoilerExtraPriceGbp", 0);
         verify(model).addAttribute("quoteOptionalExtras", quoteOptionalExtraService.getAllOptionalExtras());
-        verify(model).addAttribute("quoteIncludedItems", quoteOfferProperties.getIncludedItems());
+        verify(model).addAttribute("quoteIncludedItems", java.util.List.of(
+                "Boiler installation",
+                "Disposal of your old boiler",
+                "Room thermostat",
+                "2/3 Port Position Valve"
+        ));
         verifyNoInteractions(quotePersistenceService);
     }
 

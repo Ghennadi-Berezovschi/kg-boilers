@@ -6,7 +6,7 @@
 
     <title>Flue Shape</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
 </head>
 <body>
 
@@ -58,9 +58,12 @@
 
             <article class="card fuel-card" onclick="selectFlueShape('i-do-not-know')">
                 <div class="fuel-icon">
-                    <span style="font-size:72px; line-height:1; color:#ff5a3c;">?</span>
+                    <img src="/images/flues/flue-clearance-unsure.svg"
+                         alt="Not sure flue shape diagram"
+                         width="140"
+                         height="140">
                 </div>
-                <h3 class="fuel-title">I don't know</h3>
+                <h3 class="fuel-title">Other / Not sure</h3>
                 <div class="fuel-desc">
                     Select this if you are not sure what shape the outside terminal is.
                 </div>

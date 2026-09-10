@@ -233,16 +233,35 @@ kg:
       - "Carbon Monoxide Alarm"
       - "Integral Filling Link"
       - "Condensate pipework"
-      - "Pipework installation, alterations and upgrades"
       - "To register the warranty & Building Control Certificate"
       - "Chemical Flush"
-      - 
       - "Boiler Fittings Pack"
     optional-extras:
-      - id: "hive-thermostat-mini"
-        title: "Hive Thermostat Mini"
-        description: "Save up to £174 a year on energy bills with intelligent heating control from the Hive Thermostat Mini."
-        price-gbp: 150
+      - id: "hive-v4-combi-thermostat"
+        title: "Hive V4 Combi Heating Smart Thermostat with Hive Hub"
+        description: "Add smart heating control for a combi boiler with the Hive V4 thermostat, receiver and Hive Hub."
+        price-gbp: 170
+        image: "/images/central-heating/hive-v4-combi-thermostat.png?v=20260910-1518"
+        applies-to-boiler-types:
+          - "combi"
+
+      - id: "honeywell-home-sundial-rf2-pack"
+        title: "Honeywell Home Sundial RF2 Pack"
+        description: "Add a wireless 2-channel programmer and room thermostat for traditional heating and hot water control."
+        price-gbp: 220
+        image: "/images/central-heating/honeywell-programmer-room-thermostat.jpg?v=20260910-1402"
+        applies-to-boiler-types:
+          - "system"
+          - "heat-only"
+
+      - id: "hive-v4-heating-hot-water-thermostat"
+        title: "Hive V4 Wireless Heating & Hot Water Smart Thermostat"
+        description: "Add smart heating and hot water control for system and heat-only boilers with the Hive V4 thermostat, receiver and Hive Hub."
+        price-gbp: 170
+        image: "/images/central-heating/hive-v4-heating-hot-water-thermostat.png?v=20260910-1533"
+        applies-to-boiler-types:
+          - "system"
+          - "heat-only"
 
       - id: "chemical-power-flush"
         title: "Power flushing"

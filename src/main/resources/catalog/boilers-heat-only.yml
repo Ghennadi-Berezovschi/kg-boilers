@@ -10,11 +10,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 1
         averagePriceGbp: 900
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 60
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-heat-only.png"
@@ -30,11 +29,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 2
         averagePriceGbp: 1000
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 60
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-heat-only.png"
@@ -50,11 +48,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 2
         averagePriceGbp: 1050
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 60
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-heat-only.png"
@@ -73,11 +70,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 1
         averagePriceGbp: 1000
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
@@ -93,11 +89,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 2
         averagePriceGbp: 1100
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
@@ -113,11 +108,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 2
         averagePriceGbp: 1200
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
@@ -133,11 +127,10 @@ kg:
         bathroomsMin: 1
         bathroomsMax: 3
         averagePriceGbp: 1250
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
@@ -153,11 +146,10 @@ kg:
         bathroomsMin: 2
         bathroomsMax: 3
         averagePriceGbp: 1350
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
@@ -173,11 +165,10 @@ kg:
         bathroomsMin: 2
         bathroomsMax: 4
         averagePriceGbp: 1750
-        standardInstallationGbp: 700
+        standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
           scaleReducerGbp: 20
-          roomThermostatGbp: 60
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecofit-pure.png"

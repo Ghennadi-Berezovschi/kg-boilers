@@ -991,7 +991,7 @@ public class QuotePageController {
         model.addAttribute("recommendedBoilerFallbackImage", getRecommendedBoilerFallbackImage(summaryViewData.boilerRecommendation()));
         model.addAttribute("recommendedBoilerExtraPriceGbp", summaryViewData.extraPriceGbp());
         model.addAttribute("quoteOptionalExtras", quoteOptionalExtraService.getOptionalExtrasFor(getOptionalExtrasBoilerType(state)));
-        model.addAttribute("quoteIncludedItems", quoteOfferProperties.getIncludedItems());
+        model.addAttribute("quoteIncludedItems", getIncludedItemsFor(state));
         model.addAttribute("selectedOptionalExtras", summaryViewData.selectedOptionalExtras());
         model.addAttribute("selectedOptionalExtrasPriceGbp", summaryViewData.optionalExtrasPriceGbp());
         model.addAttribute("selectedExtraIds", summaryViewData.selectedExtraIds());
@@ -1014,6 +1014,24 @@ public class QuotePageController {
         model.addAttribute("selectedOptionalExtras", selectedOptionalExtras);
         model.addAttribute("selectedOptionalExtrasPriceGbp", optionalExtrasPriceGbp);
         model.addAttribute("selectedExtraIds", selectedExtraIds);
+    }
+
+    private List<String> getIncludedItemsFor(QuoteSessionState state) {
+        BoilerType boilerType = state == null ? null : state.getBoilerType();
+        if (boilerType != BoilerType.SYSTEM && boilerType != BoilerType.HEAT_ONLY) {
+            return quoteOfferProperties.getIncludedItems();
+        }
+
+        return quoteOfferProperties.getIncludedItems().stream()
+                .filter(item -> item != null && !"Programmable Room Thermostat".equalsIgnoreCase(item.trim()))
+                .collect(java.util.stream.Collectors.collectingAndThen(
+                        java.util.stream.Collectors.toList(),
+                        items -> {
+                            items.add("Room thermostat");
+                            items.add("2/3 Port Position Valve");
+                            return items;
+                        }
+                ));
     }
 
     private SummaryViewData buildSummaryViewData(HttpSession session, QuoteSessionState state, List<String> selectedExtraIds) {

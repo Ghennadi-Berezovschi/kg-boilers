@@ -223,11 +223,17 @@ document.addEventListener("DOMContentLoaded", () => {
         button.addEventListener("click", () => {
             const extraId = button.dataset.extraId;
             const checkbox = checkboxes.find((item) => item.value === extraId);
-            if (!checkbox || checkbox.checked) {
+            if (!checkbox) {
                 return;
             }
 
-            checkbox.checked = true;
+            checkbox.checked = !checkbox.checked;
+            if (!checkbox.checked) {
+                const quantityInput = getQuantityInput(extraId);
+                if (quantityInput) {
+                    quantityInput.value = "1";
+                }
+            }
             syncCardState(checkbox);
             updatePrices();
         });

@@ -6,8 +6,8 @@
 
     <title>Quote Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260906-1205')}">
-    <script th:src="@{/js/summary-options.js(v='20260424-1915')}" defer></script>
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+    <script th:src="@{/js/summary-options.js(v='20260910-1620')}" defer></script>
 </head>
 <body>
 
@@ -132,11 +132,11 @@
                                         <strong>£<span th:text="${boiler.standardItemsTotalGbp}">250</span></strong>
                                     </div>
                                     <div class="summary-boiler-standard-items" th:if="${boiler.standardItems != null}">
-                                        <span>Magnetic filter £<span th:text="${boiler.standardItems.magneticFilterGbp}">60</span></span>
-                                        <span>Scale reducer £<span th:text="${boiler.standardItems.scaleReducerGbp}">20</span></span>
-                                        <span>Room thermostat £<span th:text="${boiler.standardItems.roomThermostatGbp}">60</span></span>
-                                        <span>CO alarm £<span th:text="${boiler.standardItems.coAlarmGbp}">20</span></span>
-                                        <span>Pipes and fittings £<span th:text="${boiler.standardItems.pipesAndFittingsGbp}">90</span></span>
+                                        <span th:if="${boiler.standardItems.magneticFilterGbp != null and boiler.standardItems.magneticFilterGbp > 0}">Magnetic filter £<span th:text="${boiler.standardItems.magneticFilterGbp}">60</span></span>
+                                        <span th:if="${boiler.standardItems.scaleReducerGbp != null and boiler.standardItems.scaleReducerGbp > 0}">Scale reducer £<span th:text="${boiler.standardItems.scaleReducerGbp}">20</span></span>
+                                        <span th:if="${boiler.standardItems.roomThermostatGbp != null and boiler.standardItems.roomThermostatGbp > 0}">Room thermostat £<span th:text="${boiler.standardItems.roomThermostatGbp}">60</span></span>
+                                        <span th:if="${boiler.standardItems.coAlarmGbp != null and boiler.standardItems.coAlarmGbp > 0}">CO alarm £<span th:text="${boiler.standardItems.coAlarmGbp}">20</span></span>
+                                        <span th:if="${boiler.standardItems.pipesAndFittingsGbp != null and boiler.standardItems.pipesAndFittingsGbp > 0}">Pipes and fittings £<span th:text="${boiler.standardItems.pipesAndFittingsGbp}">90</span></span>
                                     </div>
                                 </div>
                             </div>
@@ -340,9 +340,9 @@
                         <div class="summary-breakdown-divider js-installation-extras-divider"></div>
 
                         <div class="summary-breakdown-row"
-                             th:each="includedItem : ${quoteIncludedItems}">
+                            th:each="includedItem : ${quoteIncludedItems}">
                             <span th:text="${includedItem}">Programmable Room Thermostat</span>
-                            <strong>Included</strong>
+                            <strong th:text="${#strings.equalsIgnoreCase(includedItem, 'Room thermostat') or #strings.equalsIgnoreCase(includedItem, '2/3 Port Position Valve') ? 'Not included' : 'Included'}">Included</strong>
                         </div>
 
                         <div class="summary-breakdown-divider"></div>
