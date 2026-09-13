@@ -64,6 +64,7 @@ public class BoilerRecommendationService {
         }
 
         List<BoilerModel> closestMatches = catalog.stream()
+                .filter(boiler -> canShowAsClosestMatch(boiler, targetType, requiredBathShowerUnits))
                 .sorted(closestMatchComparator(requiredRadiators, requiredBathShowerUnits))
                 .limit(MAX_RECOMMENDATIONS)
                 .toList();
@@ -121,6 +122,14 @@ public class BoilerRecommendationService {
     private boolean matchesExactly(BoilerModel boiler, int requiredRadiators, int requiredBathShowerUnits) {
         return contains(requiredRadiators, boiler.getRadiatorsMin(), boiler.getRadiatorsMax())
                 && contains(requiredBathShowerUnits, boiler.getBathroomsMin(), boiler.getBathroomsMax());
+    }
+
+    private boolean canShowAsClosestMatch(BoilerModel boiler, BoilerType targetType, int requiredBathShowerUnits) {
+        if (targetType != BoilerType.COMBI) {
+            return true;
+        }
+
+        return requiredBathShowerUnits <= safeNumber(boiler.getBathroomsMax());
     }
 
     private boolean contains(int value, Integer min, Integer max) {

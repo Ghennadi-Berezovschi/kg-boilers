@@ -24,8 +24,8 @@ class QuoteProgressServiceTest {
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FUEL_TYPE, false);
 
         assertEquals(1, progress.currentStepNumber());
-        assertEquals(16, progress.totalSteps());
-        assertEquals(6, progress.percentComplete());
+        assertEquals(13, progress.totalSteps());
+        assertEquals(8, progress.percentComplete());
         assertEquals("active", progress.stages().get(0).state());
     }
 
@@ -38,10 +38,22 @@ class QuoteProgressServiceTest {
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.FLUE_CLEARANCE, false);
 
-        assertEquals(17, progress.currentStepNumber());
-        assertEquals(22, progress.totalSteps());
-        assertEquals(77, progress.percentComplete());
+        assertEquals(14, progress.currentStepNumber());
+        assertEquals(18, progress.totalSteps());
+        assertEquals(78, progress.percentComplete());
         assertEquals("active", progress.stages().get(1).state());
+    }
+
+    @Test
+    void buildProgress_shouldSkipBoilerPositionForCombiBoilerInstallation() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setBoilerType(BoilerType.COMBI);
+
+        QuoteProgressView progress = service.buildProgress(state, QuoteStep.BOILER_LOCATION, false);
+
+        assertEquals(4, progress.currentStepNumber());
+        assertEquals(12, progress.totalSteps());
+        assertEquals(33, progress.percentComplete());
     }
 
     @Test
@@ -52,9 +64,9 @@ class QuoteProgressServiceTest {
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.RADIATOR_COUNT, false);
 
-        assertEquals(11, progress.currentStepNumber());
-        assertEquals(13, progress.totalSteps());
-        assertEquals(85, progress.percentComplete());
+        assertEquals(8, progress.currentStepNumber());
+        assertEquals(10, progress.totalSteps());
+        assertEquals(80, progress.percentComplete());
     }
 
     @Test
@@ -66,8 +78,8 @@ class QuoteProgressServiceTest {
 
         QuoteProgressView progress = service.buildProgress(state, QuoteStep.CONTACT, false);
 
-        assertEquals(6, progress.currentStepNumber());
-        assertEquals(6, progress.totalSteps());
+        assertEquals(4, progress.currentStepNumber());
+        assertEquals(4, progress.totalSteps());
         assertEquals(100, progress.percentComplete());
     }
 

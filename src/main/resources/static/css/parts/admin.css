@@ -243,12 +243,16 @@
 
 .admin-table-wrap {
     overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 980px;
+    min-width: 1080px;
 }
 
 .admin-table th,
@@ -270,6 +274,31 @@
 .admin-table td {
     color: #1f2f57;
     font-weight: 700;
+}
+
+.admin-table th:last-child,
+.admin-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    width: 112px;
+    min-width: 112px;
+    background: #fff;
+    box-shadow: -12px 0 18px rgba(255, 255, 255, .92);
+}
+
+.admin-table th:last-child {
+    z-index: 2;
+}
+
+.admin-table td:last-child {
+    padding-right: 0;
+}
+
+.admin-table td:last-child .admin-open-link {
+    white-space: normal;
+    max-width: 96px;
+    text-align: center;
 }
 
 .admin-muted {

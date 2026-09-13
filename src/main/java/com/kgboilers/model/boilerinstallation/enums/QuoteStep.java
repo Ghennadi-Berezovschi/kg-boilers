@@ -154,7 +154,7 @@ public enum QuoteStep {
 
             case FLUE_PROPERTY_DISTANCE -> FLUE_CLEARANCE;
 
-            case RADIATOR_COUNT -> FLUE_PROPERTY_DISTANCE;
+            case RADIATOR_COUNT -> FLUE_CLEARANCE;
 
             case POWER_FLUSH -> RADIATOR_COUNT;
 

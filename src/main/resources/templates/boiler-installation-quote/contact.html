@@ -64,13 +64,6 @@
                                 <span>Standard included parts</span>
                                 <strong>£<span th:text="${selectedBoiler.standardItemsTotalGbp}">250</span></strong>
                             </div>
-                            <div class="summary-boiler-standard-items" th:if="${selectedBoiler.standardItems != null}">
-                                <span th:if="${selectedBoiler.standardItems.magneticFilterGbp != null and selectedBoiler.standardItems.magneticFilterGbp > 0}">Magnetic filter £<span th:text="${selectedBoiler.standardItems.magneticFilterGbp}">60</span></span>
-                                <span th:if="${selectedBoiler.standardItems.scaleReducerGbp != null and selectedBoiler.standardItems.scaleReducerGbp > 0}">Scale reducer £<span th:text="${selectedBoiler.standardItems.scaleReducerGbp}">20</span></span>
-                                <span th:if="${selectedBoiler.standardItems.roomThermostatGbp != null and selectedBoiler.standardItems.roomThermostatGbp > 0}">Room thermostat £<span th:text="${selectedBoiler.standardItems.roomThermostatGbp}">60</span></span>
-                                <span th:if="${selectedBoiler.standardItems.coAlarmGbp != null and selectedBoiler.standardItems.coAlarmGbp > 0}">CO alarm £<span th:text="${selectedBoiler.standardItems.coAlarmGbp}">20</span></span>
-                                <span th:if="${selectedBoiler.standardItems.pipesAndFittingsGbp != null and selectedBoiler.standardItems.pipesAndFittingsGbp > 0}">Pipes and fittings £<span th:text="${selectedBoiler.standardItems.pipesAndFittingsGbp}">90</span></span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -161,7 +154,7 @@
                         <span th:text="${service == 'air-conditioning-installation' ? 'Installation details' : 'Problem'}">Problem</span>
                         <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
                     </div>
-                    <div class="summary-breakdown-row" th:if="${state != null and state.ownership != null}">
+                    <div class="summary-breakdown-row" th:if="${service != 'boiler-installation' and state != null and state.ownership != null}">
                         <span>Customer type</span>
                         <strong th:text="${state.ownership.value}">Homeowner</strong>
                     </div>

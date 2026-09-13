@@ -54,7 +54,7 @@ class QuoteLeadEmailServiceTest {
         QuoteOfferProperties quoteOfferProperties = new QuoteOfferProperties();
         quoteOfferProperties.setIncludedItems(List.of(
                 "Boiler installation",
-                "Programmable Room Thermostat",
+                "Digital Room Thermostat Salus RT310RF Wireless",
                 "Disposal of your old boiler"
         ));
 
@@ -107,7 +107,7 @@ class QuoteLeadEmailServiceTest {
         assertTrue(clientMessage.getText().contains("We will call you back as soon as possible."));
         assertTrue(clientMessage.getText().contains("Your price including installation:"));
         assertTrue(clientMessage.getText().contains("Boiler installation"));
-        assertTrue(clientMessage.getText().contains("Programmable Room Thermostat"));
+        assertTrue(clientMessage.getText().contains("Digital Room Thermostat Salus RT310RF Wireless"));
         assertTrue(clientMessage.getText().contains("Disposal of your old boiler"));
         assertTrue(clientMessage.getText().contains("Selected installation extras:"));
         assertTrue(clientMessage.getText().contains("Optional extras:"));
@@ -123,6 +123,42 @@ class QuoteLeadEmailServiceTest {
         assertTrue(businessMessage.getText().contains("Flue length price: £250"));
         assertTrue(businessMessage.getText().contains("Optional extras price: £150"));
         assertTrue(businessMessage.getText().contains("Status:"));
+    }
+
+    @Test
+    void sendLeadEmails_shouldReplaceIncludedSalusThermostatWhenHiveUpgradeIsSelected() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setFuel(FuelType.GAS);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setBoilerType(BoilerType.COMBI);
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "boiler-installation",
+                "Main Eco Compact 30kW Combi",
+                1970,
+                "Jane Smith",
+                "client@example.com",
+                "+44 7700 900123",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(optionalExtra("hive-v4-combi-thermostat", "Hive V4 Combi Heating Smart Thermostat with Hive Hub", 170)),
+                170
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+
+        assertTrue(clientMessage.getText().contains("Boiler installation"));
+        assertFalse(clientMessage.getText().contains("Digital Room Thermostat Salus RT310RF Wireless"));
+        assertTrue(clientMessage.getText().contains("Hive V4 Combi Heating Smart Thermostat with Hive Hub"));
     }
 
     @Test

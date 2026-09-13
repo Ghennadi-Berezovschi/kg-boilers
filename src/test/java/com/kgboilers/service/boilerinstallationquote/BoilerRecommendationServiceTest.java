@@ -89,6 +89,19 @@ class BoilerRecommendationServiceTest {
         assertEquals("ecoTEC Plus 30kW System", result.getBoilers().get(0).getModel());
     }
 
+    @Test
+    void recommend_shouldNotReturnUndersizedCombiBoilers_whenBathroomDemandIsTooHigh() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setBoilerType(BoilerType.COMBI);
+        state.setRadiatorCount(RadiatorCount.SEVENTEEN_PLUS);
+        state.setBathShowerCount(BathShowerCount.FOUR_PLUS);
+
+        BoilerRecommendationResult result = recommendationService.recommend(state);
+
+        assertFalse(result.isExactMatch());
+        assertTrue(result.getBoilers().isEmpty());
+    }
+
     private BoilerModel boiler(String brand,
                                String model,
                                int powerKw,

@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const priceNodes = Array.from(form.querySelectorAll(".js-boiler-total, .js-featured-total"));
     const totalExtrasNode = form.querySelector(".js-total-selected-extras");
     const breakdownContainer = form.querySelector(".js-optional-extras-breakdown");
+    const thermostatUpgradeExtraId = "hive-v4-combi-thermostat";
 
     const baseExtrasTotal = Number(totalExtrasNode?.dataset.baseExtrasTotal || 0);
     let selectedBoilerBasePrice = 0;
@@ -66,8 +67,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         card.classList.toggle("is-selected", checkbox.checked);
-        toggle.textContent = checkbox.checked ? "Added" : "Add";
+        toggle.textContent = checkbox.checked
+            ? (toggle.dataset.addedLabel || "Added")
+            : (toggle.dataset.addLabel || "Add");
         toggle.dataset.selected = String(checkbox.checked);
+    };
+
+    const syncIncludedItems = () => {
+        const thermostatUpgradeSelected = checkboxes.some((checkbox) => (
+            checkbox.value === thermostatUpgradeExtraId && checkbox.checked
+        ));
+        const salusIncludedRows = Array.from(form.querySelectorAll(".summary-breakdown-row"))
+            .filter((row) => {
+                const searchableText = `${row.dataset.includedItem || ""} ${row.textContent || ""}`.toLowerCase();
+
+                return row.classList.contains("js-standard-thermostat-row")
+                    || searchableText.includes("digital room thermostat salus")
+                    || searchableText.includes("rt310rf");
+        });
+
+        salusIncludedRows.forEach((row) => {
+            row.hidden = thermostatUpgradeSelected;
+            row.style.display = thermostatUpgradeSelected ? "none" : "";
+        });
     };
 
     const syncRepeatableHiddenInputs = () => {
@@ -141,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         syncRepeatableHiddenInputs();
         renderBreakdown(selectedExtras);
+        syncIncludedItems();
     };
 
     chooseButtons.forEach((button) => {

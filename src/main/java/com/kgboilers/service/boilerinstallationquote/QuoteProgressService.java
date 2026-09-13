@@ -85,8 +85,10 @@ public class QuoteProgressService {
         if (!isBoilerServiceAndGasSafety(service) && !shouldSkipFuel(service)) {
             flow.add(QuoteStep.FUEL_TYPE);
         }
-        if (!isBoilerRepair(service)) {
+        if (!isBoilerRepair(service) && !shouldSkipOwnership(service)) {
             flow.add(QuoteStep.PROPERTY_OWNERSHIP);
+        }
+        if (!isBoilerRepair(service)) {
             flow.add(QuoteStep.PROPERTY_TYPE);
         }
         if (GAS_PIPEWORK_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())) {
@@ -149,7 +151,7 @@ public class QuoteProgressService {
             flow.add(QuoteStep.BOILER_CONVERSION);
         }
 
-        if (!shouldSkipBoilerPosition(service)) {
+        if (!shouldSkipBoilerPosition(state, service)) {
             flow.add(QuoteStep.BOILER_POSITION);
         }
         if (!isBoilerRepair(service)) {
@@ -160,7 +162,6 @@ public class QuoteProgressService {
         }
 
         if (!skipRepairDetails) {
-            flow.add(QuoteStep.BOILER_CONDITION);
             flow.add(QuoteStep.RELOCATION);
 
             if (shouldIncludeRelocationDistance(state, currentStep)) {
@@ -181,7 +182,6 @@ public class QuoteProgressService {
                 if (shouldIncludeHorizontalFlueSteps(state, currentStep)) {
                     flow.add(QuoteStep.FLUE_POSITION);
                     flow.add(QuoteStep.FLUE_CLEARANCE);
-                    flow.add(QuoteStep.FLUE_PROPERTY_DISTANCE);
                 }
             }
         }
@@ -213,15 +213,27 @@ public class QuoteProgressService {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service)
+        return isBoilerInstallation(service)
+                || isBoilerRepair(service)
                 || isHotWaterCylinder(service)
                 || isPlumbing(service)
                 || isGasApplianceService(service)
                 || isSimpleServiceOnly(service);
     }
 
+    private boolean shouldSkipOwnership(String service) {
+        return isBoilerInstallation(service);
+    }
+
     private boolean shouldSkipBoilerPosition(String service) {
         return isBoilerRepair(service) || isPlumbing(service);
+    }
+
+    private boolean shouldSkipBoilerPosition(QuoteSessionState state, String service) {
+        return shouldSkipBoilerPosition(service)
+                || (isBoilerInstallation(service)
+                && state != null
+                && state.getBoilerType() == BoilerType.COMBI);
     }
 
     private boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
@@ -332,7 +344,6 @@ public class QuoteProgressService {
     private boolean shouldIncludeHorizontalFlueSteps(QuoteSessionState state, QuoteStep currentStep) {
         return currentStep == QuoteStep.FLUE_POSITION
                 || currentStep == QuoteStep.FLUE_CLEARANCE
-                || currentStep == QuoteStep.FLUE_PROPERTY_DISTANCE
                 || (state != null && state.getFlueType() == FlueType.HORIZONTAL);
     }
 
@@ -381,7 +392,6 @@ public class QuoteProgressService {
                  SLOPED_ROOF_POSITION,
                  FLUE_POSITION,
                  FLUE_CLEARANCE,
-                 FLUE_PROPERTY_DISTANCE,
                  RADIATOR_COUNT,
                  POWER_FLUSH,
                  MAGNETIC_FILTER,

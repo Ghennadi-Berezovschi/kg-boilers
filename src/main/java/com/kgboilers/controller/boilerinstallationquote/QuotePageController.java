@@ -68,6 +68,8 @@ public class QuotePageController {
     private static final String GAS_SAFETY_CERTIFICATE_LABEL = "Boiler Service and Gas Safety Certificate";
     private static final String QUOTE_SERVICE_COOKIE = "kg_quote_service";
     private static final int QUOTE_SERVICE_COOKIE_MAX_AGE_SECONDS = 2 * 60 * 60;
+    private static final String STANDARD_SALUS_THERMOSTAT = "Digital Room Thermostat Salus RT310RF Wireless";
+    private static final String HIVE_COMBI_THERMOSTAT_EXTRA_ID = "hive-v4-combi-thermostat";
 
     private final QuoteSessionService sessionService;
     private final QuoteWizardService wizardService;
@@ -207,6 +209,10 @@ public class QuotePageController {
         QuoteSessionState state = sessionService.getState(session);
         String service = getSelectedService(session);
 
+        if (shouldSkipOwnership(service) && canAccessStep(state, QuoteStep.PROPERTY_TYPE, service)) {
+            return "redirect:/quote/property-type";
+        }
+
         if (!canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, service)) {
             return redirectToStart(service);
         }
@@ -224,7 +230,7 @@ public class QuotePageController {
             return redirectToStart(service);
         }
 
-        model.addAttribute("backUrl", pathForService(QuoteStep.PROPERTY_TYPE.previous(), service));
+        model.addAttribute("backUrl", getPropertyTypeBackUrl(service));
         return "boiler-installation-quote/property-type";
     }
 
@@ -436,6 +442,10 @@ public class QuotePageController {
         String service = getSelectedService(session);
 
         if (!canAccessStep(state, QuoteStep.BOILER_POSITION, service)) {
+            if (shouldSkipBoilerPosition(state, service)
+                    && canAccessStep(state, QuoteStep.BOILER_LOCATION, service)) {
+                return "redirect:" + pathForService(QuoteStep.BOILER_LOCATION, service);
+            }
             return "redirect:/quote";
         }
 
@@ -470,8 +480,8 @@ public class QuotePageController {
 
         if (!canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL, service)) {
             if (wizardService.shouldSkipBoilerFloorLevel(state)
-                    && canAccessStep(state, QuoteStep.BOILER_CONDITION, service)) {
-                return "redirect:" + pathForService(QuoteStep.BOILER_CONDITION, service);
+                    && canAccessStep(state, QuoteStep.RELOCATION, service)) {
+                return "redirect:" + pathForService(QuoteStep.RELOCATION, service);
             }
             return "redirect:/quote";
         }
@@ -486,6 +496,9 @@ public class QuotePageController {
         String service = getSelectedService(session);
 
         if (!canAccessStep(state, QuoteStep.BOILER_CONDITION, service)) {
+            if (canAccessStep(state, QuoteStep.RELOCATION, service)) {
+                return "redirect:" + pathForService(QuoteStep.RELOCATION, service);
+            }
             return "redirect:/quote";
         }
 
@@ -505,7 +518,7 @@ public class QuotePageController {
             return "redirect:/quote";
         }
 
-        model.addAttribute("backUrl", QuoteStep.RELOCATION.previous().getPath());
+        model.addAttribute("backUrl", getRelocationBackUrl(state, service));
         return "boiler-installation-quote/relocation";
     }
 
@@ -618,12 +631,11 @@ public class QuotePageController {
         QuoteSessionState state = sessionService.getState(session);
         String service = getSelectedService(session);
 
-        if (!canAccessStep(state, QuoteStep.FLUE_PROPERTY_DISTANCE, service)) {
-            return "redirect:/quote";
+        if (canAccessStep(state, QuoteStep.RADIATOR_COUNT, service)) {
+            return "redirect:" + QuoteStep.RADIATOR_COUNT.getPath();
         }
 
-        model.addAttribute("backUrl", QuoteStep.FLUE_PROPERTY_DISTANCE.previous().getPath());
-        return "boiler-installation-quote/flue-property-distance";
+        return "redirect:/quote";
     }
 
     @GetMapping("/radiator-count")
@@ -641,7 +653,7 @@ public class QuotePageController {
                     ? QuoteStep.RELOCATION_DISTANCE.getPath()
                     : QuoteStep.RELOCATION.getPath();
         } else if (state != null && state.getFlueType() == FlueType.HORIZONTAL) {
-            backUrl = QuoteStep.FLUE_PROPERTY_DISTANCE.getPath();
+            backUrl = QuoteStep.FLUE_CLEARANCE.getPath();
         } else if (state != null
                 && state.getFlueType() == FlueType.VERTICAL
                 && state.getVerticalFlueType() == com.kgboilers.model.boilerinstallation.enums.VerticalFlueType.SLOPED_ROOF) {
@@ -991,7 +1003,7 @@ public class QuotePageController {
         model.addAttribute("recommendedBoilerFallbackImage", getRecommendedBoilerFallbackImage(summaryViewData.boilerRecommendation()));
         model.addAttribute("recommendedBoilerExtraPriceGbp", summaryViewData.extraPriceGbp());
         model.addAttribute("quoteOptionalExtras", quoteOptionalExtraService.getOptionalExtrasFor(getOptionalExtrasBoilerType(state)));
-        model.addAttribute("quoteIncludedItems", getIncludedItemsFor(state));
+        model.addAttribute("quoteIncludedItems", getIncludedItemsFor(state, summaryViewData.selectedExtraIds()));
         model.addAttribute("selectedOptionalExtras", summaryViewData.selectedOptionalExtras());
         model.addAttribute("selectedOptionalExtrasPriceGbp", summaryViewData.optionalExtrasPriceGbp());
         model.addAttribute("selectedExtraIds", summaryViewData.selectedExtraIds());
@@ -1016,14 +1028,21 @@ public class QuotePageController {
         model.addAttribute("selectedExtraIds", selectedExtraIds);
     }
 
-    private List<String> getIncludedItemsFor(QuoteSessionState state) {
+    private List<String> getIncludedItemsFor(QuoteSessionState state, List<String> selectedExtraIds) {
         BoilerType boilerType = state == null ? null : state.getBoilerType();
+        boolean thermostatUpgradeSelected = selectedExtraIds != null && selectedExtraIds.contains(HIVE_COMBI_THERMOSTAT_EXTRA_ID);
         if (boilerType != BoilerType.SYSTEM && boilerType != BoilerType.HEAT_ONLY) {
-            return quoteOfferProperties.getIncludedItems();
+            if (!thermostatUpgradeSelected) {
+                return quoteOfferProperties.getIncludedItems();
+            }
+
+            return quoteOfferProperties.getIncludedItems().stream()
+                    .filter(item -> item != null && !STANDARD_SALUS_THERMOSTAT.equalsIgnoreCase(item.trim()))
+                    .toList();
         }
 
         return quoteOfferProperties.getIncludedItems().stream()
-                .filter(item -> item != null && !"Programmable Room Thermostat".equalsIgnoreCase(item.trim()))
+                .filter(item -> item != null && !STANDARD_SALUS_THERMOSTAT.equalsIgnoreCase(item.trim()))
                 .collect(java.util.stream.Collectors.collectingAndThen(
                         java.util.stream.Collectors.toList(),
                         items -> {
@@ -1441,6 +1460,12 @@ public class QuotePageController {
                 : QuoteStep.SERVICE_TYPE.getPath();
     }
 
+    private String getPropertyTypeBackUrl(String service) {
+        return shouldSkipOwnership(service)
+                ? pathForService(QuoteStep.PROPERTY_OWNERSHIP.previous(), service)
+                : pathForService(QuoteStep.PROPERTY_TYPE.previous(), service);
+    }
+
     private String getBoilerTypeBackUrl(String service) {
         if (isBoilerServiceAndGasSafety(service)) {
             return QuoteStep.SERVICE_TYPE.getPath();
@@ -1452,7 +1477,7 @@ public class QuotePageController {
     }
 
     private String getBoilerLocationBackUrl(QuoteSessionState state, String service) {
-        if (shouldSkipBoilerPosition(service)) {
+        if (shouldSkipBoilerPosition(state, service)) {
             if (state != null && state.getBoilerType() == BoilerType.HEAT_ONLY) {
                 return pathForService(QuoteStep.BOILER_CONVERSION, service);
             }
@@ -1461,6 +1486,16 @@ public class QuotePageController {
         }
 
         return pathForService(QuoteStep.BOILER_LOCATION.previous(), service);
+    }
+
+    private String getRelocationBackUrl(QuoteSessionState state, String service) {
+        if (isDefaultInstallationService(service)) {
+            return wizardService.shouldSkipBoilerFloorLevel(state)
+                    ? pathForService(QuoteStep.BOILER_LOCATION, service)
+                    : pathForService(QuoteStep.BOILER_FLOOR_LEVEL, service);
+        }
+
+        return pathForService(QuoteStep.RELOCATION.previous(), service);
     }
 
     private boolean requiresBoilerTypeForGasSafety(QuoteSessionState state) {
@@ -1485,14 +1520,26 @@ public class QuotePageController {
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isHotWaterCylinder(service)
+        return isDefaultInstallationService(service)
+                || isHotWaterCylinder(service)
                 || PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim())
                 || isGasApplianceService(service)
                 || isSimpleServiceOnly(service);
     }
 
+    private boolean shouldSkipOwnership(String service) {
+        return isDefaultInstallationService(service);
+    }
+
     private boolean shouldSkipBoilerPosition(String service) {
         return PLUMBING_SERVICE.equalsIgnoreCase(service == null ? "" : service.trim());
+    }
+
+    private boolean shouldSkipBoilerPosition(QuoteSessionState state, String service) {
+        return shouldSkipBoilerPosition(service)
+                || (isDefaultInstallationService(service)
+                && state != null
+                && state.getBoilerType() == BoilerType.COMBI);
     }
 
     private boolean isServiceOnlyContact(String service) {

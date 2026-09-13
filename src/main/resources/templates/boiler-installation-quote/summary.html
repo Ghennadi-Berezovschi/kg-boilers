@@ -7,7 +7,7 @@
     <title>Quote Summary</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
-    <script th:src="@{/js/summary-options.js(v='20260910-1620')}" defer></script>
+    <script th:src="@{/js/summary-options.js(v='20260913-thermostat-upgrade-3')}" defer></script>
 </head>
 <body>
 
@@ -55,7 +55,7 @@
                     <span>Problem</span>
                     <strong th:text="${state.problemDetailsSummary}">Cylinder is leaking</strong>
                 </div>
-                <div class="summary-breakdown-row" th:if="${state != null and state.ownership != null}">
+                <div class="summary-breakdown-row" th:if="${service != 'boiler-installation' and state != null and state.ownership != null}">
                     <span>Customer type</span>
                     <strong th:text="${state.ownership.value}">Homeowner</strong>
                 </div>
@@ -81,20 +81,16 @@
                 <div class="summary-recommendation-head">
                     <div>
                         <h3 class="summary-panel-title"
-                            th:text="${boilerRecommendation.exactMatch ? 'Recommended boilers' : 'Closest boiler matches'}">
+                            th:text="'Recommended boilers'">
                             Recommended boilers
                         </h3>
                     </div>
                 </div>
 
                 <p class="summary-empty-copy"
-                   th:if="${!boilerRecommendation.exactMatch and !#lists.isEmpty(boilerRecommendation.boilers)}">
-                    No exact catalog match was found, so these are the closest available options.
-                </p>
-
-                <p class="summary-empty-copy"
                    th:if="${#lists.isEmpty(boilerRecommendation.boilers)}">
-                    No boiler from the current catalog matches these answers yet.
+                    No boiler from the current catalog matches these answers. For this hot water demand,
+                    please contact us and we will recommend the right solution.
                 </p>
 
                 <div class="summary-boiler-grid" th:if="${!#lists.isEmpty(boilerRecommendation.boilers)}">
@@ -131,13 +127,6 @@
                                         <span>Standard included parts</span>
                                         <strong>£<span th:text="${boiler.standardItemsTotalGbp}">250</span></strong>
                                     </div>
-                                    <div class="summary-boiler-standard-items" th:if="${boiler.standardItems != null}">
-                                        <span th:if="${boiler.standardItems.magneticFilterGbp != null and boiler.standardItems.magneticFilterGbp > 0}">Magnetic filter £<span th:text="${boiler.standardItems.magneticFilterGbp}">60</span></span>
-                                        <span th:if="${boiler.standardItems.scaleReducerGbp != null and boiler.standardItems.scaleReducerGbp > 0}">Scale reducer £<span th:text="${boiler.standardItems.scaleReducerGbp}">20</span></span>
-                                        <span th:if="${boiler.standardItems.roomThermostatGbp != null and boiler.standardItems.roomThermostatGbp > 0}">Room thermostat £<span th:text="${boiler.standardItems.roomThermostatGbp}">60</span></span>
-                                        <span th:if="${boiler.standardItems.coAlarmGbp != null and boiler.standardItems.coAlarmGbp > 0}">CO alarm £<span th:text="${boiler.standardItems.coAlarmGbp}">20</span></span>
-                                        <span th:if="${boiler.standardItems.pipesAndFittingsGbp != null and boiler.standardItems.pipesAndFittingsGbp > 0}">Pipes and fittings £<span th:text="${boiler.standardItems.pipesAndFittingsGbp}">90</span></span>
-                                    </div>
                                 </div>
                             </div>
 
@@ -171,7 +160,8 @@
                     </article>
                 </div>
 
-                <section class="summary-optional-section" th:if="${!#lists.isEmpty(quoteOptionalExtras)}">
+                <section class="summary-optional-section"
+                         th:if="${!#lists.isEmpty(boilerRecommendation.boilers) and !#lists.isEmpty(quoteOptionalExtras)}">
                     <div class="summary-recommendation-head">
                         <div>
                             <h3 class="summary-panel-title">Optional extras</h3>
@@ -220,8 +210,13 @@
                                     <strong class="summary-optional-price">+£<span th:text="${extra.priceGbp}">150</span></strong>
                                     <button type="button"
                                             class="summary-optional-toggle js-optional-extra-toggle"
-                                            th:attr="data-extra-id=${extra.id},data-selected=${selectedExtraIds.contains(extra.id)}"
-                                            th:text="${selectedExtraIds.contains(extra.id) ? 'Added' : 'Add'}">Add</button>
+                                            th:attr="data-extra-id=${extra.id},
+                                                     data-selected=${selectedExtraIds.contains(extra.id)},
+                                                     data-add-label=${extra.id == 'hive-v4-combi-thermostat' ? 'Upgrade' : 'Add'},
+                                                     data-added-label=${extra.id == 'hive-v4-combi-thermostat' ? 'Upgraded' : 'Added'}"
+                                            th:text="${extra.id == 'hive-v4-combi-thermostat'
+                                                ? (selectedExtraIds.contains(extra.id) ? 'Upgraded' : 'Upgrade')
+                                                : (selectedExtraIds.contains(extra.id) ? 'Added' : 'Add')}">Add</button>
                                 </div>
                                 <label class="summary-extra-quantity"
                                        th:if="${extra.repeatable}">
@@ -272,6 +267,7 @@
             </div>
 
             <aside class="summary-offer-sidebar"
+                   th:if="${!#lists.isEmpty(boilerRecommendation.boilers)}"
                    th:with="featuredBoiler=${boilerRecommendation != null and !#lists.isEmpty(boilerRecommendation.boilers) ? boilerRecommendation.boilers[0] : null}">
                 <div class="summary-breakdown-card summary-boxt-sidebar">
                     <span class="summary-breakdown-eyebrow">Installation quote</span>
@@ -294,6 +290,17 @@
                             <strong>£<span class="js-selected-boiler-price">0</span></strong>
                         </div>
                         <div class="summary-breakdown-divider js-selected-boiler-divider" hidden></div>
+
+                        <div class="summary-breakdown-row"
+                             th:each="includedItem : ${quoteIncludedItems}"
+                             th:if="${!(selectedExtraIds.contains('hive-v4-combi-thermostat') and #strings.equalsIgnoreCase(includedItem, 'Digital Room Thermostat Salus RT310RF Wireless'))}"
+                             th:classappend="${#strings.equalsIgnoreCase(includedItem, 'Digital Room Thermostat Salus RT310RF Wireless') ? ' js-standard-thermostat-row' : ''}"
+                             th:attr="data-included-item=${includedItem}">
+                            <span th:text="${includedItem}">Included item</span>
+                            <strong th:text="${#strings.equalsIgnoreCase(includedItem, 'Room thermostat') or #strings.equalsIgnoreCase(includedItem, '2/3 Port Position Valve') ? 'Not included' : 'Included'}">Included</strong>
+                        </div>
+
+                        <div class="summary-breakdown-divider"></div>
 
                         <div class="js-installation-extras-breakdown">
                             <div class="summary-breakdown-row summary-breakdown-row-installation-extra" th:if="${heatOnlyConversionPriceGbp != null and heatOnlyConversionPriceGbp > 0}">
@@ -338,15 +345,6 @@
                             </div>
                         </div>
                         <div class="summary-breakdown-divider js-installation-extras-divider"></div>
-
-                        <div class="summary-breakdown-row"
-                            th:each="includedItem : ${quoteIncludedItems}">
-                            <span th:text="${includedItem}">Programmable Room Thermostat</span>
-                            <strong th:text="${#strings.equalsIgnoreCase(includedItem, 'Room thermostat') or #strings.equalsIgnoreCase(includedItem, '2/3 Port Position Valve') ? 'Not included' : 'Included'}">Included</strong>
-                        </div>
-
-                        <div class="summary-breakdown-divider"></div>
-
                     </div>
 
                     <div class="summary-breakdown-total">

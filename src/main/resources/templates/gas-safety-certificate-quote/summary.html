@@ -323,16 +323,11 @@
                 <div class="summary-recommendation-head">
                     <div>
                         <h3 class="summary-panel-title"
-                            th:text="${boilerRecommendation.exactMatch ? 'Recommended boilers' : 'Closest boiler matches'}">
+                            th:text="'Recommended boilers'">
                             Recommended boilers
                         </h3>
                     </div>
                 </div>
-
-                <p class="summary-empty-copy"
-                   th:if="${!boilerRecommendation.exactMatch and !#lists.isEmpty(boilerRecommendation.boilers)}">
-                    No exact catalog match was found, so these are the closest available options.
-                </p>
 
                 <p class="summary-empty-copy"
                    th:if="${#lists.isEmpty(boilerRecommendation.boilers)}">
@@ -484,7 +479,7 @@
 
                         <div class="summary-breakdown-row"
                              th:each="includedItem : ${quoteIncludedItems}">
-                            <span th:text="${includedItem}">Programmable Room Thermostat</span>
+                            <span th:text="${includedItem}">Included item</span>
                             <strong>Included</strong>
                         </div>
 

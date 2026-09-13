@@ -100,7 +100,7 @@ class QuotePageControllerTest {
         quoteOfferProperties = new QuoteOfferProperties();
         quoteOfferProperties.setIncludedItems(java.util.List.of(
                 "Boiler installation",
-                "Programmable Room Thermostat",
+                "Digital Room Thermostat Salus RT310RF Wireless",
                 "Disposal of your old boiler"
         ));
         when(quoteOptionalExtraService.getAllOptionalExtras()).thenReturn(java.util.List.of(optionalExtra("hive-thermostat-mini", "Hive Thermostat Mini", 150)));
@@ -201,7 +201,7 @@ class QuotePageControllerTest {
         String view = controller.propertyTypePage(session, model);
 
         assertEquals("boiler-installation-quote/property-type", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/quote/property-ownership"));
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/fuel-type"));
     }
 
     @Test
@@ -212,7 +212,7 @@ class QuotePageControllerTest {
         String view = controller.boilerTypePage(session, model);
 
         assertEquals("boiler-installation-quote/boiler-type", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/quote/bedrooms"));
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/property-type"));
     }
 
     @Test
@@ -224,6 +224,20 @@ class QuotePageControllerTest {
 
         assertEquals("boiler-installation-quote/boiler-position", view);
         verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-type"));
+    }
+
+    @Test
+    void boilerPositionPage_shouldRedirectToBoilerLocationForCombiBoiler() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setBoilerType(BoilerType.COMBI);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_POSITION))).thenReturn(false);
+        when(wizardService.canAccessStep(any(), eq(QuoteStep.BOILER_LOCATION))).thenReturn(true);
+
+        String view = controller.boilerPositionPage(session, model);
+
+        assertEquals("redirect:/quote/boiler-location", view);
     }
 
     @Test
@@ -249,16 +263,16 @@ class QuotePageControllerTest {
     }
 
     @Test
-    void boilerFloorLevelPage_shouldRedirectToConditionWhenFloorLevelIsSkipped() {
+    void boilerFloorLevelPage_shouldRedirectToRelocationWhenFloorLevelIsSkipped() {
         QuoteSessionState state = new QuoteSessionState();
         when(sessionService.getState(session)).thenReturn(state);
         when(wizardService.canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL)).thenReturn(false);
         when(wizardService.shouldSkipBoilerFloorLevel(state)).thenReturn(true);
-        when(wizardService.canAccessStep(state, QuoteStep.BOILER_CONDITION)).thenReturn(true);
+        when(wizardService.canAccessStep(state, QuoteStep.RELOCATION)).thenReturn(true);
 
         String view = controller.boilerFloorLevelPage(session, model);
 
-        assertEquals("redirect:/quote/boiler-condition", view);
+        assertEquals("redirect:/quote/relocation", view);
     }
 
     @Test
@@ -304,7 +318,7 @@ class QuotePageControllerTest {
         String view = controller.relocationPage(session, model);
 
         assertEquals("boiler-installation-quote/relocation", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-condition"));
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/boiler-floor-level"));
     }
 
     @Test
@@ -440,7 +454,7 @@ class QuotePageControllerTest {
         String view = controller.radiatorCountPage(session, model);
 
         assertEquals("boiler-installation-quote/radiator-count", view);
-        verify(model).addAttribute(eq("backUrl"), eq("/quote/flue-property-distance"));
+        verify(model).addAttribute(eq("backUrl"), eq("/quote/flue-clearance"));
     }
 
     @Test

@@ -38,6 +38,8 @@ public class QuoteLeadEmailService {
     private static final String AIR_CONDITIONING_INSTALLATION_TITLE = "Air Conditioning Installation";
     private static final String AIR_CONDITIONING_ELECTRICAL_SUPPLY_NOTE =
             "Electrical supply from the consumer unit is not included and is priced separately if required.";
+    private static final String STANDARD_SALUS_THERMOSTAT = "Digital Room Thermostat Salus RT310RF Wireless";
+    private static final String HIVE_COMBI_THERMOSTAT_EXTRA_ID = "hive-v4-combi-thermostat";
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
     private final ContactProperties contactProperties;
@@ -820,7 +822,7 @@ public class QuoteLeadEmailService {
                 companyProperties.getName(),
                 selectedBoiler,
                 totalPriceGbp,
-                buildIncludedItemsSection(),
+                buildIncludedItemsSection(selectedOptionalExtras),
                 buildSelectedExtrasSection(relocationPriceGbp, flueLengthPriceGbp, fluePositionPriceGbp, flueClearancePriceGbp, horizontalFlueShapePriceGbp, heatOnlyConversionPriceGbp),
                 buildOptionalExtrasSection(selectedOptionalExtras)
         );
@@ -974,10 +976,16 @@ public class QuoteLeadEmailService {
         return extras.toString().trim();
     }
 
-    private String buildIncludedItemsSection() {
+    private String buildIncludedItemsSection(List<QuoteOptionalExtra> selectedOptionalExtras) {
         StringBuilder includedItems = new StringBuilder();
+        boolean thermostatUpgradeSelected = selectedOptionalExtras != null && selectedOptionalExtras.stream()
+                .anyMatch(extra -> extra != null && HIVE_COMBI_THERMOSTAT_EXTRA_ID.equals(extra.getId()));
 
         for (String item : quoteOfferProperties.getIncludedItems()) {
+            if (thermostatUpgradeSelected && item != null && STANDARD_SALUS_THERMOSTAT.equalsIgnoreCase(item.trim())) {
+                continue;
+            }
+
             includedItems.append("- ")
                     .append(item)
                     .append("\n");

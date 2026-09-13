@@ -507,14 +507,11 @@ public class QuoteSessionState implements Serializable {
 
         return hasPostcode()
                 && hasFuel()
-                && hasOwnership()
                 && hasPropertyType()
-                && hasBedrooms()
                 && hasBoilerType()
-                && hasBoilerPosition()
+                && (boilerType == BoilerType.COMBI || hasBoilerPosition())
                 && hasBoilerLocation()
                 && (hasBoilerFloorLevel() || boilerLocation == BoilerLocation.LOFT_OR_ATTIC)
-                && hasBoilerCondition()
                 && hasRelocation()
                 && (relocation == Relocation.NO || hasRelocationDistance())
                 && (skipFlueSteps
@@ -522,8 +519,7 @@ public class QuoteSessionState implements Serializable {
                 && hasFlueLength()
                 && (verticalFlueType != VerticalFlueType.SLOPED_ROOF || hasSlopedRoofPosition())
                 && (flueType != FlueType.HORIZONTAL || hasFluePosition())
-                && (flueType != FlueType.HORIZONTAL
-                || (hasFlueClearance() && hasFluePropertyDistance()))))
+                && (flueType != FlueType.HORIZONTAL || hasFlueClearance())))
                 && hasBathShowerCount()
                 && hasRadiatorCount();
     }

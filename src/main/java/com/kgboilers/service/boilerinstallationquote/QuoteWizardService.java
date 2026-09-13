@@ -123,7 +123,7 @@ public class QuoteWizardService {
         }
 
         boolean skipBedrooms = shouldSkipBedrooms(service);
-        boolean skipBoilerPosition = shouldSkipBoilerPosition(service);
+        boolean skipBoilerPosition = shouldSkipBoilerPosition(state, service);
         boolean skipRepairDetails = shouldSkipRepairDetails(service);
 
         return switch (step) {
@@ -134,9 +134,12 @@ public class QuoteWizardService {
             case FUEL_TYPE -> state.hasPostcode() && !shouldSkipFuel(service);
 
             case PROPERTY_OWNERSHIP -> !isBoilerRepair(service)
+                    && !shouldSkipOwnership(service)
                     && (shouldSkipFuel(service) || state.hasFuel());
 
-            case PROPERTY_TYPE -> state.hasOwnership();
+            case PROPERTY_TYPE -> shouldSkipOwnership(service)
+                    ? !isBoilerRepair(service) && (shouldSkipFuel(service) || state.hasFuel())
+                    : state.hasOwnership();
 
             case BEDROOMS -> state.hasPropertyType()
                     && !skipBedrooms
@@ -201,7 +204,7 @@ public class QuoteWizardService {
                 if (skipBoilerPosition) {
                     yield state.hasBoilerType()
                             && (state.getBoilerType() != BoilerType.HEAT_ONLY
-                            || shouldSkipBoilerPosition(service)
+                            || shouldSkipBoilerPosition(state, service)
                             || state.hasHeatOnlyConversion());
                 }
 
@@ -213,9 +216,13 @@ public class QuoteWizardService {
                     && !shouldSkipBoilerFloorLevel(state);
 
             case BOILER_CONDITION -> !skipRepairDetails
+                    && !shouldSkipBoilerCondition(service)
                     && (state.hasBoilerFloorLevel() || shouldSkipBoilerFloorLevel(state));
 
-            case RELOCATION -> !skipRepairDetails && state.hasBoilerCondition();
+            case RELOCATION -> !skipRepairDetails
+                    && (state.hasBoilerCondition()
+                    || (shouldSkipBoilerCondition(service)
+                    && (state.hasBoilerFloorLevel() || shouldSkipBoilerFloorLevel(state))));
 
             case RELOCATION_DISTANCE -> !skipRepairDetails && state.getRelocation() == Relocation.YES;
 
@@ -246,9 +253,7 @@ public class QuoteWizardService {
                     && !shouldSkipFlueSteps(state)
                     && state.getFlueType() == FlueType.HORIZONTAL;
 
-            case FLUE_PROPERTY_DISTANCE -> !skipRepairDetails && state.hasFlueClearance()
-                    && !shouldSkipFlueSteps(state)
-                    && state.getFlueType() == FlueType.HORIZONTAL;
+            case FLUE_PROPERTY_DISTANCE -> false;
 
             case RADIATOR_COUNT -> !skipRepairDetails && (
                     shouldSkipFlueSteps(state)
@@ -257,7 +262,7 @@ public class QuoteWizardService {
                             : state.hasFlueLength()
                             && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
                             && (state.getFlueType() != FlueType.HORIZONTAL
-                            || (state.hasFluePosition() && state.hasFlueClearance() && state.hasFluePropertyDistance()))
+                            || (state.hasFluePosition() && state.hasFlueClearance()))
             );
 
             case POWER_FLUSH -> skipRepairDetails
@@ -292,7 +297,7 @@ public class QuoteWizardService {
                     && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
                     && (state.getFlueType() != FlueType.HORIZONTAL || state.hasFluePosition())
                     && (state.getFlueType() != FlueType.HORIZONTAL
-                    || (state.hasFlueClearance() && state.hasFluePropertyDistance()))))
+                    || state.hasFlueClearance())))
                     && state.hasRadiatorCount()
                     && state.hasBathShowerCount();
 
@@ -345,6 +350,12 @@ public class QuoteWizardService {
             state.setFaultCodeDetails(null);
             state.setCurrentStep(QuoteStep.BOILER_TYPE);
             return QuoteStep.BOILER_TYPE;
+        }
+
+        if (shouldSkipOwnership(service)) {
+            state.setOwnership(null);
+            state.setCurrentStep(QuoteStep.PROPERTY_TYPE);
+            return QuoteStep.PROPERTY_TYPE;
         }
 
         state.setCurrentStep(QuoteStep.PROPERTY_OWNERSHIP);
@@ -515,7 +526,7 @@ public class QuoteWizardService {
             return QuoteStep.BOILER_CONVERSION;
         }
 
-        if (shouldSkipBoilerPosition(service)) {
+        if (shouldSkipBoilerPosition(state, service)) {
             state.setBoilerPosition(null);
             state.setCurrentStep(QuoteStep.BOILER_LOCATION);
             return QuoteStep.BOILER_LOCATION;
@@ -782,7 +793,7 @@ public class QuoteWizardService {
 
         state.setHeatOnlyConversion(conversion);
 
-        if (shouldSkipBoilerPosition(service)) {
+        if (shouldSkipBoilerPosition(state, service)) {
             state.setBoilerPosition(null);
             state.setCurrentStep(QuoteStep.BOILER_LOCATION);
             return QuoteStep.BOILER_LOCATION;
@@ -829,8 +840,10 @@ public class QuoteWizardService {
 
         if (shouldSkipBoilerFloorLevel(state)) {
             state.setBoilerFloorLevel(null);
-            state.setCurrentStep(QuoteStep.BOILER_CONDITION);
-            return QuoteStep.BOILER_CONDITION;
+            state.setBoilerCondition(null);
+            QuoteStep nextStep = shouldSkipBoilerCondition(service) ? QuoteStep.RELOCATION : QuoteStep.BOILER_CONDITION;
+            state.setCurrentStep(nextStep);
+            return nextStep;
         }
 
         state.setCurrentStep(QuoteStep.BOILER_FLOOR_LEVEL);
@@ -866,8 +879,10 @@ public class QuoteWizardService {
             return QuoteStep.REPAIR_PROBLEM;
         }
 
-        state.setCurrentStep(QuoteStep.BOILER_CONDITION);
-        return QuoteStep.BOILER_CONDITION;
+        state.setBoilerCondition(null);
+        QuoteStep nextStep = shouldSkipBoilerCondition(service) ? QuoteStep.RELOCATION : QuoteStep.BOILER_CONDITION;
+        state.setCurrentStep(nextStep);
+        return nextStep;
     }
 
     public QuoteStep updateBoilerCondition(QuoteSessionState state, BoilerCondition condition) {
@@ -1002,7 +1017,7 @@ public class QuoteWizardService {
         if (shouldSendInstallationBoilerTypeHelpToContact(state, service)) {
             return state.hasPostcode()
                     && state.hasFuel()
-                    && state.hasOwnership()
+                    && (shouldSkipOwnership(service) || state.hasOwnership())
                     && state.hasPropertyType()
                     && (shouldSkipBedrooms(service) || state.hasBedrooms())
                     && state.hasBoilerType();
@@ -1010,15 +1025,15 @@ public class QuoteWizardService {
 
         return state.hasPostcode()
                 && (shouldSkipFuel(service) || state.hasFuel())
-                && state.hasOwnership()
+                && (shouldSkipOwnership(service) || state.hasOwnership())
                 && state.hasPropertyType()
                 && (!isGasApplianceService(service) || state.hasGasAppliances())
                 && (shouldSkipBedrooms(service) || state.hasBedrooms())
                 && state.hasBoilerType()
-                && (shouldSkipBoilerPosition(service) || state.hasBoilerPosition())
+                && (shouldSkipBoilerPosition(state, service) || state.hasBoilerPosition())
                 && state.hasBoilerLocation()
                 && (state.hasBoilerFloorLevel() || shouldSkipBoilerFloorLevel(state))
-                && state.hasBoilerCondition()
+                && (shouldSkipBoilerCondition(service) || state.hasBoilerCondition())
                 && state.hasRelocation()
                 && (state.getRelocation() == Relocation.NO || state.hasRelocationDistance())
                 && (shouldSkipFlueSteps(state)
@@ -1026,26 +1041,41 @@ public class QuoteWizardService {
                 && state.hasFlueLength()
                 && (state.getVerticalFlueType() != VerticalFlueType.SLOPED_ROOF || state.hasSlopedRoofPosition())
                 && (state.getFlueType() != FlueType.HORIZONTAL || state.hasFluePosition())
-                && (state.getFlueType() != FlueType.HORIZONTAL
-                || (state.hasFlueClearance() && state.hasFluePropertyDistance()))))
+                && (state.getFlueType() != FlueType.HORIZONTAL || state.hasFlueClearance())))
                 && state.hasBathShowerCount()
                 && state.hasRadiatorCount();
     }
 
     private boolean shouldSkipBedrooms(String service) {
-        return isBoilerRepair(service)
+        return isBoilerInstallation(service)
+                || isBoilerRepair(service)
                 || isHotWaterCylinder(service)
                 || isPlumbing(service)
                 || isGasApplianceService(service)
                 || isSimpleServiceOnly(service);
     }
 
+    private boolean shouldSkipOwnership(String service) {
+        return isBoilerInstallation(service);
+    }
+
     private boolean shouldSkipBoilerPosition(String service) {
         return isBoilerRepair(service) || isPlumbing(service);
     }
 
+    private boolean shouldSkipBoilerPosition(QuoteSessionState state, String service) {
+        return shouldSkipBoilerPosition(service)
+                || (isBoilerInstallation(service)
+                && state != null
+                && state.getBoilerType() == BoilerType.COMBI);
+    }
+
     public boolean shouldSkipBoilerFloorLevel(QuoteSessionState state) {
         return state != null && state.getBoilerLocation() == BoilerLocation.LOFT_OR_ATTIC;
+    }
+
+    private boolean shouldSkipBoilerCondition(String service) {
+        return isBoilerInstallation(service);
     }
 
     private boolean shouldSkipFlueSteps(QuoteSessionState state) {
@@ -1328,8 +1358,8 @@ public class QuoteWizardService {
         state.setBoilerPressureStatus(null);
         state.setFaultCodeDisplayStatus(null);
         state.setFaultCodeDetails(null);
-        state.setCurrentStep(QuoteStep.FLUE_PROPERTY_DISTANCE);
-        return QuoteStep.FLUE_PROPERTY_DISTANCE;
+        state.setCurrentStep(QuoteStep.RADIATOR_COUNT);
+        return QuoteStep.RADIATOR_COUNT;
     }
 
     public QuoteStep updateFluePropertyDistance(QuoteSessionState state,

@@ -226,16 +226,14 @@ kg:
   quote-offer:
     included-items:
       - "Boiler installation"
-      - "Programmable Room Thermostat"
+      - "Digital Room Thermostat Salus RT310RF Wireless"
       - "Magnetic System Filter"
       - "In-line scale reducer"
       - "Disposal of your old boiler"
       - "Carbon Monoxide Alarm"
-      - "Integral Filling Link"
       - "Condensate pipework"
       - "To register the warranty & Building Control Certificate"
       - "Chemical Flush"
-      - "Boiler Fittings Pack"
     optional-extras:
       - id: "hive-v4-combi-thermostat"
         title: "Hive V4 Combi Heating Smart Thermostat with Hive Hub"

@@ -61,6 +61,11 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
         }
 
         if (uri.equals("/quote/property-ownership")) {
+            if (shouldSkipOwnership(service) && canAccessStep(state, QuoteStep.PROPERTY_TYPE, service)) {
+                response.sendRedirect("/quote/property-type");
+                return false;
+            }
+
             if (!canAccessStep(state, QuoteStep.PROPERTY_OWNERSHIP, service)) {
                 response.sendRedirect("/quote");
                 return false;
@@ -69,7 +74,7 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
 
         if (uri.equals("/quote/property-type")) {
             if (!canAccessStep(state, QuoteStep.PROPERTY_TYPE, service)) {
-                response.sendRedirect("/quote/property-ownership");
+                response.sendRedirect(shouldSkipOwnership(service) ? "/quote/fuel-type" : "/quote/property-ownership");
                 return false;
             }
         }
@@ -167,5 +172,9 @@ public class QuoteWizardInterceptor implements HandlerInterceptor {
                 || GAS_COOKER_HOB_SERVICE.equalsIgnoreCase(normalizedService)
                 || BATHROOM_REFURBISHMENT_SERVICE.equalsIgnoreCase(normalizedService)
                 || AIR_CONDITIONING_INSTALLATION_SERVICE.equalsIgnoreCase(normalizedService);
+    }
+
+    private boolean shouldSkipOwnership(String service) {
+        return isDefaultInstallationService(service);
     }
 }

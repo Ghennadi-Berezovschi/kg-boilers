@@ -135,7 +135,7 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateFuel(state, FuelType.GAS);
 
-        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(QuoteStep.PROPERTY_TYPE, nextStep);
         assertEquals(FuelType.GAS, state.getFuel());
     }
 
@@ -157,7 +157,7 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateFuel(state, FuelType.ELECTRIC);
 
-        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(QuoteStep.PROPERTY_TYPE, nextStep);
         assertEquals(FuelType.ELECTRIC, state.getFuel());
     }
 
@@ -168,7 +168,7 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateFuel(state, FuelType.UNKNOWN_OTHER);
 
-        assertEquals(QuoteStep.PROPERTY_OWNERSHIP, nextStep);
+        assertEquals(QuoteStep.PROPERTY_TYPE, nextStep);
         assertEquals(FuelType.UNKNOWN_OTHER, state.getFuel());
     }
 
@@ -188,8 +188,9 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updatePropertyType(state, PropertyType.HOUSE);
 
-        assertEquals(QuoteStep.BEDROOMS, nextStep);
+        assertEquals(QuoteStep.BOILER_TYPE, nextStep);
         assertEquals(PropertyType.HOUSE, state.getPropertyType());
+        assertNull(state.getBedrooms());
     }
 
     @Test
@@ -430,8 +431,18 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateBoilerType(state, BoilerType.COMBI);
 
-        assertEquals(QuoteStep.BOILER_POSITION, nextStep);
+        assertEquals(QuoteStep.BOILER_LOCATION, nextStep);
         assertEquals(BoilerType.COMBI, state.getBoilerType());
+    }
+
+    @Test
+    void updateBoilerType_shouldKeepBoilerPositionForSystemBoiler() {
+        QuoteSessionState state = new QuoteSessionState();
+
+        QuoteStep nextStep = service.updateBoilerType(state, BoilerType.SYSTEM);
+
+        assertEquals(QuoteStep.BOILER_POSITION, nextStep);
+        assertEquals(BoilerType.SYSTEM, state.getBoilerType());
     }
 
     @Test
@@ -699,19 +710,20 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateBoilerLocation(state, BoilerLocation.LOFT_OR_ATTIC);
 
-        assertEquals(QuoteStep.BOILER_CONDITION, nextStep);
+        assertEquals(QuoteStep.RELOCATION, nextStep);
         assertEquals(BoilerLocation.LOFT_OR_ATTIC, state.getBoilerLocation());
         assertNull(state.getBoilerFloorLevel());
-        assertEquals(QuoteStep.BOILER_CONDITION, state.getCurrentStep());
+        assertEquals(QuoteStep.RELOCATION, state.getCurrentStep());
     }
 
     @Test
-    void canAccessStep_shouldSkipFloorLevelAndAllowConditionForLoft() {
+    void canAccessStep_shouldSkipFloorLevelAndAllowRelocationForLoft() {
         QuoteSessionState state = new QuoteSessionState();
         state.setBoilerLocation(BoilerLocation.LOFT_OR_ATTIC);
 
         assertFalse(service.canAccessStep(state, QuoteStep.BOILER_FLOOR_LEVEL));
-        assertTrue(service.canAccessStep(state, QuoteStep.BOILER_CONDITION));
+        assertFalse(service.canAccessStep(state, QuoteStep.BOILER_CONDITION));
+        assertTrue(service.canAccessStep(state, QuoteStep.RELOCATION));
     }
 
     @Test
@@ -731,7 +743,7 @@ class QuoteWizardServiceTest {
 
         QuoteStep nextStep = service.updateBoilerFloorLevel(state, BoilerFloorLevel.BASEMENT);
 
-        assertEquals(QuoteStep.BOILER_CONDITION, nextStep);
+        assertEquals(QuoteStep.RELOCATION, nextStep);
         assertEquals(BoilerFloorLevel.BASEMENT, state.getBoilerFloorLevel());
     }
 
@@ -965,15 +977,15 @@ class QuoteWizardServiceTest {
     }
 
     @Test
-    void updateFlueClearance_shouldSetFlueClearanceAndReturnFluePropertyDistance() {
+    void updateFlueClearance_shouldSetFlueClearanceAndReturnRadiatorCount() {
         QuoteSessionState state = new QuoteSessionState();
 
         QuoteStep nextStep = service.updateFlueClearance(state, FlueClearance.THIRTY_CM_OR_MORE);
 
-        assertEquals(QuoteStep.FLUE_PROPERTY_DISTANCE, nextStep);
+        assertEquals(QuoteStep.RADIATOR_COUNT, nextStep);
         assertEquals(FlueClearance.THIRTY_CM_OR_MORE, state.getFlueClearance());
         assertEquals("30 cm or more from an opening", state.getFlueClearanceSummary());
-        assertEquals(QuoteStep.FLUE_PROPERTY_DISTANCE, state.getCurrentStep());
+        assertEquals(QuoteStep.RADIATOR_COUNT, state.getCurrentStep());
     }
 
     @Test
