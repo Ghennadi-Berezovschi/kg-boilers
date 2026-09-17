@@ -23,14 +23,20 @@
         <h2 th:text="${boilerTypeHelpContact == true} ? 'Not sure what boiler you have?' : (${serviceContactSummary == true} ? 'Leave your contact details' : 'Leave your details for your selected boiler')">
             Leave your details for your selected boiler
         </h2>
-        <p class="section-subtitle" th:if="${boilerTypeHelpContact == true}">
+        <p class="section-subtitle" th:if="${electricBoilerTypeHelpContact == true}">
+            Leave your name, email and phone number, and we will contact you to help identify the right electric boiler option.
+            You can also send us a photo of your current boiler or hot water cylinder on WhatsApp.
+        </p>
+        <p class="section-subtitle" th:if="${boilerTypeHelpContact == true and electricBoilerTypeHelpContact != true}">
             Leave your name, email and phone number, and we will contact you to help identify your boiler type.
             Or send us a photo of your boiler on WhatsApp.
         </p>
-        <p class="section-subtitle" th:unless="${serviceContactSummary == true}">
+        <p class="section-subtitle"
+           th:if="${serviceContactSummary != true and boilerTypeHelpContact != true and electricBoilerTypeHelpContact != true}">
             We’ll use your name, email and phone number to contact you about the price and send a copy to your inbox.
         </p>
-        <p class="section-subtitle" th:if="${serviceContactSummary == true and boilerTypeHelpContact != true}">
+        <p class="section-subtitle"
+           th:if="${serviceContactSummary == true and boilerTypeHelpContact != true and electricBoilerTypeHelpContact != true}">
             We’ll use your name, email and phone number to contact you about the price and send a copy to your inbox.
         </p>
 

@@ -545,8 +545,8 @@ class QuotePageControllerTest {
         verify(model).addAttribute("quoteIncludedItems", java.util.List.of(
                 "Boiler installation",
                 "Disposal of your old boiler",
-                "Room thermostat",
-                "2/3 Port Position Valve"
+                "New Room thermostat",
+                "New Port Position Valve"
         ));
         verifyNoInteractions(quotePersistenceService);
     }
@@ -749,6 +749,27 @@ class QuotePageControllerTest {
         verify(model).addAttribute("serviceSummaryTitle", "Gas Cooker And Hob Installation");
         verify(model).addAttribute("serviceTotalPriceGbp", 140);
         verify(model).addAttribute("selectedBoilerPriceGbp", 140);
+    }
+
+    @Test
+    void contactPage_shouldUseElectricHelpIntro_whenElectricBoilerTypeIsNotSure() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E15 4DH");
+        state.setFuel(FuelType.ELECTRIC);
+        state.setBoilerType(BoilerType.OTHER);
+        state.setPropertyType(PropertyType.FLAT);
+
+        when(sessionService.getState(session)).thenReturn(state);
+        when(wizardService.isComplete(state, "boiler-installation")).thenReturn(true);
+
+        String view = controller.contactPage(null, null, session, model);
+
+        assertEquals("boiler-installation-quote/contact", view);
+        verify(model).addAttribute("serviceContactSummary", true);
+        verify(model).addAttribute("boilerTypeHelpContact", false);
+        verify(model).addAttribute("electricBoilerTypeHelpContact", true);
+        verify(model).addAttribute("serviceSummaryTitle", "Boiler Installation");
+        verify(model).addAttribute("selectedBoilerLabel", "I'm not sure");
     }
 
     @Test

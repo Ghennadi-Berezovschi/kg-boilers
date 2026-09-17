@@ -33,7 +33,9 @@ class BoilerRecommendationServiceTest {
         ));
         properties.setHeatOnly(List.of(
                 boiler("Main", "Eco Compact 15kW", 15, 1, 8, 1, 1, 900, true),
-                boiler("Vaillant", "ecoTEC Plus 30kW System", 30, 12, 18, 2, 3, 1900, true)
+                boiler("Main", "Eco Compact 24kW", 24, 10, 13, 1, 3, 1350, true),
+                boiler("Vaillant", "ecoTEC Plus 30kW System", 30, 12, 18, 2, 3, 1900, true),
+                boiler("Vaillant", "ecoFIT Pure 435 35kW Heat Only", 35, 14, 20, 2, 4, 2500, true)
         ));
 
         BoilerCatalogService boilerCatalogService = new BoilerCatalogService(properties);
@@ -79,14 +81,31 @@ class BoilerRecommendationServiceTest {
         QuoteSessionState state = new QuoteSessionState();
         state.setBoilerType(BoilerType.HEAT_ONLY);
         state.setHeatOnlyConversion(HeatOnlyConversion.NO);
-        state.setRadiatorCount(RadiatorCount.SEVENTEEN_PLUS);
+        state.setRadiatorCount(RadiatorCount.ZERO_TO_FIVE);
         state.setBathShowerCount(BathShowerCount.FOUR_PLUS);
 
         BoilerRecommendationResult result = recommendationService.recommend(state);
 
         assertFalse(result.isExactMatch());
         assertFalse(result.getBoilers().isEmpty());
-        assertEquals("ecoTEC Plus 30kW System", result.getBoilers().get(0).getModel());
+        assertEquals("ecoFIT Pure 435 35kW Heat Only", result.getBoilers().get(0).getModel());
+    }
+
+    @Test
+    void recommend_shouldNotReturnHeatOnlyBoilers_whenBathroomDemandExceedsCapacity() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setBoilerType(BoilerType.HEAT_ONLY);
+        state.setHeatOnlyConversion(HeatOnlyConversion.NO);
+        state.setRadiatorCount(RadiatorCount.TEN_TO_THIRTEEN);
+        state.setBathShowerCount(BathShowerCount.FOUR_PLUS);
+
+        BoilerRecommendationResult result = recommendationService.recommend(state);
+
+        assertFalse(result.isExactMatch());
+        assertFalse(result.getBoilers().isEmpty());
+        assertEquals("ecoFIT Pure 435 35kW Heat Only", result.getBoilers().get(0).getModel());
+        assertTrue(result.getBoilers().stream()
+                .noneMatch(boiler -> boiler.getBathroomsMax() < 4));
     }
 
     @Test

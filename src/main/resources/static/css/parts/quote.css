@@ -156,6 +156,13 @@
     gap: 20px;
 }
 
+.flue-clearance-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .radiator-grid {
     margin: 30px auto 0;
     max-width: 1100px;
@@ -230,6 +237,25 @@
 .fuel-card.active {
     border-color: #ff5a3c;
     background: #fff5f2;
+}
+
+.flue-clearance-card {
+    min-height: 360px;
+}
+
+.flue-clearance-card .fuel-icon {
+    width: 100%;
+    min-height: 180px;
+    margin-bottom: 16px;
+}
+
+.flue-clearance-card .fuel-icon img {
+    display: block;
+    width: min(100%, 220px);
+    max-width: 220px;
+    height: auto;
+    max-height: none;
+    margin: 0 auto;
 }
 
 .radiator-card {
@@ -1782,6 +1808,14 @@
 .summary-send-quote-btn {
     width: 100%;
     min-height: 46px;
+    background: #2563eb;
+    border-color: #2563eb;
+    box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
+}
+
+.summary-send-quote-btn:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 .summary-send-quote-btn:disabled {
@@ -2155,6 +2189,23 @@
     width: 100%;
 }
 
+.summary-contact-field small {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.callback-page-grid {
+    grid-template-columns: minmax(0, 680px);
+    align-items: start;
+    justify-content: center;
+}
+
+.callback-message-input {
+    min-height: 130px;
+    resize: vertical;
+}
+
 .summary-upload-field {
     padding: 14px;
     border: 1px solid #dbe4f0;
@@ -2192,6 +2243,12 @@
 
 .summary-contact-submit {
     min-height: 48px;
+    background: #2563eb;
+    box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
+}
+
+.summary-contact-submit:hover {
+    background: #1d4ed8;
 }
 
 .central-heating-summary-layout {
@@ -2371,6 +2428,26 @@
         border-radius: 12px;
     }
 
+    .fuel-card,
+    .gas-appliance-card,
+    .summary-boiler-card,
+    .summary-optional-card,
+    .contact-selected-card,
+    .contact-form-panel,
+    .quote-card {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .fuel-card img,
+    .gas-appliance-card img,
+    .summary-boiler-card img,
+    .summary-optional-card img,
+    .contact-selected-card img {
+        max-width: 100%;
+        object-fit: contain;
+    }
+
     .fuel-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
@@ -2461,6 +2538,27 @@
         height: auto;
         max-height: 58px;
         object-fit: contain;
+    }
+
+    .flue-clearance-grid {
+        gap: 14px;
+    }
+
+    .flue-clearance-card {
+        grid-template-columns: 96px minmax(0, 1fr) 34px;
+        min-height: 124px;
+        padding: 14px;
+    }
+
+    .flue-clearance-card .fuel-icon {
+        width: 92px;
+        min-height: 82px;
+    }
+
+    .flue-clearance-card .fuel-icon img {
+        width: 92px;
+        max-width: 92px;
+        max-height: none;
     }
 
     .fuel-icon-question {
@@ -2679,15 +2777,17 @@
         grid-column: auto;
         grid-row: 1;
         min-width: 0;
-        min-height: 230px;
+        min-height: 210px;
+        padding: 12px;
         border-left: none;
         border-top: none;
         border-bottom: 1px solid #e2e8f0;
     }
 
     .summary-boiler-image {
-        max-width: 245px;
-        height: 230px;
+        width: 100%;
+        max-width: 220px;
+        height: 205px;
     }
 
     .summary-boiler-price-value {
@@ -2713,6 +2813,18 @@
 
     .summary-boiler-title {
         font-size: 20px;
+        overflow-wrap: anywhere;
+    }
+
+    .fuel-card .fuel-title,
+    .fuel-card .fuel-desc,
+    .summary-boiler-price-label,
+    .summary-boiler-price-line,
+    .summary-boiler-meta-row,
+    .summary-optional-title,
+    .summary-optional-desc,
+    .summary-item,
+    .summary-value {
         overflow-wrap: anywhere;
     }
 
@@ -2750,10 +2862,7 @@
     }
 
     .summary-bottom-quote-card {
-        display: grid;
-        gap: 14px;
-        margin-top: 20px;
-        padding: 16px;
+        display: none;
     }
 
     .summary-bottom-send-quote-btn {
@@ -2776,14 +2885,14 @@
     }
 
     .contact-selected-card .summary-boiler-image-wrap {
-        min-height: 220px;
-        padding: 14px 0;
+        min-height: 190px;
+        padding: 12px;
     }
 
     .contact-selected-card .summary-boiler-image {
-        width: 240px;
-        max-width: 86%;
-        height: 230px;
+        width: 100%;
+        max-width: 210px;
+        height: 190px;
     }
 
     .summary-contact-fields {
@@ -3106,7 +3215,7 @@
     width: 100%;
     max-width: 360px;
     height: 140px;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
 }
 
@@ -3266,18 +3375,21 @@
     }
 
     .air-conditioning-unit-image-wrap {
-        min-height: 122px;
+        min-height: 118px;
         margin-bottom: 2px;
-        padding: 8px 40px 8px 10px;
+        padding: 8px 34px 8px 10px;
     }
 
     .air-conditioning-unit-image {
-        max-width: 300px;
-        height: 112px;
+        width: 100%;
+        max-width: 280px;
+        height: 104px;
+        object-fit: contain;
     }
 
     .air-conditioning-unit-title {
         font-size: 18px;
+        overflow-wrap: anywhere;
     }
 
     .air-conditioning-unit-meta {
@@ -3300,5 +3412,77 @@
     .air-conditioning-unit-footer .gas-appliance-quantity-wrap {
         align-self: stretch;
         justify-content: center;
+    }
+}
+
+@media (max-width: 380px) {
+    .fuel-card {
+        grid-template-columns: 58px minmax(0, 1fr) 32px;
+        column-gap: 10px;
+        padding: 12px;
+    }
+
+    .fuel-card .fuel-title {
+        font-size: 18px;
+    }
+
+    .fuel-card .fuel-desc {
+        font-size: 12px;
+    }
+
+    .fuel-icon {
+        width: 56px;
+        min-height: 52px;
+        font-size: 28px;
+    }
+
+    .fuel-icon img,
+    .fuel-icon svg {
+        max-width: 56px;
+        max-height: 50px;
+    }
+
+    .flue-clearance-card {
+        grid-template-columns: 78px minmax(0, 1fr) 32px;
+        min-height: 112px;
+    }
+
+    .flue-clearance-card .fuel-icon {
+        width: 76px;
+        min-height: 68px;
+    }
+
+    .flue-clearance-card .fuel-icon img {
+        width: 76px;
+        max-width: 76px;
+    }
+
+    .summary-boiler-body,
+    .summary-panel,
+    .contact-form-panel {
+        padding: 14px;
+    }
+
+    .summary-boiler-image-wrap {
+        min-height: 188px;
+    }
+
+    .summary-boiler-image {
+        max-width: 200px;
+        height: 184px;
+    }
+
+    .air-conditioning-unit-card {
+        padding: 12px;
+    }
+
+    .air-conditioning-unit-image-wrap {
+        min-height: 106px;
+        padding-right: 30px;
+    }
+
+    .air-conditioning-unit-image {
+        max-width: 240px;
+        height: 96px;
     }
 }

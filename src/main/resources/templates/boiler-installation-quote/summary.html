@@ -297,7 +297,7 @@
                              th:classappend="${#strings.equalsIgnoreCase(includedItem, 'Digital Room Thermostat Salus RT310RF Wireless') ? ' js-standard-thermostat-row' : ''}"
                              th:attr="data-included-item=${includedItem}">
                             <span th:text="${includedItem}">Included item</span>
-                            <strong th:text="${#strings.equalsIgnoreCase(includedItem, 'Room thermostat') or #strings.equalsIgnoreCase(includedItem, '2/3 Port Position Valve') ? 'Not included' : 'Included'}">Included</strong>
+                            <strong th:text="${#strings.equalsIgnoreCase(includedItem, 'New Room thermostat') or #strings.equalsIgnoreCase(includedItem, 'New Port Position Valve') ? 'Not included' : 'Included'}">Included</strong>
                         </div>
 
                         <div class="summary-breakdown-divider"></div>

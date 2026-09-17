@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Request Callback</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="container">
+    <section class="section callback-section">
+        <a th:href="@{/}" class="back-link" aria-label="Go back">← Back</a>
+
+        <h2>Request a <span>callback</span></h2>
+        <p class="section-subtitle">
+            Leave your name and phone number, and we will call you back soon.
+        </p>
+
+        <div class="contact-page-grid callback-page-grid">
+            <article class="summary-panel contact-form-panel">
+                <div class="summary-success-banner" th:if="${callbackSuccess}">
+                    <p>Thanks, we received your callback request. We will contact you soon.</p>
+                </div>
+
+                <form th:if="${!callbackSuccess}"
+                      th:action="@{/callback}"
+                      th:object="${callbackRequest}"
+                      method="post"
+                      class="summary-contact-form">
+                    <div class="summary-contact-fields">
+                        <label class="summary-contact-field">
+                            <span>Name</span>
+                            <input class="quote-input summary-contact-input"
+                                   type="text"
+                                   th:field="*{name}"
+                                   placeholder="Your name">
+                            <span class="summary-field-error"
+                                  th:if="${#fields.hasErrors('name')}"
+                                  th:errors="*{name}">Name error</span>
+                        </label>
+
+                        <label class="summary-contact-field">
+                            <span>Phone</span>
+                            <input class="quote-input summary-contact-input"
+                                   type="tel"
+                                   th:field="*{phone}"
+                                   placeholder="+44 7700 900123">
+                            <span class="summary-field-error"
+                                  th:if="${#fields.hasErrors('phone')}"
+                                  th:errors="*{phone}">Phone error</span>
+                        </label>
+
+                        <label class="summary-contact-field">
+                            <span>Email <small>optional</small></span>
+                            <input class="quote-input summary-contact-input"
+                                   type="email"
+                                   th:field="*{email}"
+                                   placeholder="name@example.com">
+                            <span class="summary-field-error"
+                                  th:if="${#fields.hasErrors('email')}"
+                                  th:errors="*{email}">Email error</span>
+                        </label>
+
+                        <label class="summary-contact-field">
+                            <span>Service <small>optional</small></span>
+                            <select class="quote-input summary-contact-input" th:field="*{service}">
+                                <option value="">What do you need help with?</option>
+                                <option value="Boiler installation">Boiler installation</option>
+                                <option value="Boiler repair">Boiler repair</option>
+                                <option value="Boiler service and gas safety certificate">Boiler service and gas safety certificate</option>
+                                <option value="Central heating">Central heating</option>
+                                <option value="Hot water cylinder">Hot water cylinder</option>
+                                <option value="Gas pipework and gas leak detection">Gas pipework and gas leak detection</option>
+                                <option value="Gas cooker and hob installation">Gas cooker and hob installation</option>
+                                <option value="Plumbing">Plumbing</option>
+                                <option value="Bathroom refurbishment">Bathroom refurbishment</option>
+                                <option value="Air conditioning installation">Air conditioning installation</option>
+                                <option value="Not sure / Other">Not sure / Other</option>
+                            </select>
+                            <span class="summary-field-error"
+                                  th:if="${#fields.hasErrors('service')}"
+                                  th:errors="*{service}">Service error</span>
+                        </label>
+                    </div>
+
+                    <label class="summary-contact-field">
+                        <span>Message <small>optional</small></span>
+                        <textarea class="quote-input summary-contact-input callback-message-input"
+                                  th:field="*{message}"
+                                  rows="5"
+                                  placeholder="Tell us briefly what you need help with"></textarea>
+                        <span class="summary-field-error"
+                              th:if="${#fields.hasErrors('message')}"
+                              th:errors="*{message}">Message error</span>
+                    </label>
+
+                    <button type="submit" class="btn btn-phone summary-contact-submit">
+                        Request callback
+                    </button>
+                </form>
+
+                <a th:if="${callbackSuccess}"
+                   th:href="@{/}"
+                   class="btn btn-phone summary-contact-submit summary-success-home-link">
+                    Return to main page
+                </a>
+            </article>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+</body>
+</html>

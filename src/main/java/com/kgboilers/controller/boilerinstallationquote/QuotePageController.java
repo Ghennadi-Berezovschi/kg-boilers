@@ -828,6 +828,7 @@ public class QuotePageController {
         populateContactPageModel(model, selectedBoilerData, List.of(), List.of(), 0);
         model.addAttribute("serviceContactSummary", true);
         model.addAttribute("boilerTypeHelpContact", false);
+        model.addAttribute("electricBoilerTypeHelpContact", isElectricBoilerTypeHelpContact(state));
         model.addAttribute("serviceSummaryTitle", "Boiler Installation");
         model.addAttribute("state", state);
         model.addAttribute("backUrl", QuoteStep.BATH_SHOWER_COUNT.getPath());
@@ -897,6 +898,7 @@ public class QuotePageController {
                 populateContactPageModel(model, serviceSelection, List.of(), List.of(), 0);
                 model.addAttribute("serviceContactSummary", true);
                 model.addAttribute("boilerTypeHelpContact", boilerTypeHelp);
+                model.addAttribute("electricBoilerTypeHelpContact", electricInstallation && isElectricBoilerTypeHelpContact(state));
                 model.addAttribute("serviceSummaryTitle", serviceLabel);
                 model.addAttribute("servicePriceLines", servicePriceLines);
                 model.addAttribute("serviceTotalPriceGbp", servicePriceGbp);
@@ -1046,8 +1048,8 @@ public class QuotePageController {
                 .collect(java.util.stream.Collectors.collectingAndThen(
                         java.util.stream.Collectors.toList(),
                         items -> {
-                            items.add("Room thermostat");
-                            items.add("2/3 Port Position Valve");
+                            items.add("New Room thermostat");
+                            items.add("New Port Position Valve");
                             return items;
                         }
                 ));
@@ -1422,6 +1424,12 @@ public class QuotePageController {
 
     private boolean isBoilerTypeHelpContact(QuoteSessionState state, String service) {
         return isDefaultInstallationService(service)
+                && state != null
+                && state.getBoilerType() == BoilerType.OTHER;
+    }
+
+    private boolean isElectricBoilerTypeHelpContact(QuoteSessionState state) {
+        return isElectricFuel(state)
                 && state != null
                 && state.getBoilerType() == BoilerType.OTHER;
     }

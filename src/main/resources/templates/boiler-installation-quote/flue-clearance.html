@@ -21,19 +21,19 @@
            aria-label="Go back">← Back</a>
 
         <h2>
-            Is your <span style="color:#ff5a3c;">flue 30 cm or more</span> from an openable window, door or vent?
+            Is your <span style="color:#ff5a3c;">outside flue terminal</span> 30 cm or more from an openable window, door or vent?
         </h2>
         <p class="section-subtitle">
             Measure from the flue terminal to the nearest openable window, door or air vent.
         </p>
 
-        <div class="grid fuel-grid">
-            <article class="card fuel-card" onclick="selectFlueClearance('yes')">
+        <div class="grid fuel-grid flue-clearance-grid">
+            <article class="card fuel-card flue-clearance-card" onclick="selectFlueClearance('yes')">
                 <div class="fuel-icon">
                     <img src="/images/flues/flue-clearance-yes.svg"
                          alt="Flue is 30 centimetres or more from an opening"
-                         width="150"
-                         height="150">
+                         width="220"
+                         height="220">
                 </div>
                 <h3 class="fuel-title">Yes</h3>
                 <div class="fuel-desc">
@@ -42,12 +42,12 @@
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFlueClearance('no')">
+            <article class="card fuel-card flue-clearance-card" onclick="selectFlueClearance('no')">
                 <div class="fuel-icon">
                     <img src="/images/flues/flue-clearance-no.svg"
                          alt="Flue is less than 30 centimetres from an opening"
-                         width="150"
-                         height="150">
+                         width="220"
+                         height="220">
                 </div>
                 <h3 class="fuel-title">No</h3>
                 <div class="fuel-desc">
@@ -56,7 +56,7 @@
                 <div class="fuel-select">Select</div>
             </article>
 
-            <article class="card fuel-card" onclick="selectFlueClearance('unsure')">
+            <article class="card fuel-card flue-clearance-card" onclick="selectFlueClearance('unsure')">
                 <div class="fuel-icon">
                     <img src="/images/flues/flue-clearance-unsure.svg"
                          alt="Unsure about flue distance"

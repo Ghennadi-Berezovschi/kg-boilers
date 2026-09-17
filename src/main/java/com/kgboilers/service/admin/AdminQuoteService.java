@@ -85,7 +85,8 @@ public class AdminQuoteService {
                 "boiler-repair",
                 "central-heating",
                 "gas-safety-certificate",
-                "hot-water-cylinder"
+                "hot-water-cylinder",
+                "callback-request"
         );
     }
 
@@ -411,6 +412,7 @@ public class AdminQuoteService {
             case "BOILER_REPAIR" -> "Boiler Repair";
             case "CENTRAL_HEATING" -> "Central Heating";
             case "GAS_SAFETY_CERTIFICATE" -> "Boiler Service and Gas Safety Certificate";
+            case "CALLBACK_REQUEST" -> "Callback Request";
             default -> humanize(serviceType.toLowerCase(Locale.UK));
         };
     }

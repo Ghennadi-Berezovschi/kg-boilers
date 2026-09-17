@@ -1,36 +1,63 @@
-<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <text x="90" y="38" text-anchor="middle" fill="#FF5A3C" font-family="system-ui, sans-serif" font-size="10" font-weight="600">flue</text>
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+    <title id="title">Flue terminal less than 30 cm from an opening</title>
+    <desc id="desc">A round boiler flue terminal with vapour, measured less than 30 cm from a window or vent.</desc>
+
+    <defs>
+        <linearGradient id="vapour" x1="92" y1="0" x2="128" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#7B8490" stop-opacity="0.68"/>
+            <stop offset="70%" stop-color="#AEB6C0" stop-opacity="0.36"/>
+            <stop offset="100%" stop-color="#D9DDE1" stop-opacity="0.06"/>
+        </linearGradient>
+    </defs>
+
+    <text x="82" y="38" text-anchor="middle" fill="#FF5A3C" font-family="system-ui, sans-serif" font-size="11" font-weight="700">
+        flue
+    </text>
+
+    <g stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="84" cy="78" r="17" fill="#F6F7F8" stroke="#606A76" stroke-width="2.6"/>
+        <circle cx="84" cy="78" r="13" fill="#FFFFFF" stroke="#6E7784" stroke-width="2"/>
+        <circle cx="84" cy="78" r="9" fill="#F0F2F4" stroke="#6E7784" stroke-width="1.6"/>
+        <g stroke="#59616D" stroke-width="2" stroke-linecap="round">
+            <line x1="78" y1="83" x2="78" y2="74"/>
+            <line x1="81" y1="85" x2="81" y2="72"/>
+            <line x1="84" y1="85" x2="84" y2="71"/>
+            <line x1="87" y1="85" x2="87" y2="72"/>
+            <line x1="90" y1="83" x2="90" y2="74"/>
+        </g>
+    </g>
+
+    <g fill="none" stroke="url(#vapour)" stroke-linecap="round">
+        <path d="M97 73 C104 68 110 68 116 71 C121 74 125 72 128 70" stroke-width="4"/>
+        <path d="M97 79 C104 76 110 76 116 79 C121 82 125 80 128 78" stroke-width="3.5"/>
+        <path d="M97 85 C104 84 110 84 116 87 C121 89 125 87 128 86" stroke-width="3"/>
+    </g>
+
+    <g stroke="#FF5A3C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <line x1="101" y1="104" x2="128" y2="104"/>
+        <path d="M101 104L108 99"/>
+        <path d="M101 104L108 109"/>
+        <path d="M128 104L121 99"/>
+        <path d="M128 104L121 109"/>
+    </g>
+
+    <text x="114" y="121" text-anchor="middle" fill="#E43D25" font-family="system-ui, sans-serif" font-size="12" font-weight="800">
+        &lt; 30 cm
+    </text>
 
     <g stroke="#2F3440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <rect x="128" y="78" width="42" height="58"/>
-        <line x1="149" y1="78" x2="149" y2="136"/>
-        <line x1="128" y1="107" x2="170" y2="107"/>
+        <rect x="132" y="78" width="42" height="58"/>
+        <line x1="153" y1="78" x2="153" y2="136"/>
+        <line x1="132" y1="107" x2="174" y2="107"/>
     </g>
-
-    <g stroke="#2F3440" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <circle cx="90" cy="64" r="3.5" fill="#FF8A1E"/>
-        <path d="M84 58C81 56 81 52 84 50"/>
-        <path d="M91 54C89 52 89 49 91 47"/>
-    </g>
-
-    <g stroke="#FF8A1E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <line x1="96" y1="72" x2="124" y2="72"/>
-        <path d="M96 72L102 68"/>
-        <path d="M96 72L102 76"/>
-        <path d="M124 72L118 68"/>
-        <path d="M124 72L118 76"/>
-    </g>
-
-    <text x="110" y="86" text-anchor="middle" fill="#FF5A3C" font-family="system-ui, sans-serif" font-size="10" font-weight="600">less 30</text>
 
     <g fill="#FF8A1E" stroke="#2F3440" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="128" y="26" width="30" height="22" rx="1.5"/>
-        <line x1="132" y1="31" x2="154" y2="31"/>
-        <line x1="132" y1="37" x2="154" y2="37"/>
-        <line x1="132" y1="43" x2="154" y2="43"/>
-        <line x1="136" y1="26" x2="136" y2="48"/>
-        <line x1="143" y1="26" x2="143" y2="48"/>
-        <line x1="150" y1="26" x2="150" y2="48"/>
+        <rect x="132" y="26" width="30" height="22" rx="1.5"/>
+        <line x1="136" y1="31" x2="158" y2="31"/>
+        <line x1="136" y1="37" x2="158" y2="37"/>
+        <line x1="136" y1="43" x2="158" y2="43"/>
+        <line x1="140" y1="26" x2="140" y2="48"/>
+        <line x1="147" y1="26" x2="147" y2="48"/>
+        <line x1="154" y1="26" x2="154" y2="48"/>
     </g>
-
 </svg>

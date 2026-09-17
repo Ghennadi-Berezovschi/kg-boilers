@@ -24,6 +24,7 @@
     body {
         max-width: 100vw;
         overflow-x: hidden;
+        padding-bottom: calc(78px + env(safe-area-inset-bottom));
     }
 
     .site-header {
@@ -59,8 +60,13 @@
     }
 
     .actions{
-        width: 100%;
-        max-width: 100%;
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        z-index: 90;
+        width: auto;
+        max-width: none;
         min-width: 0;
         align-self: stretch;
         display: grid;
@@ -68,7 +74,12 @@
         gap: 6px;
         justify-content: stretch;
         flex: 0 0 auto;
-        padding-right: 0;
+        padding: 8px;
+        border: 1px solid rgba(217, 226, 240, 0.92);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+        backdrop-filter: blur(10px);
     }
 
     .actions > *{
@@ -80,7 +91,7 @@
     .btn{
         width: 100%;
         min-width: 0;
-        min-height: 40px;
+        min-height: 44px;
         padding: 8px 9px;
         font-size: 11px;
         text-align: center;

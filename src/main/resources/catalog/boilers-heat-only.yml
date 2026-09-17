@@ -46,7 +46,7 @@ kg:
         radiatorsMin: 10
         radiatorsMax: 13
         bathroomsMin: 1
-        bathroomsMax: 2
+        bathroomsMax: 3
         averagePriceGbp: 1050
         standardInstallationGbp: 1000
         standardItems:

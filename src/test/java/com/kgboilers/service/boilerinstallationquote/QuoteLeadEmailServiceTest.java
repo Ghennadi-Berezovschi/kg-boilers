@@ -214,6 +214,54 @@ class QuoteLeadEmailServiceTest {
     }
 
     @Test
+    void sendLeadEmails_shouldSendBusinessEmailWhenElectricBoilerTypeIsNotSure() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E15 4DH");
+        state.setFuel(FuelType.ELECTRIC);
+        state.setPropertyType(PropertyType.FLAT);
+        state.setBoilerType(BoilerType.OTHER);
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "boiler-installation",
+                "I'm not sure",
+                0,
+                "GHENNADI BEREZOVSCHI",
+                "client@example.com",
+                "07552532075",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(),
+                0
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+        SimpleMailMessage businessMessage = messageCaptor.getAllValues().get(1);
+
+        assertEquals("client@example.com", clientMessage.getTo()[0]);
+        assertEquals("Your K&G Boiler Services electric boiler help request", clientMessage.getSubject());
+        assertTrue(clientMessage.getText().contains("We received your electric boiler installation request."));
+        assertTrue(clientMessage.getText().contains("help identify the right electric boiler option"));
+
+        assertEquals("office@kgboilers.co.uk", businessMessage.getTo()[0]);
+        assertEquals("New electric boiler lead: help identify boiler type", businessMessage.getSubject());
+        assertTrue(businessMessage.getText().contains("Customer details submitted in the contact form:"));
+        assertTrue(businessMessage.getText().contains("Name: GHENNADI BEREZOVSCHI"));
+        assertTrue(businessMessage.getText().contains("Email: client@example.com"));
+        assertTrue(businessMessage.getText().contains("Phone: 07552532075"));
+        assertTrue(businessMessage.getText().contains("Postcode: E15 4DH"));
+        assertTrue(businessMessage.getText().contains("Fuel: Electric"));
+        assertTrue(businessMessage.getText().contains("Boiler type: I'm not sure"));
+    }
+
+    @Test
     void sendLeadEmails_shouldUseHotWaterCylinderCopyForCylinderService() {
         QuoteSessionState state = new QuoteSessionState();
         state.setPostcode("E16 4JJ");
@@ -379,6 +427,45 @@ class QuoteLeadEmailServiceTest {
         assertTrue(businessMessage.getText().contains("Installation details: Install new units"));
         assertFalse(businessMessage.getText().contains("Gas appliances:"));
         assertFalse(businessMessage.getText().contains("Problem details: Install new units"));
+    }
+
+    @Test
+    void sendLeadEmails_shouldUseProjectCopyForBathroomRefurbishment() {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setPostcode("E16 4JJ");
+        state.setOwnership(com.kgboilers.model.boilerinstallation.enums.OwnershipType.HOMEOWNER);
+        state.setPropertyType(PropertyType.HOUSE);
+        state.setProblemDetails("Full bathroom refurbishment");
+
+        quoteLeadEmailService.sendLeadEmails(
+                state,
+                "bathroom-refurbishment",
+                "Bathroom Refurbishment",
+                0,
+                "Jane Smith",
+                "client@example.com",
+                "+44 7700 900123",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                List.of(),
+                0
+        );
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+
+        SimpleMailMessage clientMessage = messageCaptor.getAllValues().get(0);
+        SimpleMailMessage businessMessage = messageCaptor.getAllValues().get(1);
+
+        assertTrue(clientMessage.getText().contains("Project details:"));
+        assertTrue(clientMessage.getText().contains("Full bathroom refurbishment"));
+        assertTrue(businessMessage.getText().contains("Project details: Full bathroom refurbishment"));
+        assertFalse(clientMessage.getText().contains("Gas appliances:"));
+        assertFalse(businessMessage.getText().contains("Gas appliances:"));
     }
 
     @Test

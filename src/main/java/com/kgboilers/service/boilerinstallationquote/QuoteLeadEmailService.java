@@ -4,6 +4,7 @@ import com.kgboilers.config.boilerinstallationquote.properties.QuoteOfferPropert
 import com.kgboilers.config.properties.ContactProperties;
 import com.kgboilers.config.properties.CompanyProperties;
 import com.kgboilers.model.boilerinstallation.enums.BoilerType;
+import com.kgboilers.model.boilerinstallation.enums.FuelType;
 import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerinstallationquote.UploadedPicture;
@@ -75,6 +76,21 @@ public class QuoteLeadEmailService {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         if (mailSender == null) {
             log.warn("Quote lead email was skipped because JavaMailSender is not configured");
+            return;
+        }
+
+        if (isElectricBoilerTypeHelpLead(state, serviceType)) {
+            sendSafely(mailSender,
+                    clientEmail,
+                    "Your " + companyProperties.getName() + " electric boiler help request",
+                    buildElectricBoilerTypeHelpClientEmailBody(state, clientName));
+
+            if (contactProperties.getEmail() != null && !contactProperties.getEmail().isBlank()) {
+                sendSafely(mailSender,
+                        contactProperties.getEmail(),
+                        "New electric boiler lead: help identify boiler type",
+                        buildElectricBoilerTypeHelpBusinessEmailBody(state, clientName, clientEmail, clientPhone));
+            }
             return;
         }
 
@@ -248,6 +264,63 @@ public class QuoteLeadEmailService {
                 stateSafe(state == null ? null : state.getOwnership()),
                 stateSafe(state == null ? null : state.getPropertyType()),
                 stateSafe(state == null ? null : state.getBedrooms()),
+                stateSafe(state == null ? null : state.getBoilerType())
+        );
+    }
+
+    private String buildElectricBoilerTypeHelpClientEmailBody(QuoteSessionState state, String clientName) {
+        return """
+                Hello %s,
+
+                Thank you for choosing %s.
+                We received your electric boiler installation request.
+
+                You selected:
+                I'm not sure
+
+                We will contact you soon to help identify the right electric boiler option and confirm the price.
+                You can also send us a photo of your current boiler or hot water cylinder on WhatsApp:
+                %s
+
+                %s
+                """.formatted(
+                clientName,
+                companyProperties.getName(),
+                stateSafe(contactProperties.getWhatsapp()),
+                companyProperties.getName()
+        );
+    }
+
+    private String buildElectricBoilerTypeHelpBusinessEmailBody(QuoteSessionState state,
+                                                                String clientName,
+                                                                String clientEmail,
+                                                                String clientPhone) {
+        return """
+                New electric boiler installation lead received.
+
+                Customer selected I'm not sure for electric boiler type.
+                Contact the customer to help identify the right electric boiler option and confirm the price.
+
+                Status:
+                NEW_LEAD
+
+                Customer details submitted in the contact form:
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Quote answers:
+                Postcode: %s
+                Fuel: %s
+                Property: %s
+                Boiler type: %s
+                """.formatted(
+                stateSafe(clientName),
+                stateSafe(clientEmail),
+                stateSafe(clientPhone),
+                stateSafe(state == null ? null : state.getPostcode()),
+                stateSafe(state == null ? null : state.getFuel()),
+                stateSafe(state == null ? null : state.getPropertyType()),
                 stateSafe(state == null ? null : state.getBoilerType())
         );
     }
@@ -484,6 +557,20 @@ public class QuoteLeadEmailService {
             ).trim();
         }
 
+        if (BATHROOM_REFURBISHMENT_TITLE.equals(serviceTitle)) {
+            return """
+                    Postcode: %s
+                    Ownership: %s
+                    Property: %s
+                    Project details: %s
+                    """.formatted(
+                    stateSafe(state.getPostcode()),
+                    stateSafe(state.getOwnership()),
+                    stateSafe(state.getPropertyType()),
+                    state.getProblemDetailsSummary()
+            ).trim();
+        }
+
         return """
                 Postcode: %s
                 Ownership: %s
@@ -526,9 +613,13 @@ public class QuoteLeadEmailService {
     }
 
     private String serviceRequestDetailsHeading(String serviceTitle) {
-        return AIR_CONDITIONING_INSTALLATION_TITLE.equals(serviceTitle)
-                ? "Installation details"
-                : "Problem details";
+        if (AIR_CONDITIONING_INSTALLATION_TITLE.equals(serviceTitle)) {
+            return "Installation details";
+        }
+        if (BATHROOM_REFURBISHMENT_TITLE.equals(serviceTitle)) {
+            return "Project details";
+        }
+        return "Problem details";
     }
 
     private String formatAirConditioningUnitsForEmail(QuoteSessionState state) {
@@ -1135,6 +1226,11 @@ public class QuoteLeadEmailService {
         return BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(serviceType == null ? "" : serviceType.trim())
                 && state != null
                 && state.getBoilerType() == BoilerType.OTHER;
+    }
+
+    private boolean isElectricBoilerTypeHelpLead(QuoteSessionState state, String serviceType) {
+        return isBoilerTypeHelpLead(state, serviceType)
+                && state.getFuel() == FuelType.ELECTRIC;
     }
 
     private String formatHotWaterAnswer(QuoteSessionState state) {
