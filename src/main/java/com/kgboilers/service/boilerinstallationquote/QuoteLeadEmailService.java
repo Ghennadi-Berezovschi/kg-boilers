@@ -173,7 +173,9 @@ public class QuoteLeadEmailService {
         sendSafely(mailSender,
                 clientEmail,
                 "Your " + companyProperties.getName() + " quote request",
-                buildClientEmailBody(clientName,
+                buildClientEmailBody(state,
+                        serviceType,
+                        clientName,
                         selectedBoiler,
                         totalPriceGbp,
                         relocationPriceGbp,
@@ -875,7 +877,9 @@ public class QuoteLeadEmailService {
         );
     }
 
-    private String buildClientEmailBody(String clientName,
+    private String buildClientEmailBody(QuoteSessionState state,
+                                        String serviceType,
+                                        String clientName,
                                         String selectedBoiler,
                                         int totalPriceGbp,
                                         int relocationPriceGbp,
@@ -898,7 +902,7 @@ public class QuoteLeadEmailService {
                 Boiler price installation:
                 £%d
 
-                Included:
+                %sIncluded:
                 %s
 
                 Selected installation extras:
@@ -913,10 +917,25 @@ public class QuoteLeadEmailService {
                 companyProperties.getName(),
                 selectedBoiler,
                 totalPriceGbp,
+                buildGasPipeworkNote(state, serviceType),
                 buildIncludedItemsSection(selectedOptionalExtras),
                 buildSelectedExtrasSection(relocationPriceGbp, flueLengthPriceGbp, fluePositionPriceGbp, flueClearancePriceGbp, horizontalFlueShapePriceGbp, heatOnlyConversionPriceGbp),
                 buildOptionalExtrasSection(selectedOptionalExtras)
         );
+    }
+
+    private String buildGasPipeworkNote(QuoteSessionState state, String serviceType) {
+        if (!BOILER_INSTALLATION_SERVICE.equalsIgnoreCase(serviceType) || state == null
+                || (state.getFuel() != FuelType.GAS && state.getFuel() != FuelType.LPG)) {
+            return "";
+        }
+
+        return """
+                Gas supply pipework upgrade (if required)
+                Usually not required
+                Your existing gas pipework can usually be used. If an upgrade is needed, we’ll explain why and agree any additional cost with you before work starts.
+
+                """;
     }
 
     private String buildBusinessEmailBody(QuoteSessionState state,

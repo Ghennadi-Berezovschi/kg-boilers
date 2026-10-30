@@ -18,6 +18,6 @@ public record AdminQuoteDetail(
         List<AdminQuoteExtra> extras,
         List<AdminUploadedPicture> uploadedPictures,
         List<AdminUploadedPicture> jobPictures,
-        List<AdminDetailRow> answers
+        List<AdminAnswerSection> answerSections
 ) {
 }

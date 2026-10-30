@@ -6,7 +6,7 @@
 
     <title>Boiler Contact Details</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
 </head>
 <body>
 
@@ -59,7 +59,7 @@
                         <strong class="summary-boiler-price-value">£<span th:text="${selectedBoilerPriceGbp}">1000</span></strong>
                         <div class="summary-boiler-price-lines">
                             <div class="summary-boiler-price-line">
-                                <span>Boiler supply</span>
+                                <span>Boiler + standard flue</span>
                                 <strong>£<span th:text="${selectedBoiler.averagePriceGbp}">850</span></strong>
                             </div>
                             <div class="summary-boiler-price-line">
@@ -232,6 +232,7 @@
                                 <span>Name</span>
                                 <input class="quote-input summary-contact-input"
                                        type="text"
+                                       autocomplete="name"
                                        th:field="*{name}"
                                        placeholder="Your name">
                                 <span class="summary-field-error"
@@ -245,6 +246,7 @@
                                 <span>Email</span>
                                 <input class="quote-input summary-contact-input"
                                        type="email"
+                                       autocomplete="email"
                                        th:field="*{email}"
                                        placeholder="name@example.com">
                                 <span class="summary-field-error"
@@ -258,6 +260,7 @@
                                 <span>Phone</span>
                                 <input class="quote-input summary-contact-input"
                                        type="tel"
+                                       autocomplete="tel"
                                        th:field="*{phone}"
                                        placeholder="+44 7700 900123">
                                 <span class="summary-field-error"

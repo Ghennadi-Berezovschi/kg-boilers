@@ -3,6 +3,7 @@ package com.kgboilers.service.centralheatingquote;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgboilers.model.centralheatingquote.CentralHeatingInstallationItem;
+import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.centralheatingquote.CentralHeatingQuoteSessionState;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -31,10 +32,11 @@ public class CentralHeatingQuotePersistenceService {
     public Long saveLead(Long savedQuoteId,
                          String serviceType,
                          CentralHeatingQuoteSessionState state,
+                         List<QuoteOptionalExtra> extras,
                          String clientName,
                          String email,
                          String phone) {
-        Long quoteId = saveOrUpdate(savedQuoteId, serviceType, state);
+        Long quoteId = saveOrUpdate(savedQuoteId, serviceType, state, extras);
         saveContactDetails(quoteId, clientName, email, phone);
         return quoteId;
     }
@@ -42,7 +44,12 @@ public class CentralHeatingQuotePersistenceService {
     public Long saveOrUpdate(Long savedQuoteId,
                              String serviceType,
                              CentralHeatingQuoteSessionState state) {
-        MapSqlParameterSource params = buildParameters(serviceType, state);
+        return saveOrUpdate(savedQuoteId, serviceType, state, List.of());
+    }
+
+    private Long saveOrUpdate(Long savedQuoteId, String serviceType, CentralHeatingQuoteSessionState state,
+                              List<QuoteOptionalExtra> extras) {
+        MapSqlParameterSource params = buildParameters(serviceType, state, extras);
 
         if (savedQuoteId == null) {
             return jdbcTemplate.queryForObject("""
@@ -74,7 +81,7 @@ public class CentralHeatingQuotePersistenceService {
                         :leadLabel,
                         NULL,
                         CAST(:selectedOptionalExtrasJson AS jsonb),
-                        0,
+                        :optionalExtrasPriceGbp,
                         CAST(:clientAnswersJson AS jsonb),
                         CURRENT_TIMESTAMP,
                         CURRENT_TIMESTAMP
@@ -97,7 +104,7 @@ public class CentralHeatingQuotePersistenceService {
                     recommended_boiler = :leadLabel,
                     installation_price_gbp = NULL,
                     selected_optional_extras_json = CAST(:selectedOptionalExtrasJson AS jsonb),
-                    optional_extras_price_gbp = 0,
+                    optional_extras_price_gbp = :optionalExtrasPriceGbp,
                     client_answers_json = CAST(:clientAnswersJson AS jsonb),
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = :id
@@ -134,7 +141,7 @@ public class CentralHeatingQuotePersistenceService {
     }
 
     private MapSqlParameterSource buildParameters(String serviceType,
-                                                  CentralHeatingQuoteSessionState state) {
+                                                  CentralHeatingQuoteSessionState state, List<QuoteOptionalExtra> extras) {
         return new MapSqlParameterSource()
                 .addValue("postcode", state.getPostcode())
                 .addValue("fuel", enumName(state.getFuel()))
@@ -145,14 +152,17 @@ public class CentralHeatingQuotePersistenceService {
                 .addValue("boilerType", enumName(state.getBoilerType()))
                 .addValue("radiatorCount", enumName(state.getRadiatorCount()))
                 .addValue("leadLabel", LEAD_LABEL)
-                .addValue("selectedOptionalExtrasJson", "[]")
-                .addValue("clientAnswersJson", toJson(buildClientAnswersSnapshot(serviceType, state)));
+                .addValue("selectedOptionalExtrasJson", toJson(extras))
+                .addValue("optionalExtrasPriceGbp", extras.stream().mapToInt(QuoteOptionalExtra::getPriceGbp).sum())
+                .addValue("clientAnswersJson", toJson(buildClientAnswersSnapshot(serviceType, state, extras)));
     }
 
     private Map<String, Object> buildClientAnswersSnapshot(String serviceType,
-                                                           CentralHeatingQuoteSessionState state) {
+                                                           CentralHeatingQuoteSessionState state, List<QuoteOptionalExtra> extras) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("serviceType", serviceType);
+        snapshot.put("selectedOptionalExtras", extras);
+        snapshot.put("pricing", Map.of("optionalExtrasPriceGbp", extras.stream().mapToInt(QuoteOptionalExtra::getPriceGbp).sum()));
         snapshot.put("postcode", state.getPostcode());
         snapshot.put("ownership", label(state.getOwnership()));
         snapshot.put("propertyType", label(state.getPropertyType()));

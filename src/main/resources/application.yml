@@ -102,9 +102,9 @@ kg:
 
   contact:
     email: "heatingandplumbingdirect@gmail.com"
-    phone: "+447709023018"
-    phone-display: "+44 7709 023018"
-    whatsapp: "https://wa.me/447709023018"
+    phone: "+447552532075"
+    phone-display: "+44 7552 532075"
+    whatsapp: "https://wa.me/447552532075"
 
   uploads:
     quote-pictures-dir: ${QUOTE_PICTURES_DIR:${UPLOADS_DIR:uploads/quote-pictures}}
@@ -151,16 +151,16 @@ kg:
     postcode: "E16 4JJ"
     postcodes:
       - "E16 4JJ"
-    max-distance-miles: 70
+    max-distance-miles: 60
     service-max-distance-miles:
-      central-heating: 15
-      boiler-repair: 15
-      gas-cooker-and-hob-installation: 15
-      gas-pipework-and-gas-leak-detection: 15
-      hot-water-cylinder: 15
-      plumbing: 15
-      bathroom-refurbishment: 15
-      air-conditioning-installation: 15
+      central-heating: 10
+      boiler-repair: 10
+      gas-cooker-and-hob-installation: 10
+      gas-pipework-and-gas-leak-detection: 10
+      hot-water-cylinder: 10
+      plumbing: 10
+      bathroom-refurbishment: 10
+      air-conditioning-installation: 10
     service-postcodes:
       boiler-repair:
         - "E16 4JJ"
@@ -226,6 +226,7 @@ kg:
   quote-offer:
     included-items:
       - "Boiler installation"
+      - "Standard flue kit"
       - "Digital Room Thermostat Salus RT310RF Wireless"
       - "Magnetic System Filter"
       - "In-line scale reducer"

@@ -5,8 +5,6 @@
         <!-- Top line -->
         <p class="hero-kicker">
             <span class="gas-safe">Gas Safe Registered</span>
-            <span class="divider">•</span>
-            <span class="fast-local">Fast Local Service</span>
         </p>
 
         <!-- Main heading -->
@@ -14,11 +12,9 @@
             Boiler Installation &amp; Repair in London
         </h1>
 
-        <!-- Description -->
-        <p class="hero-description">
-            Boiler installation, boiler repair, boiler service, gas safety certificates (CP12),
-            and central heating services across London &amp; surrounding areas.
-        </p>
+        <a class="hero-installation-cta" th:href="@{/quote(service='boiler-installation')}">
+            New Boiler Installation <span aria-hidden="true">→</span>
+        </a>
 
         <!-- Trust points -->
         <ul class="trust-row" aria-label="Trust indicators">
@@ -27,10 +23,10 @@
 
             <li class="trust-pill">✅ Fully insured</li>
 
-            <li class="trust-pill">✅ Unbeaten price</li>
-
-
-
+            <li class="trust-pill trust-review-badge" aria-label="Five stars">
+                <span aria-hidden="true">✅</span>
+                <span class="trust-review-stars" aria-hidden="true">★★★★★</span>
+            </li>
         </ul>
 
     </div>

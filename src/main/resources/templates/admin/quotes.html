@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin quotes</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
 </head>
 <body class="admin-page">
 <div th:replace="~{admin/_admin_header :: adminHeader}"></div>
@@ -47,7 +47,7 @@
                     <option th:each="statusOption : ${statusOptions}"
                             th:value="${statusOption}"
                             th:selected="${filters.status == statusOption}"
-                            th:text="${statusOption}">
+                            th:text="${#strings.capitalizeWords(#strings.toLowerCase(#strings.replace(statusOption, '_', ' ')))}">
                         NEW_LEAD
                     </option>
                 </select>
@@ -105,7 +105,7 @@
                     <td th:text="${quote.postcode}">E16 4JJ</td>
                     <td th:text="${quote.selectedWork}">Selected boiler</td>
                     <td th:text="${quote.totalPriceGbp != null ? '£' + quote.totalPriceGbp : '-'}">£0</td>
-                    <td><span class="admin-status" th:text="${quote.status}">NEW_LEAD</span></td>
+                    <td><span class="admin-status" th:attr="data-status=${quote.status}" th:text="${#strings.capitalizeWords(#strings.toLowerCase(#strings.replace(quote.status, '_', ' ')))}">New lead</span></td>
                     <td>
                         <a class="admin-open-link" th:href="@{/admin/quotes/{id}(id=${quote.id})}">Open details</a>
                     </td>

@@ -6,6 +6,8 @@ import com.kgboilers.model.boilerinstallation.enums.GasApplianceType;
 import com.kgboilers.model.boilerinstallation.enums.QuoteStep;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.service.boilerinstallationquote.QuoteLeadEmailService;
+import com.kgboilers.service.boilerinstallationquote.QuotePersistenceService;
+import com.kgboilers.service.boilerinstallationquote.ServiceVisitExtras;
 import com.kgboilers.service.boilerinstallationquote.QuoteProgressService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
 import com.kgboilers.service.gassafetycertificatequote.GasSafetyCertificateQuotePageService;
@@ -32,15 +34,18 @@ public class GasSafetyCertificateQuotePageController {
     private final QuoteProgressService quoteProgressService;
     private final GasSafetyCertificateQuotePageService pageService;
     private final QuoteLeadEmailService quoteLeadEmailService;
+    private final QuotePersistenceService quotePersistenceService;
 
     public GasSafetyCertificateQuotePageController(QuoteSessionService sessionService,
                                                    QuoteProgressService quoteProgressService,
                                                    GasSafetyCertificateQuotePageService pageService,
-                                                   QuoteLeadEmailService quoteLeadEmailService) {
+                                                   QuoteLeadEmailService quoteLeadEmailService,
+                                                   QuotePersistenceService quotePersistenceService) {
         this.sessionService = sessionService;
         this.quoteProgressService = quoteProgressService;
         this.pageService = pageService;
         this.quoteLeadEmailService = quoteLeadEmailService;
+        this.quotePersistenceService = quotePersistenceService;
     }
 
     @ModelAttribute
@@ -212,6 +217,11 @@ public class GasSafetyCertificateQuotePageController {
         }
 
         java.util.List<String> selectedServiceExtras = sanitizeServiceExtras(contactRequest.getSelectedExtras());
+        Long quoteId = quotePersistenceService.saveServiceLead(sessionService.getSavedQuoteId(session),
+                GasSafetyCertificateQuotePageService.SERVICE, state, GasSafetyCertificateQuotePageService.TITLE,
+                null, ServiceVisitExtras.selected(selectedServiceExtras),
+                contactRequest.getName(), contactRequest.getEmail(), contactRequest.getPhone());
+        sessionService.saveSavedQuoteId(session, quoteId);
         quoteLeadEmailService.sendServiceLeadEmails(
                 state,
                 GasSafetyCertificateQuotePageService.TITLE,

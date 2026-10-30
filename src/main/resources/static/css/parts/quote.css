@@ -1192,6 +1192,34 @@
     color: #64748b;
 }
 
+.summary-gas-upgrade {
+    margin-top: 18px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.summary-gas-upgrade-heading {
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-gas-upgrade-heading strong {
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 12px;
+}
+
+.summary-gas-upgrade p {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #475569;
+}
+
 .summary-boxt-sidebar {
     border-color: #d9e3ef;
     border-radius: 20px;

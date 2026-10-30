@@ -8,6 +8,7 @@ public class BoilerModel {
 
     private String brand;
     private String model;
+    private String manufacturerArticleNumber;
     private Integer powerKw;
     private Integer radiatorsMin;
     private Integer radiatorsMax;

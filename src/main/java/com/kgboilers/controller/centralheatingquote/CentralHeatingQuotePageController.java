@@ -9,6 +9,7 @@ import com.kgboilers.model.centralheatingquote.enums.RadiatorConvectorType;
 import com.kgboilers.model.centralheatingquote.enums.RadiatorIssueType;
 import com.kgboilers.service.centralheatingquote.CentralHeatingLeadEmailService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuotePersistenceService;
+import com.kgboilers.service.boilerinstallationquote.ServiceVisitExtras;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteProgressService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteSessionService;
 import com.kgboilers.service.centralheatingquote.CentralHeatingQuoteWizardService;
@@ -361,6 +362,7 @@ public class CentralHeatingQuotePageController {
                 sessionService.getSavedQuoteId(session),
                 "central-heating",
                 state,
+                ServiceVisitExtras.selected(selectedServiceExtras),
                 contactRequest.getName(),
                 contactRequest.getEmail(),
                 contactRequest.getPhone()

@@ -16,7 +16,7 @@
                     </strong>
                 </div>
                 <span class="quote-progress-remaining"
-                      th:text="${quoteProgress.stepsRemaining + ' steps left'}">
+                      th:text="${quoteProgress.stepsRemaining + (quoteProgress.stepsRemaining == 1 ? ' step left' : ' steps left')}">
                     14 steps left
                 </span>
             </div>

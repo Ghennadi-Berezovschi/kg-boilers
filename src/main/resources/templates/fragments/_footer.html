@@ -1,8 +1,24 @@
 <footer class="site-footer" th:fragment="footer">
     <div class="container footer-row">
-        <div class="footer-line">© 2026 <span th:text="${company.name}">Pro Boiler Services London</span>. All rights reserved.</div>
-        <div class="footer-small">
-            Boiler installation London • Boiler repair London • Gas engineer London • Central heating repair London
+        <div class="footer-copy">
+            <div class="footer-line">© 2026 <span th:text="${company.name}">Pro Boiler Services London</span>. All rights reserved.</div>
+            <div class="footer-small">
+                Boiler installation London • Boiler repair London • Gas engineer London • Central heating repair London
+            </div>
+            <nav class="footer-mobile-links" th:if="${contact != null}" aria-label="More contact options">
+                <a th:href="'mailto:' + ${contact.email}">Email us</a>
+                <a th:href="@{/callback}" href="/callback">Request callback</a>
+            </nav>
+        </div>
+        <div class="footer-credentials" aria-label="Gas Safe registered, registration number 639214">
+            <img class="footer-gas-safe-logo"
+                 th:src="@{/images/branding/gas-safe-header.svg}"
+                 src="/images/branding/gas-safe-header.svg"
+                 alt="Gas Safe Register" width="70" height="76" loading="lazy">
+            <div class="footer-registration">
+                <span>Gas Safe Registered</span>
+                <strong>Registration No. 639214</strong>
+            </div>
         </div>
     </div>
     <script>

@@ -6,7 +6,7 @@
 
     <title>Boiler Repair Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
 </head>
 <body>
 
@@ -277,6 +277,7 @@
                                     <span>Name</span>
                                     <input class="quote-input summary-contact-input"
                                            type="text"
+                                           autocomplete="name"
                                            th:field="*{name}"
                                            placeholder="Your name">
                                     <span class="summary-field-error"
@@ -290,6 +291,7 @@
                                     <span>Email</span>
                                     <input class="quote-input summary-contact-input"
                                            type="email"
+                                           autocomplete="email"
                                            th:field="*{email}"
                                            placeholder="name@example.com">
                                     <span class="summary-field-error"
@@ -303,6 +305,7 @@
                                     <span>Phone</span>
                                     <input class="quote-input summary-contact-input"
                                            type="tel"
+                                           autocomplete="tel"
                                            th:field="*{phone}"
                                            placeholder="+44 7700 900123">
                                     <span class="summary-field-error"

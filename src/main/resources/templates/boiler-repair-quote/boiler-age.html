@@ -6,7 +6,7 @@
 
     <title>Boiler Age</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
     <style>
         .boiler-age-grid {
             margin: 28px auto 0;
@@ -85,8 +85,26 @@
 
         @media (max-width: 720px) {
             .boiler-age-grid {
-                max-width: 240px;
+                max-width: 100%;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 12px;
             }
+            .boiler-age-card {
+                width: 100%;
+                min-height: 88px;
+                display: grid;
+                grid-template-columns: 90px minmax(0, 1fr);
+                gap: 16px;
+                padding: 16px 20px;
+                text-align: left;
+                border-radius: 12px;
+            }
+            .boiler-age-headline { min-height: 0; }
+            .boiler-age-prefix { font-size: 14px; }
+            .boiler-age-value, .boiler-age-value.is-text { font-size: 32px; }
+            .boiler-age-label { margin-top: 0; font-size: 18px; }
+            .boiler-age-card-unknown { margin-top: 0; }
         }
     </style>
 </head>

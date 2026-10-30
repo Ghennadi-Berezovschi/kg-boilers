@@ -6,7 +6,7 @@
 
     <title>Repair Problem</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
     <style>
         .repair-problem-grid {
             margin: 30px auto 0;
@@ -26,11 +26,16 @@
 
         @media (max-width: 640px) {
             .repair-problem-grid {
-                max-width: 260px;
+                max-width: 100%;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 12px;
             }
 
             .repair-problem-grid > .repair-problem-card {
-                flex-basis: 260px;
+                width: 100%;
+                max-width: 100%;
+                min-height: 88px;
             }
         }
     </style>

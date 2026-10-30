@@ -163,7 +163,7 @@ class BoilerRepairQuotePageControllerTest {
         when(sessionService.getState(session)).thenReturn(state);
         when(sessionService.getSavedQuoteId(session)).thenReturn(42L);
         when(boilerRepairQuotePageService.isComplete(state)).thenReturn(true);
-        when(quotePersistenceService.saveRepairLead(42L, "boiler-repair", state, "Alex", "alex@example.com", "+447700900123"))
+        when(quotePersistenceService.saveServiceLead(42L, "boiler-repair", state, "Boiler Repair Request", null, java.util.List.of(), "Alex", "alex@example.com", "+447700900123"))
                 .thenReturn(99L);
         when(boilerRepairQuotePageService.pathForStep(QuoteStep.SUMMARY)).thenReturn("/boiler-repair-quote/summary");
 

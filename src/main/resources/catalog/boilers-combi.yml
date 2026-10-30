@@ -1,15 +1,18 @@
+# Supply price includes VAT and a standard horizontal flue kit.
+# Retailer references and rounding: output/pricing/boiler-price-review-2026-10-30.json
 kg:
   boilers:
     combi:
 
       - brand: "Main"
         model: "Eco Compact 25kW Combi"
+        manufacturerArticleNumber: "7714519"
         powerKw: 25
         radiatorsMin: 1
         radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 750
+        averagePriceGbp: 900
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 60
@@ -18,19 +21,20 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-combi.png"
-        dimensions: "W 390mm x D 280mm x H 700mm"
+        dimensions: "W 390mm x D 285mm x H 700mm"
         hotWaterFlowRate: "10.2 litres/min"
         warrantyYears: 5
         enabled: true
 
       - brand: "Main"
         model: "Eco Compact 30kW Combi"
+        manufacturerArticleNumber: "7714161"
         powerKw: 30
         radiatorsMin: 6
         radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 850
+        averagePriceGbp: 950
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 60
@@ -39,39 +43,19 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/main-combi.png"
-        dimensions: "W 390mm x D 280mm x H 700mm"
+        dimensions: "W 390mm x D 285mm x H 700mm"
         hotWaterFlowRate: "12.3 litres/min"
         warrantyYears: 5
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoFIT Pure 825 25kw Combi"
+        model: "ecoFIT Pure 825 25kW Combi"
+        manufacturerArticleNumber: "0010020389"
         powerKw: 25
         radiatorsMin: 1
         radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1200
-        standardInstallationGbp: 700
-        standardItems:
-          magneticFilterGbp: 200
-          scaleReducerGbp: 20
-          roomThermostatGbp: 60
-          coAlarmGbp: 20
-          pipesAndFittingsGbp: 90
-        image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
-        dimensions: "W 390mm x D 295mm x H 702mm"
-        hotWaterFlowRate: "10.4 litres/min"
-        warrantyYears: 10
-        enabled: true
-
-      - brand: "Vaillant"
-        model: "ecoFIT Pure 830 30kW Combi"
-        powerKw: 30
-        radiatorsMin: 6
-        radiatorsMax: 13
-        bathroomsMin: 1
-        bathroomsMax: 2
         averagePriceGbp: 1350
         standardInstallationGbp: 700
         standardItems:
@@ -81,19 +65,20 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
-        dimensions: "W 390mm x D 295mm x H 702mm"
-        hotWaterFlowRate: "12.2 litres/min"
+        dimensions: "W 390mm x D 295mm x H 700mm"
+        hotWaterFlowRate: "10.4 litres/min"
         warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoFIT Pure 835 35kW Combi"
-        powerKw: 35
-        radiatorsMin: 10
-        radiatorsMax: 16
-        bathroomsMin: 2
+        model: "ecoFIT Pure 830 30kW Combi"
+        manufacturerArticleNumber: "0010020390"
+        powerKw: 30
+        radiatorsMin: 6
+        radiatorsMax: 13
+        bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1500
+        averagePriceGbp: 1450
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 200
@@ -102,19 +87,42 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
-        dimensions: "W 390mm x D 295mm x H 702mm"
+        dimensions: "W 390mm x D 295mm x H 700mm"
+        hotWaterFlowRate: "12.2 litres/min"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoFIT Pure 835 35kW Combi"
+        manufacturerArticleNumber: "0010020391"
+        powerKw: 35
+        radiatorsMin: 10
+        radiatorsMax: 16
+        bathroomsMin: 2
+        bathroomsMax: 2
+        averagePriceGbp: 1600
+        standardInstallationGbp: 700
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          roomThermostatGbp: 60
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
+        image: "/images/boilers/catalog/vaillant-ecofit-pure.png"
+        dimensions: "W 390mm x D 295mm x H 700mm"
         hotWaterFlowRate: "14.1 litres/min"
         warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
         model: "ecoTEC Plus 836 36kW Combi"
+        manufacturerArticleNumber: "0010036017"
         powerKw: 36
         radiatorsMin: 10
         radiatorsMax: 18
         bathroomsMin: 2
         bathroomsMax: 2
-        averagePriceGbp: 1900
+        averagePriceGbp: 2050
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 200
@@ -123,19 +131,20 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
-        dimensions: "W 440mm x D 338mm x H 720mm"
+        dimensions: "W 440mm x D 352mm x H 720mm"
         hotWaterFlowRate: "14.6 litres/min"
         warrantyYears: 10
         enabled: true
 
       - brand: "Vaillant"
         model: "ecoTEC Plus 840 40kW Combi"
+        manufacturerArticleNumber: "0010036018"
         powerKw: 40
         radiatorsMin: 12
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 3
-        averagePriceGbp: 2000
+        averagePriceGbp: 2200
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 200
@@ -151,12 +160,13 @@ kg:
 
       - brand: "Worcester Bosch"
         model: "Greenstar 8000+ 45kW Combi"
+        manufacturerArticleNumber: "7736702583"
         powerKw: 45
         radiatorsMin: 12
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 4
-        averagePriceGbp: 2600
+        averagePriceGbp: 2650
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 60

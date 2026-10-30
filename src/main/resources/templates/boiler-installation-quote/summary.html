@@ -6,7 +6,7 @@
 
     <title>Quote Summary</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css(v='20260910-1800')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
     <script th:src="@{/js/summary-options.js(v='20260913-thermostat-upgrade-3')}" defer></script>
 </head>
 <body>
@@ -116,7 +116,7 @@
                                         th:text="${boiler.totalPriceGbp}">1000</span></strong>
                                 <div class="summary-boiler-price-lines">
                                     <div class="summary-boiler-price-line">
-                                        <span>Boiler supply</span>
+                                        <span>Boiler + standard flue</span>
                                         <strong>£<span th:text="${boiler.averagePriceGbp}">850</span></strong>
                                     </div>
                                     <div class="summary-boiler-price-line">
@@ -353,6 +353,16 @@
                                         th:attr="data-base-extras-total=${recommendedBoilerExtraPriceGbp}"
                                         th:text="${recommendedBoilerExtraPriceGbp + selectedOptionalExtrasPriceGbp}">0</span></strong>
                     </div>
+
+                    <section class="summary-gas-upgrade"
+                             th:if="${state != null and state.fuel != null and (state.fuel.name() == 'GAS' or state.fuel.name() == 'LPG')}"
+                             aria-label="Gas pipework information">
+                        <div class="summary-breakdown-row summary-gas-upgrade-heading">
+                            <span>Gas supply pipework upgrade (if required)</span>
+                            <strong>Usually not required</strong>
+                        </div>
+                        <p>Your existing gas pipework can usually be used. If an upgrade is needed, we’ll explain why and agree any additional cost with you before work starts.</p>
+                    </section>
 
                     <p class="summary-breakdown-note">
                         The boiler prices shown on this page include your selected installation requirements and any optional extras you add.

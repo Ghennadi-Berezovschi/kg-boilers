@@ -1,0 +1,184 @@
+{
+  "checkedOn": "2026-10-30",
+  "meaningOfCurrent": "Listed in the manufacturer current product range; not a claim that every range was newly launched in 2026.",
+  "replaced": [
+    {
+      "old": "Vaillant ecoTEC Plus 612 System 12kW",
+      "new": "Vaillant ecoTEC Plus 610 System 10kW"
+    },
+    {
+      "old": "Vaillant ecoTEC Plus 618 System 18kW",
+      "new": "Vaillant ecoTEC Plus 620 System 20kW"
+    }
+  ],
+  "items": [
+    {
+      "category": "combi",
+      "model": "Eco Compact 25kW Combi",
+      "manufacturerArticleNumber": "7714519",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/combi-boilers/baxi-main-eco-compact-combi",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "Eco Compact 30kW Combi",
+      "manufacturerArticleNumber": "7714161",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/combi-boilers/baxi-main-eco-compact-combi",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "ecoFIT Pure 825 25kW Combi",
+      "manufacturerArticleNumber": "0010020389",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecofit-pure-25-30-and-35kw-24320.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "ecoFIT Pure 830 30kW Combi",
+      "manufacturerArticleNumber": "0010020390",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecofit-pure-25-30-and-35kw-24320.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "ecoFIT Pure 835 35kW Combi",
+      "manufacturerArticleNumber": "0010020391",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecofit-pure-25-30-and-35kw-24320.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "ecoTEC Plus 836 36kW Combi",
+      "manufacturerArticleNumber": "0010036017",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-826-832-836-840-940-154176.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "ecoTEC Plus 840 40kW Combi",
+      "manufacturerArticleNumber": "0010036018",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-826-832-836-840-940-154176.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "combi",
+      "model": "Greenstar 8000+ 45kW Combi",
+      "manufacturerArticleNumber": "7736702583",
+      "manufacturerUrl": "https://www.worcester-bosch.co.uk/professional/products/boilers/greenstar-8000-combi",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "Eco Compact 15kW System Boiler",
+      "manufacturerArticleNumber": "7714605",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/system-boilers/baxi-main-eco-compact-system",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "Eco Compact 18kW System Boiler",
+      "manufacturerArticleNumber": "7714606",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/system-boilers/baxi-main-eco-compact-system",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "ecoTEC Plus 610 10kW System Boiler",
+      "manufacturerArticleNumber": "0010036009",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-610-615-620-625-630-635-154880.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "ecoTEC Plus 615 15kW System Boiler",
+      "manufacturerArticleNumber": "0010036010",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-610-615-620-625-630-635-154880.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "ecoTEC Plus 620 20kW System Boiler",
+      "manufacturerArticleNumber": "0010036011",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-610-615-620-625-630-635-154880.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "ecoTEC Plus 625 25kW System Boiler",
+      "manufacturerArticleNumber": "0010036012",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-610-615-620-625-630-635-154880.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "system",
+      "model": "ecoTEC Plus 630 30kW System Boiler",
+      "manufacturerArticleNumber": "0010036013",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-610-615-620-625-630-635-154880.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "Eco Compact 15kW Heat Only",
+      "manufacturerArticleNumber": "7712025",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/heat-only-boilers/baxi-main-eco-compact-heat",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "Eco Compact 18kW Heat Only",
+      "manufacturerArticleNumber": "7712026",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/heat-only-boilers/baxi-main-eco-compact-heat",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "Eco Compact 24kW Heat Only",
+      "manufacturerArticleNumber": "7712028",
+      "manufacturerUrl": "https://www.baxi.co.uk/professional/products/boilers/heat-only-boilers/baxi-main-eco-compact-heat",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "ecoTEC Plus 412 12kW Heat Only",
+      "manufacturerArticleNumber": "0010021220",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-412-415-418-424-430-and-435-3328.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "ecoTEC Plus 415 15kW Heat Only",
+      "manufacturerArticleNumber": "0010021221",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-412-415-418-424-430-and-435-3328.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "ecoTEC Plus 418 18kW Heat Only",
+      "manufacturerArticleNumber": "0010021222",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-412-415-418-424-430-and-435-3328.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "ecoTEC Plus 424 24kW Heat Only",
+      "manufacturerArticleNumber": "0010021223",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-412-415-418-424-430-and-435-3328.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "ecoTEC Plus 430 30kW Heat Only",
+      "manufacturerArticleNumber": "0010021224",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecotec-plus-412-415-418-424-430-and-435-3328.html",
+      "status": "Listed in current manufacturer product range"
+    },
+    {
+      "category": "heat-only",
+      "model": "ecoFIT Pure 435 35kW Heat Only",
+      "manufacturerArticleNumber": "0010020405",
+      "manufacturerUrl": "https://professional.vaillant.co.uk/for-installers/products/ecofit-pure-open-vent-boiler-26116.html",
+      "status": "Listed in current manufacturer product range"
+    }
+  ]
+}

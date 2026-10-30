@@ -8,3 +8,11 @@ uploads/
 !.env.example
 *.iml
 *.txt
+
+# Local document previews and generated screenshots
+/tmp/
+/output/**
+!/output/pricing/
+!/output/pricing/*.json
+!/output/release-qa/
+!/output/release-qa/*.json

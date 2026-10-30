@@ -15,7 +15,7 @@ public class CallbackRequestDto {
 
     @NotBlank(message = "Please enter your phone number.")
     @Pattern(
-            regexp = "^[0-9+()\\-\\s]{7,20}$",
+            regexp = "^(?=(?:[^0-9]*[0-9]){7})[0-9+()\\-\\s]{7,20}$",
             message = "Please enter a valid phone number."
     )
     private String phone;

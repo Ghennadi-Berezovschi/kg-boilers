@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'About Us | ' + ${company.name}">About Us | Pro Boiler Services London</title>
+    <meta name="description" content="Meet your Pro Boiler Services London engineer. Gas Safe registered, available 24/7 across London for heating, cooling and plumbing. View examples of our work.">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
+</head>
+<body>
+<div th:replace="~{fragments/_header :: header}"></div>
+<main class="container about-page">
+    <div class="about-page-heading">
+        <a class="about-back" th:href="@{/}" href="/">← Back to home</a>
+        <h1>About Us</h1>
+        <p>Meet your engineer and take a look at our work.</p>
+    </div>
+    <div th:replace="~{fragments/_about :: about}"></div>
+    <section class="about-contact" aria-labelledby="about-contact-title">
+        <div>
+            <h2 id="about-contact-title">Let's talk about your home.</h2>
+            <p>Tell me what you need help with, or request a callback to discuss your project.</p>
+        </div>
+        <a class="about-callback" th:href="@{/callback}" href="/callback">Request a callback <span aria-hidden="true">→</span></a>
+    </section>
+</main>
+<div th:replace="~{fragments/_footer :: footer}"></div>
+<script th:src="@{/js/work-gallery.js}" defer></script>
+</body>
+</html>

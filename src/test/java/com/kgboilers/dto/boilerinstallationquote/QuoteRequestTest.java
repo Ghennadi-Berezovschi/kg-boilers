@@ -24,23 +24,23 @@ class QuoteRequestTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"SW1A 1AA", "E16 4JJ", "W1A 0AX", "M1 1AE", "B33 8TH", "CR2 6XH", "DN55 1PT", "sw1a 1aa", "E164JJ", "12345", "ABC DE"})
+    @ValueSource(strings = {"SW1A 1AA", "E16 4JJ", "W1A 0AX", "M1 1AE", "B33 8TH", "CR2 6XH", "DN55 1PT", "sw1a 1aa", "E164JJ", "GIR 0AA", " E16 4JJ "})
     void shouldValidatePostcodes(String postcode) {
         QuoteRequestPostcodeDto request = createValidRequest();
         request.setPostcode(postcode);
 
         Set<ConstraintViolation<QuoteRequestPostcodeDto>> violations = validator.validate(request);
-        assertTrue(violations.isEmpty(), "Postcode should be valid (not strictly formatted): " + postcode);
+        assertTrue(violations.isEmpty(), "Postcode should be valid: " + postcode);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", " "})
-    void shouldNotValidateEmptyPostcodes(String postcode) {
+    @ValueSource(strings = {"", " ", "12345", "ABC DE", "!!!!", "E16 4JJ EXTRA"})
+    void shouldRejectInvalidPostcodes(String postcode) {
         QuoteRequestPostcodeDto request = createValidRequest();
         request.setPostcode(postcode);
 
         Set<ConstraintViolation<QuoteRequestPostcodeDto>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty(), "Postcode should be invalid if empty");
+        assertFalse(violations.isEmpty(), "Postcode should be invalid");
     }
 
     private QuoteRequestPostcodeDto createValidRequest() {

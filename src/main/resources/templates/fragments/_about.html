@@ -1,0 +1,93 @@
+<section class="about-work" id="about" th:fragment="about" aria-labelledby="about-title">
+    <div class="about-intro">
+        <img class="about-portrait" th:src="@{/images/work/engineer-at-work.jpg}"
+             src="/images/work/engineer-at-work.jpg"
+             alt="Your Pro Boiler Services London engineer at work with pipework and installation tools"
+             width="1000" height="1000" loading="lazy" decoding="async">
+        <div class="about-details">
+            <div class="about-copy">
+                <p class="about-eyebrow">About Pro Boiler Services London</p>
+                <h2 id="about-title">Taking care of your home's heating and plumbing.</h2>
+                <p>I help homeowners across London with boiler installation, repairs and servicing,
+                    air conditioning, heating and plumbing.</p>
+                <p>Whether you need your hot water restored or you're planning a new bathroom,
+                    get in touch to discuss what your home needs.</p>
+            </div>
+            <dl class="about-facts">
+                <div><dt>Gas Safe registered</dt><dd>Registration No. 639214</dd></div>
+                <div><dt>Across London</dt><dd>Heating, cooling &amp; plumbing</dd></div>
+                <div><dt>Available 24/7</dt><dd>Call or send a message</dd></div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="about-information">
+        <div>
+            <h3>Help for your home or rental property</h3>
+            <p>From boiler faults and annual servicing to heating upgrades and bathroom refurbishments,
+                I cover a range of gas, heating and plumbing work. Landlords and homeowners can also
+                get in touch for gas safety checks and CP12 certificates.</p>
+        </div>
+        <div>
+            <h3>Start with a conversation</h3>
+            <p>Call or send a message with a short description of the job and your London postcode.
+                For a boiler problem, include the make and any fault code you can see.
+                For a new installation, tell me what you would like to change.</p>
+            <a class="about-services-link" th:href="@{/#services}" href="/#services">Explore our services <span aria-hidden="true">→</span></a>
+        </div>
+    </div>
+
+    <div class="work-heading">
+        <div>
+            <h3>Our recent work</h3>
+            <p>A few examples of our installations and refurbishments.</p>
+        </div>
+        <a class="work-facebook" href="https://www.facebook.com/profile.php?id=61595638304367"
+           target="_blank" rel="noopener noreferrer" aria-label="More work on Facebook (opens in a new tab)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M13.5 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.6 1.6-1.6h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.4v2.4H7.3V13h2.8v8h3.4Z"/>
+            </svg>
+            More work on Facebook <span aria-hidden="true">↗</span>
+        </a>
+    </div>
+    <div class="work-grid">
+        <figure class="work-example">
+            <a class="work-photo" th:href="@{/images/work/boiler-and-cylinder.jpg}"
+               href="/images/work/boiler-and-cylinder.jpg" target="_blank" rel="noopener"
+               aria-label="Enlarge boiler and hot water cylinder installation photo">
+                <img th:src="@{/images/work/boiler-and-cylinder.jpg}" src="/images/work/boiler-and-cylinder.jpg"
+                     alt="Vaillant boiler and Tempest hot water cylinder with copper pipework"
+                     width="900" height="1200" loading="lazy" decoding="async">
+                <span class="work-photo-expand" aria-hidden="true">↗</span>
+            </a>
+            <figcaption><span>01 / Heating</span><h4>Boiler &amp; hot water cylinder</h4></figcaption>
+        </figure>
+        <figure class="work-example">
+            <a class="work-photo" th:href="@{/images/work/bathroom-refurbishment.jpg}"
+               href="/images/work/bathroom-refurbishment.jpg" target="_blank" rel="noopener"
+               aria-label="Enlarge bathroom refurbishment photo">
+                <img th:src="@{/images/work/bathroom-refurbishment.jpg}" src="/images/work/bathroom-refurbishment.jpg"
+                     alt="Refurbished bathroom with marble-effect tiles, vanity unit and glass shower screen"
+                     width="768" height="1024" loading="lazy" decoding="async">
+                <span class="work-photo-expand" aria-hidden="true">↗</span>
+            </a>
+            <figcaption><span>02 / Bathrooms</span><h4>Bathroom refurbishment</h4></figcaption>
+        </figure>
+        <figure class="work-example">
+            <a class="work-photo" th:href="@{/images/work/insulated-pipework.jpg}"
+               href="/images/work/insulated-pipework.jpg" target="_blank" rel="noopener"
+               aria-label="Enlarge insulated pipework installation photo">
+                <img th:src="@{/images/work/insulated-pipework.jpg}" src="/images/work/insulated-pipework.jpg"
+                     alt="Insulated pipework neatly secured within timber framing"
+                     width="1200" height="900" loading="lazy" decoding="async">
+                <span class="work-photo-expand" aria-hidden="true">↗</span>
+            </a>
+            <figcaption><span>03 / Plumbing</span><h4>Pipework installation</h4></figcaption>
+        </figure>
+    </div>
+    <dialog class="work-lightbox" aria-labelledby="work-lightbox-caption">
+        <button class="work-lightbox-close" type="button" aria-label="Close photo" autofocus>×</button>
+        <img alt="">
+        <p id="work-lightbox-caption"></p>
+    </dialog>
+</section>

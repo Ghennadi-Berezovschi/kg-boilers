@@ -22,6 +22,8 @@ import com.kgboilers.model.boilerinstallationquote.QuoteOptionalExtra;
 import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.SimpleMailMessage;
@@ -106,6 +108,8 @@ class QuoteLeadEmailServiceTest {
         assertTrue(clientMessage.getText().contains("Hello Jane Smith,"));
         assertTrue(clientMessage.getText().contains("We will call you back as soon as possible."));
         assertTrue(clientMessage.getText().contains("Your price including installation:"));
+        assertTrue(clientMessage.getText().contains("£2050\n\nGas supply pipework upgrade (if required)\nUsually not required\n"));
+        assertTrue(clientMessage.getText().contains("Your existing gas pipework can usually be used. If an upgrade is needed, we’ll explain why and agree any additional cost with you before work starts."));
         assertTrue(clientMessage.getText().contains("Boiler installation"));
         assertTrue(clientMessage.getText().contains("Digital Room Thermostat Salus RT310RF Wireless"));
         assertTrue(clientMessage.getText().contains("Disposal of your old boiler"));
@@ -123,6 +127,25 @@ class QuoteLeadEmailServiceTest {
         assertTrue(businessMessage.getText().contains("Flue length price: £250"));
         assertTrue(businessMessage.getText().contains("Optional extras price: £150"));
         assertTrue(businessMessage.getText().contains("Status:"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FuelType.class, names = {"LPG", "ELECTRIC", "OIL", "UNKNOWN_OTHER"})
+    void sendLeadEmails_shouldOnlyIncludeGasPipeworkNoteForGasFuel(FuelType fuel) {
+        QuoteSessionState state = new QuoteSessionState();
+        state.setFuel(fuel);
+        state.setBoilerType(BoilerType.COMBI);
+
+        quoteLeadEmailService.sendLeadEmails(state, "boiler-installation", "Selected boiler", 1800,
+                "Jane Smith", "client@example.com", "+44 7700 900123",
+                0, 0, 0, 0, 0, 0, List.of(), 0);
+
+        ArgumentCaptor<SimpleMailMessage> messages = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(2)).send(messages.capture());
+        String body = messages.getAllValues().get(0).getText();
+
+        assertEquals(fuel == FuelType.LPG, body.contains("Gas supply pipework upgrade (if required)"));
+        assertTrue(body.contains("£1800"));
     }
 
     @Test

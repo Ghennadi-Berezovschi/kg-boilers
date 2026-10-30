@@ -5,11 +5,17 @@
     padding: 24px 0;
 }
 
+.section-head {
+    margin-bottom: 24px;
+}
+
 .section-head h2 {
     color: #1e3a8a; /* 🔵 тёмно-синий */
 }
 
 .section-head .subtitle {
+    margin-top: 8px;
+    line-height: 1.5;
     color: #2563eb; /* 🔵 светлее */
 }
 

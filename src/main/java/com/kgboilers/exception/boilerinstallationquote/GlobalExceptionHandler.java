@@ -180,6 +180,12 @@ public class GlobalExceptionHandler {
         return badRequest("INVALID_INPUT", message);
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<QuoteResponseDto> handleUnreadableRequest(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        log.warn("Invalid JSON or unsupported answer on quote request");
+        return badRequest("INVALID_INPUT", "Please check your answer and try again.");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<QuoteResponseDto> handleUnknown(Exception ex) {
         log.error("Unexpected error", ex);

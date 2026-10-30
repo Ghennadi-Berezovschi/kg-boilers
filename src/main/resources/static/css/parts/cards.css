@@ -76,6 +76,11 @@
     color: var(--blue-main);
 }
 
+.grid-services .card h3 {
+    font-weight: 700;
+    color: #1f2f57;
+}
+
 .service-card-central-heating h3 {
     display: grid;
     gap: 2px;

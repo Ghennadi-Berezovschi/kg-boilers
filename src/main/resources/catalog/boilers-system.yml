@@ -1,15 +1,18 @@
+# Supply price includes VAT and a standard horizontal flue kit.
+# Retailer references and rounding: output/pricing/boiler-price-review-2026-10-30.json
 kg:
   boilers:
     system:
 
       - brand: "Main"
         model: "Eco Compact 15kW System Boiler"
+        manufacturerArticleNumber: "7714605"
         powerKw: 15
         radiatorsMin: 1
         radiatorsMax: 8
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 900
+        averagePriceGbp: 1000
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 60
@@ -21,12 +24,13 @@ kg:
 
       - brand: "Main"
         model: "Eco Compact 18kW System Boiler"
+        manufacturerArticleNumber: "7714606"
         powerKw: 18
         radiatorsMin: 6
         radiatorsMax: 10
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1050
+        averagePriceGbp: 1150
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 60
@@ -40,13 +44,14 @@ kg:
       # Vaillant system boilers
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 12kW System Boiler"
-        powerKw: 12
+        model: "ecoTEC Plus 610 10kW System Boiler"
+        manufacturerArticleNumber: "0010036009"
+        powerKw: 10
         radiatorsMin: 1
-        radiatorsMax: 6
+        radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1250
+        averagePriceGbp: 1500
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200
@@ -54,49 +59,17 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 352mm x H 720mm"
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 15kW System Boiler"
+        model: "ecoTEC Plus 615 15kW System Boiler"
+        manufacturerArticleNumber: "0010036010"
         powerKw: 15
         radiatorsMin: 4
         radiatorsMax: 8
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1350
-        standardInstallationGbp: 800
-        standardItems:
-          magneticFilterGbp: 200
-          scaleReducerGbp: 20
-          coAlarmGbp: 20
-          pipesAndFittingsGbp: 90
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
-        enabled: true
-
-      - brand: "Vaillant"
-        model: "ecoTEC Plus 18kW System Boiler"
-        powerKw: 18
-        radiatorsMin: 6
-        radiatorsMax: 10
-        bathroomsMin: 1
-        bathroomsMax: 2
-        averagePriceGbp: 1450
-        standardInstallationGbp: 800
-        standardItems:
-          magneticFilterGbp: 200
-          scaleReducerGbp: 20
-          coAlarmGbp: 20
-          pipesAndFittingsGbp: 90
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
-        enabled: true
-
-      - brand: "Vaillant"
-        model: "ecoTEC Plus 24kW System Boiler"
-        powerKw: 24
-        radiatorsMin: 9
-        radiatorsMax: 14
-        bathroomsMin: 1
-        bathroomsMax: 3
         averagePriceGbp: 1550
         standardInstallationGbp: 800
         standardItems:
@@ -105,16 +78,18 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 352mm x H 720mm"
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 30kW System Boiler"
-        powerKw: 30
-        radiatorsMin: 12
-        radiatorsMax: 18
-        bathroomsMin: 2
-        bathroomsMax: 4
-        averagePriceGbp: 1650
+        model: "ecoTEC Plus 620 20kW System Boiler"
+        manufacturerArticleNumber: "0010036011"
+        powerKw: 20
+        radiatorsMin: 6
+        radiatorsMax: 10
+        bathroomsMin: 1
+        bathroomsMax: 2
+        averagePriceGbp: 1700
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200
@@ -122,4 +97,43 @@ kg:
           coAlarmGbp: 20
           pipesAndFittingsGbp: 90
         image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 352mm x H 720mm"
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 625 25kW System Boiler"
+        manufacturerArticleNumber: "0010036012"
+        powerKw: 25
+        radiatorsMin: 9
+        radiatorsMax: 14
+        bathroomsMin: 1
+        bathroomsMax: 3
+        averagePriceGbp: 1900
+        standardInstallationGbp: 800
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 352mm x H 720mm"
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 630 30kW System Boiler"
+        manufacturerArticleNumber: "0010036013"
+        powerKw: 30
+        radiatorsMin: 12
+        radiatorsMax: 18
+        bathroomsMin: 2
+        bathroomsMax: 4
+        averagePriceGbp: 2000
+        standardInstallationGbp: 800
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 440mm x D 352mm x H 720mm"
         enabled: true

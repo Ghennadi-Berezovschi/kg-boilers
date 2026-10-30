@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.kgboilers.model.admin.AdminAnswerSection;
 import com.kgboilers.model.admin.AdminDetailRow;
 import com.kgboilers.model.admin.AdminQuoteDetail;
 import com.kgboilers.model.admin.AdminQuoteFilters;
@@ -26,10 +27,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -86,6 +85,11 @@ public class AdminQuoteService {
                 "central-heating",
                 "gas-safety-certificate",
                 "hot-water-cylinder",
+                "gas-pipework-and-gas-leak-detection",
+                "gas-cooker-and-hob-installation",
+                "plumbing",
+                "bathroom-refurbishment",
+                "air-conditioning-installation",
                 "callback-request"
         );
     }
@@ -314,55 +318,17 @@ public class AdminQuoteService {
         }
     }
 
-    private List<AdminDetailRow> parseAnswers(String json) {
+    private List<AdminAnswerSection> parseAnswers(String json) {
         if (json == null || json.isBlank()) {
             return List.of();
         }
 
         try {
-            List<AdminDetailRow> rows = new ArrayList<>();
-            flattenJson("", objectMapper.readTree(json), rows);
-            return rows.stream()
-                    .filter(row -> row.value() != null && !row.value().isBlank() && !"null".equals(row.value()))
-                    .toList();
+            return AdminAnswerFormatter.format(objectMapper.readTree(json));
         } catch (Exception ex) {
-            return List.of(new AdminDetailRow("Answers", "Could not read saved answers"));
+            return List.of(new AdminAnswerSection("Saved answers", List.of(
+                    new AdminDetailRow("Answers", "Could not read saved answers"))));
         }
-    }
-
-    private void flattenJson(String prefix, JsonNode node, List<AdminDetailRow> rows) {
-        if (node == null || node.isNull()) {
-            return;
-        }
-
-        if (node.isObject()) {
-            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> field = fields.next();
-                if (prefix.isBlank() && ("uploadedPictures".equals(field.getKey()) || "jobPictures".equals(field.getKey()))) {
-                    continue;
-                }
-                String nextPrefix = prefix.isBlank() ? field.getKey() : prefix + "." + field.getKey();
-                flattenJson(nextPrefix, field.getValue(), rows);
-            }
-            return;
-        }
-
-        rows.add(new AdminDetailRow(humanize(prefix), displayJsonValue(node)));
-    }
-
-    private String displayJsonValue(JsonNode node) {
-        if (node.isArray()) {
-            List<String> values = new ArrayList<>();
-            for (JsonNode item : node) {
-                values.add(displayJsonValue(item));
-            }
-            return String.join(", ", values);
-        }
-        if (node.isObject()) {
-            return node.toString();
-        }
-        return node.asText();
     }
 
     private List<AdminUploadedPicture> parsePictures(String json, String fieldName) {

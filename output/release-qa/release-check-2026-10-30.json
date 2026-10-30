@@ -1,0 +1,254 @@
+{
+  "date": "2026-10-30",
+  "result": "PASS",
+  "command": "mvn -q clean verify",
+  "totals": {
+    "tests": 351,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "serviceCards": 10,
+  "fullJourneyVariants": 24,
+  "journeyTestSuite": {
+    "tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "database": "Isolated disposable PostgreSQL QA database; all test contexts use QA URL",
+  "mail": "JavaMailSender mocked in integration tests; packaged-JAR browser submission captured by local SMTP (2 messages); no external email sent",
+  "packagedJarBrowserCheck": {
+    "service": "Boiler service and CP12",
+    "postcode": "E16 4JJ",
+    "selectedExtra": "Power flushing",
+    "savedExtraPriceGbp": 195,
+    "databaseRowVerified": true,
+    "confirmationVisible": true
+  },
+  "mobile": {
+    "width": 390,
+    "all10CardEntryPages": {
+      "horizontalOverflow": false,
+      "smallTextInputs": false,
+      "brokenLoadedImages": false
+    },
+    "cp12Confirmation": {
+      "horizontalOverflow": false,
+      "brokenLoadedImages": false
+    }
+  },
+  "artifact": {
+    "path": "target/kg-boilers-0.0.1-SNAPSHOT.jar",
+    "sha256": "b7db12369a14f6f3de25bac326dcb3b6fc03c43955125a856e40010852cdb0f5",
+    "containsSecretsOrTestClasses": false
+  },
+  "fixes": [
+    "Boiler service and CP12 requests now saved to quotes database, including requested service and appliances",
+    "Selected boiler price saved instead of first recommendation price",
+    "Cooker and hob installation prices saved in database and JSON snapshot",
+    "Selected service extras and their prices retained for service, repair and central heating leads",
+    "Missing admin service filters added",
+    "Contact names/emails bounded to DB column sizes; punctuation-only phone numbers rejected",
+    "Invalid postcode format, malformed JSON, expired sessions and oversized requests handled",
+    "Gas safety API included in request size limit",
+    "Existing uploaded pictures retained when updating request without new files; whole upload batch validated before writing",
+    "Singular remaining-step label corrected"
+  ],
+  "limits": [
+    "No deployment performed",
+    "Production hosting, DNS, HTTPS and actual outbound SMTP delivery are not verified locally",
+    "Mobile layout checked in browser viewport emulation; physical iOS/Android devices not exercised"
+  ],
+  "suites": [
+    {
+      "name": "com.kgboilers.KgBoilersApplicationTests",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.controller.boilerinstallationquote.QuotePageControllerTest",
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.controller.boilerinstallationquote.QuoteWizardApiControllerTest",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.controller.boilerrepairquote.BoilerRepairQuoteApiControllerTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.controller.boilerrepairquote.BoilerRepairQuotePageControllerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.controller.centralheatingquote.CentralHeatingQuoteApiControllerTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.controller.centralheatingquote.CentralHeatingQuotePageControllerTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.dto.boilerinstallationquote.BedroomsRequestDtoTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.dto.boilerinstallationquote.QuoteRequestTest",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.release.ReleaseCardJourneysTest",
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.CallbackRequestServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.DistanceServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.PostcodeServiceResilienceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.PostcodeServiceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.admin.AdminAnswerFormatterTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.admin.AdminQuoteDetailTemplateTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.BoilerCatalogConfigurationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.BoilerRecommendationServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.FlueLengthPricingServiceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.QuoteLeadEmailServiceTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.QuoteOptionalExtraServiceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.QuotePersistenceServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.QuoteProgressServiceTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.QuoteServiceTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.QuoteWizardServiceTest",
+      "tests": 84,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.boilerinstallationquote.RelocationPricingServiceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kgboilers.service.centralheatingquote.CentralHeatingQuoteWizardServiceTest",
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

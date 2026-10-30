@@ -1,15 +1,18 @@
+# Supply price includes VAT and a standard horizontal flue kit.
+# Retailer references and rounding: output/pricing/boiler-price-review-2026-10-30.json
 kg:
   boilers:
     heat-only:
 
       - brand: "Main"
         model: "Eco Compact 15kW Heat Only"
+        manufacturerArticleNumber: "7712025"
         powerKw: 15
         radiatorsMin: 1
         radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 900
+        averagePriceGbp: 1150
         standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 60
@@ -23,12 +26,13 @@ kg:
 
       - brand: "Main"
         model: "Eco Compact 18kW Heat Only"
+        manufacturerArticleNumber: "7712026"
         powerKw: 18
         radiatorsMin: 6
         radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1000
+        averagePriceGbp: 1100
         standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 60
@@ -41,13 +45,14 @@ kg:
         enabled: true
 
       - brand: "Main"
-        model: "Eco Compact 24kW"
+        model: "Eco Compact 24kW Heat Only"
+        manufacturerArticleNumber: "7712028"
         powerKw: 24
         radiatorsMin: 10
         radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 3
-        averagePriceGbp: 1050
+        averagePriceGbp: 1150
         standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 60
@@ -63,13 +68,14 @@ kg:
       # Vaillant heat-only boilers
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 12kW Heat Only"
+        model: "ecoTEC Plus 412 12kW Heat Only"
+        manufacturerArticleNumber: "0010021220"
         powerKw: 12
         radiatorsMin: 1
         radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1000
+        averagePriceGbp: 1300
         standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200
@@ -82,69 +88,13 @@ kg:
         enabled: true
 
       - brand: "Vaillant"
-        model: "ecoTEC Plus 15kW Heat Only"
+        model: "ecoTEC Plus 415 15kW Heat Only"
+        manufacturerArticleNumber: "0010021221"
         powerKw: 15
         radiatorsMin: 0
         radiatorsMax: 9
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1100
-        standardInstallationGbp: 1000
-        standardItems:
-          magneticFilterGbp: 200
-          scaleReducerGbp: 20
-          coAlarmGbp: 20
-          pipesAndFittingsGbp: 90
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
-        dimensions: "W 375mm x D 320mm x H 602mm"
-        warrantyYears: 10
-        enabled: true
-
-      - brand: "Vaillant"
-        model: "ecoTEC Plus 18kW Heat Only"
-        powerKw: 18
-        radiatorsMin: 6
-        radiatorsMax: 9
-        bathroomsMin: 1
-        bathroomsMax: 2
-        averagePriceGbp: 1200
-        standardInstallationGbp: 1000
-        standardItems:
-          magneticFilterGbp: 200
-          scaleReducerGbp: 20
-          coAlarmGbp: 20
-          pipesAndFittingsGbp: 90
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
-        dimensions: "W 375mm x D 320mm x H 602mm"
-        warrantyYears: 10
-        enabled: true
-
-      - brand: "Vaillant"
-        model: "ecoTEC Plus 24kW Heat Only"
-        powerKw: 24
-        radiatorsMin: 10
-        radiatorsMax: 13
-        bathroomsMin: 1
-        bathroomsMax: 3
-        averagePriceGbp: 1250
-        standardInstallationGbp: 1000
-        standardItems:
-          magneticFilterGbp: 200
-          scaleReducerGbp: 20
-          coAlarmGbp: 20
-          pipesAndFittingsGbp: 90
-        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
-        dimensions: "W 375mm x D 320mm x H 602mm"
-        warrantyYears: 10
-        enabled: true
-
-      - brand: "Vaillant"
-        model: "ecoTEC Plus 30kW Heat Only"
-        powerKw: 30
-        radiatorsMin: 14
-        radiatorsMax: 16
-        bathroomsMin: 2
-        bathroomsMax: 3
         averagePriceGbp: 1350
         standardInstallationGbp: 1000
         standardItems:
@@ -158,13 +108,74 @@ kg:
         enabled: true
 
       - brand: "Vaillant"
+        model: "ecoTEC Plus 418 18kW Heat Only"
+        manufacturerArticleNumber: "0010021222"
+        powerKw: 18
+        radiatorsMin: 6
+        radiatorsMax: 9
+        bathroomsMin: 1
+        bathroomsMax: 2
+        averagePriceGbp: 1500
+        standardInstallationGbp: 1000
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 424 24kW Heat Only"
+        manufacturerArticleNumber: "0010021223"
+        powerKw: 24
+        radiatorsMin: 10
+        radiatorsMax: 13
+        bathroomsMin: 1
+        bathroomsMax: 3
+        averagePriceGbp: 1550
+        standardInstallationGbp: 1000
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Vaillant"
+        model: "ecoTEC Plus 430 30kW Heat Only"
+        manufacturerArticleNumber: "0010021224"
+        powerKw: 30
+        radiatorsMin: 14
+        radiatorsMax: 16
+        bathroomsMin: 2
+        bathroomsMax: 3
+        averagePriceGbp: 1650
+        standardInstallationGbp: 1000
+        standardItems:
+          magneticFilterGbp: 200
+          scaleReducerGbp: 20
+          coAlarmGbp: 20
+          pipesAndFittingsGbp: 90
+        image: "/images/boilers/catalog/vaillant-ecotec-plus.png"
+        dimensions: "W 375mm x D 320mm x H 602mm"
+        warrantyYears: 10
+        enabled: true
+
+      - brand: "Vaillant"
         model: "ecoFIT Pure 435 35kW Heat Only"
+        manufacturerArticleNumber: "0010020405"
         powerKw: 35
         radiatorsMin: 14
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 4
-        averagePriceGbp: 1750
+        averagePriceGbp: 2400
         standardInstallationGbp: 1000
         standardItems:
           magneticFilterGbp: 200

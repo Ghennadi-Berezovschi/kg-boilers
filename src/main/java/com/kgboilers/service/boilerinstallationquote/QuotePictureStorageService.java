@@ -40,6 +40,8 @@ public class QuotePictureStorageService {
             throw new IllegalArgumentException("Please upload no more than 3 pictures.");
         }
 
+        // Validate the complete batch before writing any file.
+        files.forEach(this::validate);
         try {
             Files.createDirectories(uploadDirectory);
         } catch (IOException ex) {

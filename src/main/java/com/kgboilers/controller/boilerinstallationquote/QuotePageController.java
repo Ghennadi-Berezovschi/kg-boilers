@@ -875,7 +875,10 @@ public class QuotePageController {
 
         if (!bindingResult.hasErrors()) {
             try {
-                state.setUploadedPictures(quotePictureStorageService.storePictures(contactRequest.getPictures()));
+                if (contactRequest.getPictures() != null && contactRequest.getPictures().stream()
+                        .anyMatch(picture -> picture != null && !picture.isEmpty())) {
+                    state.setUploadedPictures(quotePictureStorageService.storePictures(contactRequest.getPictures()));
+                }
             } catch (IllegalArgumentException | IllegalStateException ex) {
                 bindingResult.rejectValue("pictures", "pictures.invalid", ex.getMessage());
             }
@@ -916,7 +919,13 @@ public class QuotePageController {
             return "boiler-installation-quote/contact";
         }
 
-        Long quoteId = quotePersistenceService.saveLead(
+        boolean serviceRequest = isServiceOnlyContact(service) || isElectricInstallationContact(state, service)
+                || isBoilerTypeHelpContact(state, service);
+        Long quoteId = serviceRequest
+                ? quotePersistenceService.saveServiceLead(summaryViewData.quoteId(), service, state,
+                    contactRequest.getSelectedBoiler(), selectedBoilerData.totalPriceGbp() > 0 ? selectedBoilerData.totalPriceGbp() : null,
+                    List.of(), contactRequest.getName(), contactRequest.getEmail(), contactRequest.getPhone())
+                : quotePersistenceService.saveLead(
                 summaryViewData.quoteId(),
                 service,
                 state,

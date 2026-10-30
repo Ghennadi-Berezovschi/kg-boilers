@@ -8,6 +8,7 @@ import com.kgboilers.model.boilerinstallationquote.QuoteSessionState;
 import com.kgboilers.model.boilerrepair.enums.BoilerAge;
 import com.kgboilers.service.boilerinstallationquote.QuoteLeadEmailService;
 import com.kgboilers.service.boilerinstallationquote.QuotePersistenceService;
+import com.kgboilers.service.boilerinstallationquote.ServiceVisitExtras;
 import com.kgboilers.service.boilerinstallationquote.QuoteProgressService;
 import com.kgboilers.service.boilerinstallationquote.QuoteSessionService;
 import com.kgboilers.service.boilerrepairquote.BoilerRepairQuotePageService;
@@ -283,10 +284,11 @@ public class BoilerRepairQuotePageController {
         }
 
         java.util.List<String> selectedServiceExtras = sanitizeServiceExtras(contactRequest.getSelectedExtras());
-        Long quoteId = quotePersistenceService.saveRepairLead(
+        Long quoteId = quotePersistenceService.saveServiceLead(
                 quoteSessionService.getSavedQuoteId(session),
                 BoilerRepairQuotePageService.SERVICE,
                 state,
+                "Boiler Repair Request", null, ServiceVisitExtras.selected(selectedServiceExtras),
                 contactRequest.getName(),
                 contactRequest.getEmail(),
                 contactRequest.getPhone()

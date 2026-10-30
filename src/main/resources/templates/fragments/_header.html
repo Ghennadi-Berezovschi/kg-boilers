@@ -15,19 +15,37 @@
         <div class="container header-row">
 
             <!-- Brand -->
-            <a class="brand"
-               th:href="@{/}"
-               th:attr="aria-label=${company.name + ' home'}">
+            <div class="brand-group">
+                <a class="brand"
+                   th:href="@{/}"
+                   th:attr="aria-label=${company.name + ' home'}">
 
-                <span class="brand-title" style="display:inline-flex; align-items:center; gap:6px; width:fit-content;">
-                    <span class="brand-title-text" th:text="${company.name}">Pro Boiler Services London</span>
-                </span>
+                    <span class="brand-title" style="display:inline-flex; align-items:center; gap:6px; width:fit-content;">
+                        <span class="brand-title-text" th:text="${company.name}">Pro Boiler Services London</span>
+                    </span>
 
-                <span class="brand-subtitle">
-                    London &amp; surrounding areas
-                </span>
+                    <span class="brand-subtitle">
+                        London &amp; surrounding areas
+                    </span>
 
-            </a>
+                </a>
+                <a class="brand-facebook"
+                   href="https://www.facebook.com/profile.php?id=61595638304367"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Find us on Facebook"
+                   aria-label="Find us on Facebook (opens in a new tab)">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                        <path d="M13.5 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.6 1.6-1.6h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.4v2.4H7.3V13h2.8v8h3.4Z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <nav class="site-navigation" aria-label="Main navigation">
+                <a class="header-about" th:href="@{/about}" href="/about"
+                   th:classappend="${aboutPage == true} ? 'is-active' : ''"
+                   th:attr="aria-current=${aboutPage == true} ? 'page' : null">About Us</a>
+            </nav>
 
             <!-- Contact actions -->
             <nav class="actions" aria-label="Contact options">

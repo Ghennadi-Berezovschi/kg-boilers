@@ -173,7 +173,7 @@ public class QuotePersistenceService {
                 savedQuoteId,
                 serviceType,
                 state,
-                recommendation,
+                selectedRecommendation(recommendation, selectedBoiler),
                 relocationPriceGbp,
                 flueLengthPriceGbp,
                 fluePositionPriceGbp,
@@ -185,6 +185,37 @@ public class QuotePersistenceService {
         );
 
         saveContactDetails(quoteId, selectedBoiler, clientName, email, phone);
+        return quoteId;
+    }
+
+    private BoilerRecommendationResult selectedRecommendation(BoilerRecommendationResult recommendation, String selection) {
+        if (recommendation == null || recommendation.getBoilers() == null || recommendation.getBoilers().isEmpty()) {
+            return recommendation;
+        }
+        BoilerModel selected = recommendation.getBoilers().stream()
+                .filter(boiler -> (boiler.getBrand() + " " + boiler.getModel()).equals(selection))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Selected boiler is not in this quote"));
+        return new BoilerRecommendationResult(recommendation.getTargetType(), recommendation.getTargetTypeLabel(),
+                recommendation.getRequiredRadiators(), recommendation.getRequiredBathShowerUnits(),
+                recommendation.isExactMatch(), List.of(selected));
+    }
+
+    @Transactional
+    public Long saveServiceLead(Long savedQuoteId, String serviceType, QuoteSessionState state,
+                                String selection, Integer confirmedTotalPriceGbp,
+                                List<QuoteOptionalExtra> extras, String name, String email, String phone) {
+        int extrasPrice = extras.stream().mapToInt(QuoteOptionalExtra::getPriceGbp).sum();
+        Long quoteId = saveOrUpdate(savedQuoteId, serviceType, state, null,
+                0, 0, 0, 0, 0, 0, extras, extrasPrice);
+        if (confirmedTotalPriceGbp != null) {
+            jdbcTemplate.update("""
+                    UPDATE quotes SET installation_price_gbp = :price,
+                        client_answers_json = jsonb_set(client_answers_json,
+                            '{pricing,installationPriceGbp}', to_jsonb(CAST(:price AS integer)))
+                    WHERE id = :id
+                    """, new MapSqlParameterSource("id", quoteId).addValue("price", confirmedTotalPriceGbp));
+        }
+        saveContactDetails(quoteId, selection, name, email, phone);
         return quoteId;
     }
 
@@ -327,6 +358,8 @@ public class QuotePersistenceService {
         answers.put("bedrooms", enumName(state.getBedrooms()));
         answers.put("boilerType", enumName(state.getBoilerType()));
         answers.put("boilerMake", enumName(state.getBoilerMake()));
+        answers.put("gasSafetyServiceType", enumName(state.getGasSafetyServiceType()));
+        answers.put("gasAppliances", state.getGasAppliancesSummary());
         answers.put("hotWaterAvailable", state.getHotWaterAvailable());
         answers.put("problemDetails", state.getProblemDetailsSummary());
         answers.put("plumbingProblems", state.getPlumbingProblemsSummary());
