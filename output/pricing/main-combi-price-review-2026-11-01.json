@@ -1,0 +1,85 @@
+{
+  "checkedOn": "2026-11-01",
+  "status": "Applied approved GBP 850 / GBP 910 supply prices and matching Baxi MainEco article numbers on 2026-11-01",
+  "basis": "Boiler plus compatible standard horizontal flue including VAT; supply only; delivery excluded",
+  "currentCatalog": [
+    {
+      "powerKw": 25,
+      "mpn": "7714519",
+      "supplyPriceGbp": 900
+    },
+    {
+      "powerKw": 30,
+      "mpn": "7714161",
+      "supplyPriceGbp": 950
+    }
+  ],
+  "offers": [
+    {
+      "retailer": "HPD",
+      "powerKw": 25,
+      "mpn": "7714519",
+      "boilerGbp": 702.68,
+      "flueGbp": 119.36,
+      "totalGbp": 822.04,
+      "url": "https://hpds.co.uk/product/main-eco-compact-25kw/"
+    },
+    {
+      "retailer": "HPD",
+      "powerKw": 30,
+      "mpn": "7714161",
+      "boilerGbp": 761.69,
+      "flueGbp": 119.36,
+      "totalGbp": 881.05,
+      "url": "https://hpds.co.uk/product/main-eco-compact-30kw/"
+    },
+    {
+      "retailer": "Builder Depot",
+      "powerKw": 25,
+      "mpn": "7906992",
+      "boilerGbp": 719.94,
+      "flueGbp": 111.13,
+      "totalGbp": 831.07,
+      "url": "https://www.builderdepot.co.uk/main-eco-compact-25kw-combi-erp-boiler",
+      "flueUrl": "https://www.builderdepot.co.uk/main-standard-horizontal-flue"
+    },
+    {
+      "retailer": "Builder Depot",
+      "powerKw": 30,
+      "mpn": "7906993",
+      "boilerGbp": 791.94,
+      "flueGbp": 111.13,
+      "totalGbp": 903.07,
+      "url": "https://www.builderdepot.co.uk/main-eco-compact-30kw-erp-combi-boiler",
+      "flueUrl": "https://www.builderdepot.co.uk/main-standard-horizontal-flue"
+    }
+  ],
+  "recommendation": {
+    "basis": "Builder Depot Baxi MainEco articles 7906992/7906993; same retailer for boiler and flue",
+    "supplyPrice25Gbp": 850,
+    "supplyPrice30Gbp": 910,
+    "rounding": "User-approved GBP 850 / GBP 910 equipment prices including standard horizontal flue and VAT"
+  },
+  "notes": [
+    "Manufacturer Baxi product page still lists Main sales codes 7714519/7714161. Retailer Getplumb describes 7906992 as a new sales code for the same boiler, rather than evidence of a new boiler generation. Do not label the previous sales code obsolete on this evidence alone.",
+    "HPD product prices were read from opened pages. The flue is GBP 119.36 in opened pages, not GBP 117.31 in search snippets.",
+    "HPD delivery to London and delivery costs depend on checkout. Builder Depot indicates supplier dispatch with local stock/availability and delivery charges checked before purchase.",
+    "GMS offer was excluded because heading says horizontal flue included but bullet says boiler only. Opened price GBP 900 also differs from indexed GBP 860.",
+    "No purchase or supplier contact was made."
+  ],
+  "appliedOn": "2026-11-01",
+  "catalogAfterUpdate": [
+    {
+      "powerKw": 25,
+      "mpn": "7906992",
+      "supplyPriceGbp": 850,
+      "standardInstalledTotalGbp": 1800
+    },
+    {
+      "powerKw": 30,
+      "mpn": "7906993",
+      "supplyPriceGbp": 910,
+      "standardInstalledTotalGbp": 1860
+    }
+  ]
+}

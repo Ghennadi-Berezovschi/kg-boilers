@@ -34,6 +34,13 @@ class PostcodeServiceTest {
     }
 
     @Test
+    void shouldNotTurnMissingResultIntoRetryableServerFailure() {
+        when(restTemplate.getForObject(anyString(), eq(com.kgboilers.dto.PostcodeApiResponse.class)))
+                .thenReturn(null);
+        assertThrows(PostcodeNotFoundException.class, () -> postcodeService.getCoordinates("SW1A1AA"));
+    }
+
+    @Test
     void shouldThrowExternalServiceExceptionOn500() {
         when(restTemplate.getForObject(anyString(), eq(com.kgboilers.dto.PostcodeApiResponse.class)))
                 .thenThrow(new RuntimeException("API Down"));

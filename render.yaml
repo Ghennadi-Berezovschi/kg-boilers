@@ -1,0 +1,60 @@
+# Creates paid resources only when explicitly applied in a Render account.
+services:
+  - type: web
+    name: pro-boiler-services-london
+    runtime: docker
+    plan: 0.5c-512mb
+    region: frankfurt
+    healthCheckPath: /healthz
+    autoDeployTrigger: "off"
+    disk:
+      name: customer-pictures
+      mountPath: /data/kg-boilers/quote-pictures
+      sizeGB: 1
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: QUOTE_PICTURES_DIR
+        value: /data/kg-boilers/quote-pictures
+      - key: DB_HOST
+        fromDatabase:
+          name: kg-boilers-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: kg-boilers-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: kg-boilers-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: kg-boilers-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: kg-boilers-db
+          property: password
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SPRING_MAIL_HOST
+        value: smtp.gmail.com
+      - key: SPRING_MAIL_PORT
+        value: 587
+      - key: SPRING_MAIL_USERNAME
+        sync: false
+      - key: SPRING_MAIL_PASSWORD
+        sync: false
+
+databases:
+  - name: kg-boilers-db
+    plan: 0.1c-256mb
+    region: frankfurt
+    postgresMajorVersion: "16"
+    databaseName: kg_boilers_db
+    user: kg_boilers
+    diskSizeGB: 1
+    ipAllowList: []

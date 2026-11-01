@@ -8,6 +8,15 @@ import org.springframework.stereotype.Component;
 public class CompanyProperties {
 
     private String name;
+    private String websiteUrl;
+
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    public void setWebsiteUrl(String websiteUrl) {
+        this.websiteUrl = websiteUrl == null ? "" : websiteUrl.replaceAll("/+$", "");
+    }
 
     public String getName() {
         return name;

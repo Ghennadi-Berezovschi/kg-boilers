@@ -66,8 +66,8 @@ class BoilerCatalogConfigurationTest {
         var current620 = boilers.stream().filter(b -> "0010036011".equals(b.getManufacturerArticleNumber()))
                 .findFirst().orElseThrow();
         assertEquals(20, current620.getPowerKw());
-        assertEquals(1700, current620.getAveragePriceGbp());
-        assertEquals(2830, current620.getTotalPriceGbp());
+        assertEquals(1650, current620.getAveragePriceGbp());
+        assertEquals(2780, current620.getTotalPriceGbp());
         assertTrue(boilers.stream().noneMatch(b -> b.getModel().contains("618") || b.getModel().contains("612")));
     }
 }

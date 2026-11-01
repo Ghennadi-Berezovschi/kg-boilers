@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-01",
+  "scope": "Predeployment verification; no hosting resources created and no live deployment",
+  "javaTests": {
+    "tests": 359,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "launcherTests": {
+    "tests": 7,
+    "failures": 0
+  },
+  "releaseCoverage": {
+    "serviceCards": 10,
+    "fullJourneyVariants": 24,
+    "integrationTests": 31
+  },
+  "artifact": {
+    "path": "target/kg-boilers-0.0.1-SNAPSHOT.jar",
+    "sha256": "ee0474de423731b9ac64c9a67ae7407db21e30879a4f21ecac9ffc3e019e9c0e"
+  },
+  "productionDocker": {
+    "date": "2026-11-01",
+    "database": "kg_boilers_release_qa_20261101",
+    "restoredDatabase": "kg_boilers_release_qa_restore_20261101",
+    "backupRestore": {
+      "passed": true,
+      "tablesCompared": 2,
+      "sha256": "2fd8b156181f19c9dd583d11a9a1783ae9c1337e7bf35ac109f10fcae66a53ae"
+    },
+    "pictureArchiveCreated": true,
+    "productionReadySeconds": 6.2,
+    "secureSessionCookie": true,
+    "restartReadySeconds": 4.13,
+    "persistentVolumeSurvivesRestart": true,
+    "containerMemory": "229.2MiB / 512MiB",
+    "configurableSocialMetadata": true,
+    "imageId": "sha256:8009d5698462888530468e358ce758149bff958410e2ea21bbeecba44de11459"
+  },
+  "httpSmoke": {
+    "pageChecks": [
+      {
+        "path": "/",
+        "status": 200,
+        "milliseconds": 322.1
+      },
+      {
+        "path": "/about",
+        "status": 200,
+        "milliseconds": 23.7
+      },
+      {
+        "path": "/callback",
+        "status": 200,
+        "milliseconds": 41.2
+      },
+      {
+        "path": "/healthz",
+        "status": 200,
+        "milliseconds": 5.2
+      },
+      {
+        "path": "/quote?service=boiler-installation",
+        "status": 200,
+        "milliseconds": 28.2
+      },
+      {
+        "path": "/boiler-repair-quote",
+        "status": 200,
+        "milliseconds": 6.9
+      },
+      {
+        "path": "/gas-safety-certificate-quote",
+        "status": 200,
+        "milliseconds": 7.2
+      },
+      {
+        "path": "/central-heating-quote",
+        "status": 200,
+        "milliseconds": 6.7
+      },
+      {
+        "path": "/quote?service=hot-water-cylinder",
+        "status": 200,
+        "milliseconds": 5.0
+      },
+      {
+        "path": "/quote?service=gas-pipework-and-gas-leak-detection",
+        "status": 200,
+        "milliseconds": 5.0
+      },
+      {
+        "path": "/quote?service=gas-cooker-and-hob-installation",
+        "status": 200,
+        "milliseconds": 4.4
+      },
+      {
+        "path": "/quote?service=plumbing",
+        "status": 200,
+        "milliseconds": 4.0
+      },
+      {
+        "path": "/quote?service=bathroom-refurbishment",
+        "status": 200,
+        "milliseconds": 4.8
+      },
+      {
+        "path": "/quote?service=air-conditioning-installation",
+        "status": 200,
+        "milliseconds": 4.0
+      }
+    ],
+    "concurrentReadChecks": {
+      "requests": 56,
+      "workers": 8,
+      "failures": 0,
+      "maxMilliseconds": 20.1
+    },
+    "gzipVerified": true,
+    "photoBackupRestore": {
+      "passed": true,
+      "fixtures": 1
+    }
+  },
+  "liveCallbackMail": {
+    "marker": "DEPLOY TEST 20261101",
+    "qaDatabaseOnly": true,
+    "clientConfirmationVerifiedInConnectedInbox": true,
+    "businessNotificationConfirmedByOwner": true
+  },
+  "privacy": {
+    "anonymousUploadAccess": 404,
+    "unrelatedSessionAccess": 404,
+    "uploadOwnerAccess": 200,
+    "adminAccess": 200,
+    "cacheControl": "no-store"
+  },
+  "mobileVisualCheck": {
+    "method": "Native Chrome iPhone SE emulation",
+    "viewport": {
+      "width": 375,
+      "height": 667
+    },
+    "views": [
+      "home",
+      "boiler installation postcode form",
+      "About Us / gallery",
+      "callback form / footer"
+    ],
+    "horizontalClippingSeen": false,
+    "physicalIosSafariTest": false
+  },
+  "remainingHostedChecks": [
+    "Owner approval/account setup for paid hosting",
+    "Confirmed domain, DNS and actual HTTPS",
+    "Hosted mail roundtrip and persistent-disk permissions",
+    "Physical phone test"
+  ],
+  "knownNonBlockingIssue": "Optional favicon.ico absent; browser receives 404. No functional JavaScript errors seen on inspected forms."
+}

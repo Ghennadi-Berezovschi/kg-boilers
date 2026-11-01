@@ -1,0 +1,25 @@
+# Activate explicitly on the hosting service: SPRING_PROFILES_ACTIVE=prod.
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        secure: true
+        http-only: true
+        same-site: lax
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  datasource:
+    # Render provides these fields separately; DB_URL can override the full JDBC URL.
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:kg_boilers_db}}
+    hikari:
+      maximum-pool-size: 5
+      connection-timeout: 10000
+      validation-timeout: 3000
+  mail:
+    test-connection: true

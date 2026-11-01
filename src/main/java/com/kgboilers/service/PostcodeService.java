@@ -63,6 +63,8 @@ public class PostcodeService {
                     response.getResult().getLongitude()
             );
 
+        } catch (PostcodeNotFoundException e) {
+            throw e;
         } catch (HttpClientErrorException e) {
 
             if (e.getStatusCode() == org.springframework.http.HttpStatus.NOT_FOUND) {

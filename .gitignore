@@ -16,3 +16,6 @@ uploads/
 !/output/pricing/*.json
 !/output/release-qa/
 !/output/release-qa/*.json
+
+__pycache__/
+*.pyc

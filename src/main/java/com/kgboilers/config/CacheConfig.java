@@ -19,7 +19,8 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(CACHE_POSTCODES);
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(Duration.ofMinutes(10)));
+                .expireAfterWrite(Duration.ofMinutes(10))
+                .maximumSize(10_000));
         return cacheManager;
     }
 }

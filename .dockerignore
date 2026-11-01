@@ -1,0 +1,11 @@
+.git
+.idea
+.env
+.env.*
+target
+tmp
+output
+uploads
+scripts
+__pycache__
+*.log

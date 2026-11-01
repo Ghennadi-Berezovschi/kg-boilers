@@ -1,0 +1,178 @@
+{
+  "startupCycles": [
+    {
+      "cycle": 1,
+      "readySeconds": 4.08
+    },
+    {
+      "cycle": 2,
+      "readySeconds": 3.2
+    },
+    {
+      "cycle": 3,
+      "readySeconds": 3.12
+    }
+  ],
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 4.3,
+      "bytes": 14426,
+      "encoding": null
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ms": 8.1,
+      "bytes": 12531,
+      "encoding": null
+    },
+    {
+      "path": "/callback",
+      "status": 200,
+      "ms": 15.7,
+      "bytes": 10793,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=boiler-installation",
+      "status": 200,
+      "ms": 44.0,
+      "bytes": 11946,
+      "encoding": null
+    },
+    {
+      "path": "/boiler-repair-quote",
+      "status": 200,
+      "ms": 7.6,
+      "bytes": 10852,
+      "encoding": null
+    },
+    {
+      "path": "/gas-safety-certificate-quote",
+      "status": 200,
+      "ms": 5.5,
+      "bytes": 10723,
+      "encoding": null
+    },
+    {
+      "path": "/central-heating-quote",
+      "status": 200,
+      "ms": 5.4,
+      "bytes": 10920,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=hot-water-cylinder",
+      "status": 200,
+      "ms": 2.6,
+      "bytes": 11968,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=gas-pipework-and-gas-leak-detection",
+      "status": 200,
+      "ms": 2.1,
+      "bytes": 11976,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=gas-cooker-and-hob-installation",
+      "status": 200,
+      "ms": 2.1,
+      "bytes": 11968,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=plumbing",
+      "status": 200,
+      "ms": 2.0,
+      "bytes": 11922,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=bathroom-refurbishment",
+      "status": 200,
+      "ms": 2.2,
+      "bytes": 11950,
+      "encoding": null
+    },
+    {
+      "path": "/quote?service=air-conditioning-installation",
+      "status": 200,
+      "ms": 2.8,
+      "bytes": 11964,
+      "encoding": null
+    },
+    {
+      "path": "/admin/login",
+      "status": 200,
+      "ms": 4.3,
+      "bytes": 2464,
+      "encoding": null
+    }
+  ],
+  "concurrentReadOnlyRequests": {
+    "requests": 52,
+    "workers": 8,
+    "allStatus200": true,
+    "medianMs": 5.8,
+    "p95Ms": 13.7,
+    "maxMs": 20.1
+  },
+  "staticAssets": {
+    "checked": 89,
+    "failures": []
+  },
+  "compressedHomepage": {
+    "path": "/",
+    "status": 200,
+    "ms": 4.3,
+    "bytes": 3357,
+    "encoding": "gzip"
+  },
+  "date": "2026-11-01",
+  "result": "PASS",
+  "javaTests": {
+    "tests": 353,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "releaseIntegrationTests": 31
+  },
+  "launcherTests": {
+    "tests": 7,
+    "failures": 0
+  },
+  "baseline": {
+    "ideSpringStartupSeconds": 31.99,
+    "generatedFilesBeforeCleanup": 1465,
+    "duplicateGeneratedNamesBeforeCleanup": 1047
+  },
+  "ideVerification": {
+    "configuration": "KgBoilers Local",
+    "beforeLaunch": "clean compile",
+    "springStartupSeconds": 2.16,
+    "port": 8080,
+    "runningPid": 11832
+  },
+  "launcherVerification": {
+    "cleanBuildOutsideDesktop": true,
+    "waitsForPostgres": true,
+    "repeatCommandDoesNotStartSecondInstance": true,
+    "arbitraryProcessesKilled": false
+  },
+  "artifact": {
+    "path": "target/kg-boilers-0.0.1-SNAPSHOT.jar",
+    "sha256": "cecacedd15a7be7fbc013d090b49a84407b969d581039765daf9246084fd5c24",
+    "bytes": 46651988
+  },
+  "limits": [
+    "Local timings are not production load guarantees",
+    "Cold full build time is additional to application startup time",
+    "Java 21 and Docker Desktop must be available",
+    "No real outgoing email was sent",
+    "Browser automation could not attach to pre-existing browser error pages; checks used backend HTTP and native IntelliJ instead"
+  ]
+}

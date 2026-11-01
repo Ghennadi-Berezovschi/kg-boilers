@@ -1,5 +1,5 @@
 # Supply price includes VAT and a standard horizontal flue kit.
-# Retailer references and rounding: output/pricing/boiler-price-review-2026-10-30.json
+# Retailer references and rounding: output/pricing/boiler-price-recheck-2026-11-01.json
 kg:
   boilers:
     system:
@@ -51,7 +51,7 @@ kg:
         radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 1500
+        averagePriceGbp: 1450
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200
@@ -70,7 +70,7 @@ kg:
         radiatorsMax: 8
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1550
+        averagePriceGbp: 1500
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200
@@ -89,7 +89,7 @@ kg:
         radiatorsMax: 10
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 1700
+        averagePriceGbp: 1650
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200
@@ -108,7 +108,7 @@ kg:
         radiatorsMax: 14
         bathroomsMin: 1
         bathroomsMax: 3
-        averagePriceGbp: 1900
+        averagePriceGbp: 1850
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200
@@ -127,7 +127,7 @@ kg:
         radiatorsMax: 18
         bathroomsMin: 2
         bathroomsMax: 4
-        averagePriceGbp: 2000
+        averagePriceGbp: 1950
         standardInstallationGbp: 800
         standardItems:
           magneticFilterGbp: 200

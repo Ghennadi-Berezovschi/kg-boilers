@@ -1,18 +1,19 @@
 # Supply price includes VAT and a standard horizontal flue kit.
-# Retailer references and rounding: output/pricing/boiler-price-review-2026-10-30.json
+# Retailer references and rounding: output/pricing/boiler-price-recheck-2026-11-01.json
+# Main combi price and article update: output/pricing/main-combi-price-review-2026-11-01.json
 kg:
   boilers:
     combi:
 
       - brand: "Main"
         model: "Eco Compact 25kW Combi"
-        manufacturerArticleNumber: "7714519"
+        manufacturerArticleNumber: "7906992"
         powerKw: 25
         radiatorsMin: 1
         radiatorsMax: 5
         bathroomsMin: 1
         bathroomsMax: 1
-        averagePriceGbp: 900
+        averagePriceGbp: 850
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 60
@@ -28,13 +29,13 @@ kg:
 
       - brand: "Main"
         model: "Eco Compact 30kW Combi"
-        manufacturerArticleNumber: "7714161"
+        manufacturerArticleNumber: "7906993"
         powerKw: 30
         radiatorsMin: 6
         radiatorsMax: 13
         bathroomsMin: 1
         bathroomsMax: 2
-        averagePriceGbp: 950
+        averagePriceGbp: 910
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 60
@@ -122,7 +123,7 @@ kg:
         radiatorsMax: 18
         bathroomsMin: 2
         bathroomsMax: 2
-        averagePriceGbp: 2050
+        averagePriceGbp: 2000
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 200
@@ -144,7 +145,7 @@ kg:
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 3
-        averagePriceGbp: 2200
+        averagePriceGbp: 2100
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 200
@@ -166,7 +167,7 @@ kg:
         radiatorsMax: 20
         bathroomsMin: 2
         bathroomsMax: 4
-        averagePriceGbp: 2650
+        averagePriceGbp: 2550
         standardInstallationGbp: 700
         standardItems:
           magneticFilterGbp: 60

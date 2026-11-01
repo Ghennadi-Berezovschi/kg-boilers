@@ -304,7 +304,17 @@ class ReleaseCardJourneysTest {
         assertThat(snapshot.path("pricing").path("installationPriceGbp").asInt()).isEqualTo(displayedPrice);
         assertThat(snapshot.path("uploadedPictures").size()).isEqualTo(1);
         String imageUrl = snapshot.path("uploadedPictures").get(0).path("url").asText();
-        assertThat(mvc.perform(get(imageUrl)).andReturn().getResponse().getContentAsByteArray()).isEqualTo(png);
+        assertThat(mvc.perform(get(imageUrl)).andReturn().getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvc.perform(get(imageUrl).session(new MockHttpSession())).andReturn().getResponse().getStatus()).isEqualTo(404);
+        var ownerPicture = mvc.perform(get(imageUrl).session(journey.session())).andReturn().getResponse();
+        assertThat(ownerPicture.getStatus()).isEqualTo(200);
+        assertThat(ownerPicture.getHeader("Cache-Control")).contains("no-store");
+        assertThat(ownerPicture.getContentAsByteArray()).isEqualTo(png);
+        MockHttpSession admin = new MockHttpSession();
+        var authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                "release-admin", "unused", java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN")));
+        admin.setAttribute("SPRING_SECURITY_CONTEXT", new org.springframework.security.core.context.SecurityContextImpl(authentication));
+        assertThat(mvc.perform(get(imageUrl).session(admin)).andReturn().getResponse().getContentAsByteArray()).isEqualTo(png);
         verify(mail, timeout(3000).times(2)).send(any(SimpleMailMessage.class));
         // A repeated submission updates this request rather than inserting a duplicate.
         var repeat = mvc.perform(post("/quote/contact").session(journey.session()).param("selectedBoiler", label).param("selectedExtras", extras)
@@ -314,6 +324,40 @@ class ReleaseCardJourneysTest {
         assertThat(jdbc.queryForObject("select installation_price_gbp from quotes where id = ?", Integer.class, saved.get("id"))).isEqualTo(displayedPrice);
         assertThat(json.readTree(jdbc.queryForObject("select client_answers_json::text from quotes where id = ?", String.class, saved.get("id"))).path("uploadedPictures").size()).isEqualTo(1);
         verify(mail, timeout(3000).times(4)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void slowMailDoesNotHoldCallbackResponseOrDatabaseTransaction() throws Exception {
+        java.util.concurrent.CountDownLatch entered = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<String> mailThread = new java.util.concurrent.atomic.AtomicReference<>();
+        org.mockito.Mockito.doAnswer(invocation -> {
+            mailThread.set(Thread.currentThread().getName());
+            entered.countDown();
+            release.await(5, java.util.concurrent.TimeUnit.SECONDS);
+            return null;
+        }).when(mail).send(any(SimpleMailMessage.class));
+        try {
+            MockHttpSession session = new MockHttpSession();
+            MvcResult page = render(get("/callback").session(session));
+            var token = (org.springframework.security.web.csrf.CsrfToken) page.getRequest().getAttribute("_csrf");
+            String value = token.getToken();
+            String email = "slow-mail-" + UUID.randomUUID() + "@example.invalid";
+            long start = System.nanoTime();
+            MvcResult result = render(post("/callback").session(session).cookie(page.getResponse().getCookie("XSRF-TOKEN"))
+                    .param(token.getParameterName(), value).param("name", "Slow mail QA")
+                    .param("email", email).param("phone", "+447700900123"));
+            long elapsedMs = java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+            assertThat(result.getModelAndView().getModel().get("callbackSuccess")).isEqualTo(true);
+            assertThat(elapsedMs).as("Callback must not wait for blocked SMTP").isLessThan(1500);
+            assertThat(entered.await(2, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            assertThat(count(email)).as("Lead is committed while SMTP is still blocked").isEqualTo(1);
+            assertThat(mailThread.get()).startsWith("lead-email-");
+        } finally {
+            release.countDown();
+            verify(mail, timeout(3000).times(2)).send(any(SimpleMailMessage.class));
+            org.mockito.Mockito.doNothing().when(mail).send(any(SimpleMailMessage.class));
+        }
     }
 
     private Journey walk(Scenario scenario) throws Exception {

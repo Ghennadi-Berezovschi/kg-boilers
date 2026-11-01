@@ -14,12 +14,11 @@ spring:
       mail:
         smtp:
           auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          connectiontimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_CONNECTIONTIMEOUT:5000}
+          timeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT:5000}
+          writetimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_WRITETIMEOUT:5000}
           starttls:
             enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
-
-  jpa:
-    hibernate:
-      ddl-auto: none
 
   flyway:
     enabled: true
@@ -38,6 +37,10 @@ spring:
       max-request-size: 16MB
 
 server:
+  shutdown: graceful
+  compression:
+    enabled: true
+    min-response-size: 1024
   servlet:
     session:
       timeout: 2h
@@ -52,8 +55,8 @@ resilience4j:
     retry-aspect-order: 1
     instances:
       postcodeApi:
-        max-attempts: 3
-        wait-duration: 1s
+        max-attempts: 2
+        wait-duration: 250ms
         retry-exceptions:
           - org.springframework.web.client.ResourceAccessException
           - com.kgboilers.exception.ExternalServiceException
@@ -96,6 +99,7 @@ kg:
 
   company:
     name: "Pro Boiler Services London"
+    website-url: ${PUBLIC_SITE_URL:${RENDER_EXTERNAL_URL:http://localhost:8080}}
 
   boiler-repair:
     visit-price-gbp: 99
@@ -189,8 +193,8 @@ kg:
 
   http:
     client:
-      connect-timeout: 5000
-      read-timeout: 5000
+      connect-timeout: 2000
+      read-timeout: 3000
     request:
       max-content-length-bytes: 16384
 

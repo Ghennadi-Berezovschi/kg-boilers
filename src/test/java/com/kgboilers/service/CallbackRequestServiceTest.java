@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -29,6 +30,8 @@ class CallbackRequestServiceTest {
     private NamedParameterJdbcTemplate jdbcTemplate;
     private JavaMailSender mailSender;
     private CallbackRequestService callbackRequestService;
+    private ApplicationEventPublisher events;
+    private CallbackEmailService emailService;
 
     @BeforeEach
     void setUp() {
@@ -45,13 +48,9 @@ class CallbackRequestServiceTest {
         when(jdbcTemplate.queryForObject(any(String.class), any(MapSqlParameterSource.class), eq(Long.class)))
                 .thenReturn(42L);
 
-        callbackRequestService = new CallbackRequestService(
-                jdbcTemplate,
-                new ObjectMapper(),
-                mailSenderProvider,
-                contactProperties,
-                companyProperties
-        );
+        events = mock(ApplicationEventPublisher.class);
+        callbackRequestService = new CallbackRequestService(jdbcTemplate, new ObjectMapper(), events);
+        emailService = new CallbackEmailService(mailSenderProvider, contactProperties, companyProperties);
     }
 
     @Test
@@ -78,6 +77,11 @@ class CallbackRequestServiceTest {
         assertEquals("+44 7700 900123", params.getValue("clientPhone"));
         assertTrue(params.getValue("clientAnswersJson").toString().contains("Please call me after 6pm"));
 
+        ArgumentCaptor<CallbackRequestedEvent> eventCaptor = ArgumentCaptor.forClass(CallbackRequestedEvent.class);
+        verify(events).publishEvent(eventCaptor.capture());
+        org.mockito.Mockito.verifyNoInteractions(mailSender);
+        emailService.sendEmails(eventCaptor.getValue());
+
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender, times(2)).send(messageCaptor.capture());
         List<SimpleMailMessage> messages = messageCaptor.getAllValues();
@@ -99,6 +103,11 @@ class CallbackRequestServiceTest {
         request.setEmail(" ");
 
         callbackRequestService.submit(request);
+
+        ArgumentCaptor<CallbackRequestedEvent> eventCaptor = ArgumentCaptor.forClass(CallbackRequestedEvent.class);
+        verify(events).publishEvent(eventCaptor.capture());
+        org.mockito.Mockito.verifyNoInteractions(mailSender);
+        emailService.sendEmails(eventCaptor.getValue());
 
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender).send(messageCaptor.capture());

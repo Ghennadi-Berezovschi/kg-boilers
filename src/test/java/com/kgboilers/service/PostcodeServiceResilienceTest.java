@@ -53,7 +53,7 @@ class PostcodeServiceResilienceTest {
     }
 
     @Test
-    void shouldRetryThreeTimesAndCallFallback() {
+    void shouldRetryTwiceAndCallFallback() {
 
         when(restTemplate.getForObject(anyString(), eq(PostcodeApiResponse.class)))
                 .thenThrow(new ResourceAccessException("timeout"));
@@ -63,8 +63,8 @@ class PostcodeServiceResilienceTest {
                 () -> postcodeService.getCoordinates("E164JJ")
         );
 
-        // max-attempts = 3
-        verify(restTemplate, times(3))
+        // max-attempts = 2
+        verify(restTemplate, times(2))
                 .getForObject(anyString(), eq(PostcodeApiResponse.class));
     }
 
