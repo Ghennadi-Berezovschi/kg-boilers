@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-01",
+  "status": "live",
+  "publicUrl": "https://pro-boiler-services-london.onrender.com/",
+  "adminLoginUrl": "https://pro-boiler-services-london.onrender.com/admin/login",
+  "deployedCommit": "0633a9ee72e5ac9c35c96f58c395712455b3b269",
+  "hosting": {
+    "provider": "Render",
+    "workspacePlan": "Hobby",
+    "estimatedMonthlyUsdBeforeTaxAndOverages": 13.55,
+    "webCompute": "0.5c-512mb",
+    "databaseCompute": "0.1c-256mb",
+    "postgresMajorVersion": 16,
+    "region": "frankfurt",
+    "databaseStorageGB": 1,
+    "pictureDiskGB": 1,
+    "pictureDiskMount": "/data/kg-boilers/quote-pictures",
+    "externalDatabaseTrafficBlocked": true,
+    "automaticDeploys": "off",
+    "dashboard": "https://dashboard.render.com/web/srv-dbjrfcu7bikc738bjphg",
+    "blueprint": "https://dashboard.render.com/blueprint/exs-dbjqn8c9v7es73at1420"
+  },
+  "checks": {
+    "httpsHealthStatus": 200,
+    "healthBody": {
+      "status": "ok"
+    },
+    "postRestartHealthStatus": 200,
+    "postRestartHealthBody": {
+      "status": "ok"
+    },
+    "serviceCardEntries": [
+      {
+        "path": "/quote?service=boiler-installation",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Boiler Installation, Value: 2"
+      },
+      {
+        "path": "/boiler-repair-quote",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Boiler Repair, Value: 2"
+      },
+      {
+        "path": "/gas-safety-certificate-quote",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Boiler Service and Gas Safety Certificate, Value: 2"
+      },
+      {
+        "path": "/central-heating-quote",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Central Heating Installation & Repair, Value: 2"
+      },
+      {
+        "path": "/quote?service=hot-water-cylinder",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Hot Water Cylinder Installation & Repair, Value: 2"
+      },
+      {
+        "path": "/quote?service=gas-pipework-and-gas-leak-detection",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Gas Pipework And Gas Leak Detection, Value: 2"
+      },
+      {
+        "path": "/quote?service=gas-cooker-and-hob-installation",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Gas Cooker And Hob Installation, Value: 2"
+      },
+      {
+        "path": "/quote?service=plumbing",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Plumbing, Value: 2"
+      },
+      {
+        "path": "/quote?service=bathroom-refurbishment",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Bathroom Refurbishment, Value: 2"
+      },
+      {
+        "path": "/quote?service=air-conditioning-installation",
+        "hasContinue": true,
+        "hasPostcode": true,
+        "heading": "18 heading Get a quote for Air Conditioning Installation, Value: 2"
+      }
+    ],
+    "postcodeCheck": "E16 4JJ advanced to the boiler installation fuel-type step on the hosted app",
+    "callbackTest": {
+      "marker": "DEPLOY LIVE TEST 20261101",
+      "successPageSeen": true,
+      "businessEmailReceiptConfirmedByOwner": true,
+      "clientEmailReceiptConfirmedByOwner": true,
+      "testRecipient": "heatingandplumbingdirect@gmail.com",
+      "leadVisibleInAdmin": true,
+      "leadStillVisibleAfterServiceRestart": true,
+      "leadLeftLabelledAsReleaseTest": true
+    },
+    "adminLogin": {
+      "works": true,
+      "worksAfterRestart": true,
+      "loggedOutAfterChecks": true
+    },
+    "homePageAudit": {
+      "brokenImages": [],
+      "ogImage": "https://pro-boiler-services-london.onrender.com/images/site/heating-installation-hero.jpeg",
+      "ogUrl": "https://pro-boiler-services-london.onrender.com/",
+      "scrollWidth": 1280,
+      "url": "https://pro-boiler-services-london.onrender.com/",
+      "viewportWidth": 1280
+    },
+    "javascriptWarningsAndErrorsSeenOnCheckedHomePage": []
+  },
+  "backups": {
+    "manualPostgresExportAvailable": true,
+    "pointInTimeRecoveryWindowDays": 3,
+    "pointInTimeRecoveryState": "initializing as last observed in the Render dashboard",
+    "photoSnapshots": "every 24 hours; retained seven days; first snapshot not yet observed"
+  },
+  "limits": [
+    "No custom domain has been purchased or configured.",
+    "Hosted layout geometry was checked at the actual 1280px viewport. The IAB mobile override did not take effect; no hosted mobile result is claimed. Predeployment Chrome phone emulation is recorded separately.",
+    "No destructive restore was performed on the live database. Backup restoration was tested on isolated local QA databases before deployment.",
+    "Uploaded customer photos were not migrated from the local machine; the new deployment starts with a new database and empty upload disk.",
+    "An unfinished quote session resets during a restart or deployment; saved leads persist."
+  ]
+}

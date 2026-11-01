@@ -89,3 +89,18 @@ When the owner approves the recurring cost:
 A disk-backed single-instance service has deployment downtime. Do not promise uninterrupted deployments. Sessions are currently in memory: restarting or deploying can reset an unfinished quote; saved leads and disk-backed photos remain. Plan deployments outside busy hours.
 
 For rollback, manually redeploy the last verified commit. Avoid destructive database changes; restoring an old database also discards newer leads, so first preserve a fresh export and investigate the failure. The current Flyway changes are additive; this release does not alter the schema.
+
+
+## Live Render deployment — 1 November 2026
+
+The site is live at **https://pro-boiler-services-london.onrender.com/**. The owner can sign in at **https://pro-boiler-services-london.onrender.com/admin/login** with the credentials entered during setup. No credentials are stored in this guide or the deployment report.
+
+Render successfully deployed commit `0633a9ee72e5ac9c35c96f58c395712455b3b269`. The Hobby workspace contains the approved paid web service, PostgreSQL 16 database and persistent photo disk in Frankfurt. The dashboard's estimate was **USD 13.55/month** before taxes and usage overages. The custom domain remains to be chosen; the public Render URL has HTTPS and is usable now.
+
+Hosted checks passed: `/healthz` over HTTPS, all ten service entry forms, a real postcode lookup, callback submission, admin login, test-lead visibility, service restart, health recovery and retained lead after restart. The owner confirmed receipt of both test emails sent from the hosted app. The entry `DEPLOY LIVE TEST 20261101` remains clearly labelled in the admin panel as a test; no callback is required. After checking the lead, the test admin session was signed out.
+
+The photo disk is mounted at `/data/kg-boilers/quote-pictures`, and external PostgreSQL access is blocked. A first logical database export is available in Render's Recovery page. Point-in-time recovery has a three-day window but was still initializing at the final check; it must not be described as already usable. Photo disk snapshots run every 24 hours and retain seven days; the first snapshot had not yet appeared. No destructive live restore was attempted.
+
+The browser confirmed the deployed home page's Open Graph URLs point at the Render domain, no broken `img` elements were found and no JavaScript warnings/errors were captured in the checked home-page log. The hosted geometry check was at the actual 1280px viewport: the temporary IAB phone-size override did not take effect, so it is not counted as a hosted mobile test. The earlier native Chrome phone emulation remains documented above. A physical phone check can now use the public URL over either Wi-Fi or mobile data.
+
+Full non-secret results are in `output/release-qa/render-deployment-2026-11-01.json`. Database and disk exports stay outside source control. The local database and local uploads have not been migrated into the new production instance.
