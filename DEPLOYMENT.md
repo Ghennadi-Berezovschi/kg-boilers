@@ -73,9 +73,9 @@ Results and artifact hashes are in `output/release-qa/predeploy-check-2026-11-01
 
 ## Suggested Render setup
 
-`render.yaml` prepares one paid Docker web service (512 MB), a paid PostgreSQL 16 database (256 MB, 1 GB storage) and a 1 GB persistent photo disk in Frankfurt. **The file has not been applied and no paid resources have been created.** Auto-deployment is off, so a Git push does not publish a new release through this Blueprint.
+`render.yaml` defines one paid Docker web service (512 MB), a paid PostgreSQL 16 database (256 MB, 1 GB storage) and a 1 GB persistent photo disk in Frankfurt. The owner approved these resources and deployed them on 1 November 2026, as recorded below. Auto-deployment is off, so a Git push does not publish a new release through this Blueprint.
 
-The initial infrastructure estimate is USD 13.55/month before taxes, bandwidth overages, domain registration and any upgrades: web $7, database $6, database storage $0.30, photo disk $0.25. Check the current account estimate before approving creation. Sources: [pricing](https://render.com/pricing), [Blueprint settings](https://render.com/docs/blueprint-spec), [persistent disks](https://render.com/docs/disks). The small plan passed the local memory smoke check; review memory and latency under real traffic before increasing capacity.
+The approved infrastructure estimate is USD 13.55/month before taxes, bandwidth overages, domain registration and any upgrades: web $7, database $6, database storage $0.30, photo disk $0.25. Check the current account estimate before approving further resources. Sources: [pricing](https://render.com/pricing), [Blueprint settings](https://render.com/docs/blueprint-spec), [persistent disks](https://render.com/docs/disks). The small plan passed the local memory smoke check; review memory and latency under real traffic before increasing capacity.
 
 When the owner approves the recurring cost:
 
@@ -104,3 +104,17 @@ The photo disk is mounted at `/data/kg-boilers/quote-pictures`, and external Pos
 The browser confirmed the deployed home page's Open Graph URLs point at the Render domain, no broken `img` elements were found and no JavaScript warnings/errors were captured in the checked home-page log. The hosted geometry check was at the actual 1280px viewport: the temporary IAB phone-size override did not take effect, so it is not counted as a hosted mobile test. The earlier native Chrome phone emulation remains documented above. A physical phone check can now use the public URL over either Wi-Fi or mobile data.
 
 Full non-secret results are in `output/release-qa/render-deployment-2026-11-01.json`. Database and disk exports stay outside source control. The local database and local uploads have not been migrated into the new production instance.
+
+## Custom domain setup — 2 November 2026
+
+The owner purchased **proboilerserviceslondon.co.uk** from IONOS and confirmed the contact email. The checkout quoted GBP 1.20 including VAT for the first year, then GBP 12/year at the current renewal price, with automatic renewal. No additional `.com` domain was purchased.
+
+Render has verified both the apex domain and `www.proboilerserviceslondon.co.uk`; `www` redirects to the apex. IONOS DNS now has `A @ → 216.24.57.1` and `CNAME www → pro-boiler-services-london.onrender.com`, each with a 300-second TTL. The conflicting default-site A/AAAA records were replaced/disabled. Mail-related records remain in place. Google and Cloudflare DNS resolvers return the expected apex A record.
+
+`PUBLIC_SITE_URL=https://proboilerserviceslondon.co.uk` was applied to the running service. Commit `8dff87c94f1373815c73116415c03ebf0db24a08` is live, fixing the quote page's hardcoded sharing metadata to use the configured URL and an existing hero image. All 40 quote controller tests passed. Hosted checks through the Render hostname passed for all ten service entry forms and confirmed the home/quote sharing metadata uses the custom domain.
+
+At the last check, the `www` TLS certificate was issued and its HTTPS response redirected correctly. **The apex certificate was still pending in Render; the custom-domain HTTPS launch is not yet verified.** HTTP apex redirects to HTTPS, but HTTPS currently fails its handshake while issuance is pending. Recheck Render's Custom Domains status and `https://proboilerserviceslondon.co.uk/healthz`, then check the home page, service forms and image URLs before sharing the custom domain. Do not bypass browser certificate warnings. The original Render HTTPS address remains available.
+
+The database's three-day point-in-time recovery now exposes the Restore action, the 1 November 22:22 UTC logical export is available, and the photo disk has a snapshot dated 2 November 00:18 UTC. No live restore was attempted.
+
+Non-secret results are in `output/release-qa/custom-domain-2026-11-02.json`. `render.yaml` records the selected domain and public URL for future Blueprint synchronization; auto-deploy remains off.

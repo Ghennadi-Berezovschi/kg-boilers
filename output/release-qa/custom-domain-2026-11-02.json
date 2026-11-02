@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-02",
+  "domain": "proboilerserviceslondon.co.uk",
+  "registrar": "IONOS",
+  "owner_confirmed_purchase": true,
+  "contact_email_confirmation": "owner confirmed; verification notice no longer present in IONOS",
+  "cost_gbp_including_20_percent_vat": {
+    "first_year": 1.2,
+    "current_annual_renewal": 12,
+    "automatic_renewal": true
+  },
+  "application_commit": "8dff87c94f1373815c73116415c03ebf0db24a08",
+  "render_deploy": "dep-dbkbuutg1s2s739tl8q0",
+  "render_deploy_status": "Live",
+  "public_site_url": "https://proboilerserviceslondon.co.uk",
+  "dns": {
+    "apex_A": "216.24.57.1",
+    "www_CNAME": "pro-boiler-services-london.onrender.com",
+    "TTL_seconds": 300,
+    "conflicting_apex_AAAA_removed": true,
+    "google_and_cloudflare_resolvers_return_expected_A": true
+  },
+  "render_verification": {
+    "apex": "Verified",
+    "www": "Verified"
+  },
+  "tls": {
+    "apex": "Certificate Pending",
+    "www": "Certificate Issued",
+    "apex_https_health_check": "not yet available: TLS handshake fails while certificate is pending"
+  },
+  "redirect_checks": {
+    "http_apex": "301 to https://proboilerserviceslondon.co.uk/",
+    "https_www": "301 to https://proboilerserviceslondon.co.uk/"
+  },
+  "code_change": "Quote Open Graph and Twitter URL/image now use configured site URL and existing hero asset instead of kg-boilers.com",
+  "unit_tests": {
+    "QuotePageControllerTest": {
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "deployed_metadata_check": {
+    "checked_via": "https://pro-boiler-services-london.onrender.com",
+    "home_and_quote_use_custom_domain": true,
+    "old_domain_present": false
+  },
+  "service_entries": [
+    {
+      "path": "/quote?service=boiler-installation",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/boiler-repair-quote",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/gas-safety-certificate-quote",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/central-heating-quote",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/quote?service=hot-water-cylinder",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/quote?service=gas-pipework-and-gas-leak-detection",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/quote?service=gas-cooker-and-hob-installation",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/quote?service=plumbing",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/quote?service=bathroom-refurbishment",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    },
+    {
+      "path": "/quote?service=air-conditioning-installation",
+      "curl_exit": 0,
+      "postcode_present": true,
+      "continue_present": true,
+      "old_domain_present": false
+    }
+  ],
+  "backup_status": {
+    "postgres_point_in_time_recovery": "Restore database action available; 3-day window",
+    "logical_export": "2026-11-01 22:22 UTC export available",
+    "photo_disk_snapshot": "2026-11-02 00:18 UTC snapshot available",
+    "live_restore_attempted": false
+  },
+  "remaining": [
+    "Wait for Render apex TLS certificate issuance, then verify custom-domain HTTPS home, forms, assets and browser rendering."
+  ],
+  "new_customer_test_emails_sent": false
+}

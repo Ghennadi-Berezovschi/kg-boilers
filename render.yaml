@@ -7,11 +7,15 @@ services:
     region: frankfurt
     healthCheckPath: /healthz
     autoDeployTrigger: "off"
+    domains:
+      - proboilerserviceslondon.co.uk
     disk:
       name: customer-pictures
       mountPath: /data/kg-boilers/quote-pictures
       sizeGB: 1
     envVars:
+      - key: PUBLIC_SITE_URL
+        value: https://proboilerserviceslondon.co.uk
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: QUOTE_PICTURES_DIR
