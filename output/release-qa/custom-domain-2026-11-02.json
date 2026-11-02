@@ -25,9 +25,8 @@
     "www": "Verified"
   },
   "tls": {
-    "apex": "Certificate Pending",
-    "www": "Certificate Issued",
-    "apex_https_health_check": "not yet available: TLS handshake fails while certificate is pending"
+    "apex": "HTTPS verified: HTTP 200, TLS certificate verification succeeded",
+    "www": "HTTPS verified: HTTP 301 to apex"
   },
   "redirect_checks": {
     "http_apex": "301 to https://proboilerserviceslondon.co.uk/",
@@ -125,8 +124,39 @@
     "photo_disk_snapshot": "2026-11-02 00:18 UTC snapshot available",
     "live_restore_attempted": false
   },
-  "remaining": [
-    "Wait for Render apex TLS certificate issuance, then verify custom-domain HTTPS home, forms, assets and browser rendering."
+  "remaining": [],
+  "new_customer_test_emails_sent": false,
+  "custom_domain_health": {
+    "status": "ok"
+  },
+  "custom_domain_admin_login_http_status": 200,
+  "custom_domain_assets": [
+    {
+      "path": "/images/branding/gas-safe-header.svg",
+      "curl_exit": 0
+    },
+    {
+      "path": "/images/site/heating-installation-hero.jpeg",
+      "curl_exit": 0
+    }
   ],
-  "new_customer_test_emails_sent": false
+  "custom_domain_redirects": {
+    "http_apex": [
+      "HTTP/1.1 301 Moved Permanently",
+      "Date: Mon, 02 Nov 2026 19:43:09 GMT",
+      "Content-Type: text/html; charset=utf-8",
+      "Connection: keep-alive",
+      "Location: https://proboilerserviceslondon.co.uk/",
+      "cf-cache-status: DYNAMIC"
+    ],
+    "https_www": [
+      "HTTP/2 301 ",
+      "date: Mon, 02 Nov 2026 19:43:09 GMT",
+      "content-type: text/html; charset=utf-8",
+      "location: https://proboilerserviceslondon.co.uk/",
+      "cf-cache-status: DYNAMIC",
+      "server: cloudflare"
+    ]
+  },
+  "custom_domain_browser_home": "Opened successfully in the browser without certificate warning"
 }
