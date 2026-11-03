@@ -164,7 +164,7 @@ kg:
       hot-water-cylinder: 10
       plumbing: 10
       bathroom-refurbishment: 10
-      air-conditioning-installation: 10
+      air-conditioning-installation: 50
     service-postcodes:
       boiler-repair:
         - "E16 4JJ"
@@ -189,7 +189,6 @@ kg:
         - "E4 8BJ"
       air-conditioning-installation:
         - "E16 4JJ"
-        - "E4 8BJ"
 
   http:
     client:
