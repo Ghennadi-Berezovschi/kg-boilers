@@ -118,3 +118,11 @@ Render has verified both the apex domain and `www.proboilerserviceslondon.co.uk`
 The database's three-day point-in-time recovery now exposes the Restore action, the 1 November 22:22 UTC logical export is available, and the photo disk has a snapshot dated 2 November 00:18 UTC. No live restore was attempted.
 
 Non-secret results are in `output/release-qa/custom-domain-2026-11-02.json`. `render.yaml` records the selected domain and public URL for future Blueprint synchronization; auto-deploy remains off.
+
+## Air conditioning coverage update — 3 November 2026
+
+The owner approved a 50-mile straight-line radius from **E16 4JJ only** for Air Conditioning Installation. Commit `8948eccf4481b17c3609470de9b57d3e6faf8bca` changes that service's limit from 10 to 50 miles and removes E4 8BJ as an additional origin for this service. Other service coverage remains unchanged. The existing distance validator includes exactly 50 miles and rejects greater distances.
+
+All 116 targeted quote service, wizard and API controller tests passed. The commit was pushed to `main` and manually deployed to the existing Render service as `dep-dbl2s3gae00c73ceaiag`; Render reports **Deploy succeeded | Live**. Auto-deploy remains off.
+
+Hosted checks through the custom domain passed for the home page, health endpoint and air conditioning postcode form. Air conditioning accepts E16 4JJ and SL4 1NJ (26.70 miles from E16 4JJ), and rejects PE19 1JA (50.41 miles, even though it is only 44.47 miles from the removed E4 8BJ origin) and OX1 1DP (56.68 miles). A plumbing control request for SL4 1NJ remains out of area. These checks stopped after postcode validation; no leads or test emails were submitted. Results are in `output/release-qa/air-conditioning-coverage-2026-11-03.json`.

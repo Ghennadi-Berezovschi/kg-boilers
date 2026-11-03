@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-03",
+  "application_commit": "8948eccf4481b17c3609470de9b57d3e6faf8bca",
+  "render_deploy": "dep-dbl2s3gae00c73ceaiag",
+  "render_status": "Deploy succeeded | Live",
+  "public_site_url": "https://proboilerserviceslondon.co.uk",
+  "air_conditioning_coverage": {
+    "origin_postcode": "E16 4JJ",
+    "max_distance_miles": 50,
+    "distance_method": "Haversine straight-line",
+    "inclusive": true,
+    "other_service_coverage_changed": false
+  },
+  "unit_tests": {
+    "passed": 116,
+    "failures": 0,
+    "errors": 0
+  },
+  "postcode_distances_miles": {
+    "source": "Coordinates from api.postcodes.io; Haversine with the application's 3958.8-mile Earth radius",
+    "SL4 1NJ": {"from_E16_4JJ": 26.70, "from_E4_8BJ": 26.76},
+    "PE19 1JA": {"from_E16_4JJ": 50.41, "from_E4_8BJ": 44.47},
+    "OX1 1DP": {"from_E16_4JJ": 56.68, "from_E4_8BJ": 54.18}
+  },
+  "hosted_checks": [
+    {
+      "path": "/",
+      "http_status": 200
+    },
+    {
+      "path": "/healthz",
+      "http_status": 200
+    },
+    {
+      "path": "/quote?service=air-conditioning-installation",
+      "http_status": 200
+    },
+    {
+      "service": "air-conditioning-installation",
+      "postcode": "E16 4JJ",
+      "http_status": 200,
+      "response": {
+        "success": true,
+        "errorCode": null,
+        "message": null,
+        "nextStep": "/quote/property-ownership"
+      }
+    },
+    {
+      "service": "air-conditioning-installation",
+      "postcode": "SL4 1NJ",
+      "http_status": 200,
+      "response": {
+        "success": true,
+        "errorCode": null,
+        "message": null,
+        "nextStep": "/quote/property-ownership"
+      }
+    },
+    {
+      "service": "air-conditioning-installation",
+      "postcode": "PE19 1JA",
+      "http_status": 403,
+      "response": {
+        "success": false,
+        "errorCode": "OUT_OF_AREA",
+        "message": "Sorry, we do not cover your area",
+        "nextStep": null
+      }
+    },
+    {
+      "service": "air-conditioning-installation",
+      "postcode": "OX1 1DP",
+      "http_status": 403,
+      "response": {
+        "success": false,
+        "errorCode": "OUT_OF_AREA",
+        "message": "Sorry, we do not cover your area",
+        "nextStep": null
+      }
+    },
+    {
+      "service": "plumbing",
+      "postcode": "SL4 1NJ",
+      "http_status": 403,
+      "response": {
+        "success": false,
+        "errorCode": "OUT_OF_AREA",
+        "message": "Sorry, we do not cover your area",
+        "nextStep": null
+      }
+    }
+  ],
+  "test_leads_submitted": false,
+  "test_emails_sent": false
+}
