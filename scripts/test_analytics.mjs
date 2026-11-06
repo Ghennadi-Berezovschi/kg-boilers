@@ -55,6 +55,11 @@ test('consent loads asynchronously once and strips personal query and referrer d
     assert.equal(b.events().length, 1);
     const event = b.events()[0];
     assert.equal(event[1], 'page_view');
+    const commands = Array.from(b.window.dataLayer);
+    const defaults = commands.findIndex(args => args[0] === 'set');
+    assert.ok(defaults < commands.findIndex(args => args[0] === 'js'));
+    assert.equal(commands[defaults][1].send_page_view, false);
+    assert.equal(commands[defaults][1].page_title, 'Pro Boiler Services London');
     assert.match(event[2].page_location, /utm_source=uk4ru/);
     assert.doesNotMatch(JSON.stringify(b.window.dataLayer), /private@example|E154DH|#name/);
     assert.equal(event[2].page_referrer, 'https://uk4ru.com/view/ad');

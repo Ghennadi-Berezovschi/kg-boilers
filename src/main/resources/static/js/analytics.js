@@ -68,6 +68,12 @@
             ad_user_data: 'denied', ad_personalization: 'denied' });
         window.gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'denied',
             ad_user_data: 'denied', ad_personalization: 'denied' });
+        // Google may initialise the destination from its managed container before
+        // processing our config command. Apply privacy defaults globally first.
+        window.gtag('set', {
+            send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false,
+            page_location: pageLocation(), page_referrer: referrer(), page_title: 'Pro Boiler Services London'
+        });
         window.gtag('js', new Date());
         window.gtag('config', measurementId, {
             send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false,
