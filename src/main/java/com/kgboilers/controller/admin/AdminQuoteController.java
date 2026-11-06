@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -61,9 +63,40 @@ public class AdminQuoteController {
     @GetMapping("/admin/quotes/{id}")
     public String quoteDetail(@PathVariable long id, Model model) {
         AdminQuoteDetail quote = adminQuoteService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Quote not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quote not found"));
         model.addAttribute("quote", quote);
         return "admin/quote-detail";
+    }
+
+    @GetMapping("/admin/quotes/delete")
+    public String deletionReview(@RequestParam(required = false) List<Long> ids, Model model,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            model.addAttribute("quotes", adminQuoteService.deletionCandidates(ids));
+            model.addAttribute("ids", adminQuoteService.validatedDeletionIds(ids));
+            return "admin/delete-quotes";
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/admin/quotes";
+        }
+    }
+
+    @PostMapping("/admin/quotes/delete")
+    public String deleteRequests(@RequestParam(required = false) List<Long> ids,
+                                 @RequestParam(defaultValue = "false") boolean confirmDeletion,
+                                 RedirectAttributes redirectAttributes) {
+        if (!confirmDeletion) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirm permanent deletion first.");
+        try {
+            var result = adminQuoteService.deleteRequests(ids);
+            redirectAttributes.addFlashAttribute("message", result.deletedCount() + " request(s) permanently deleted.");
+            if (!result.undeletedPictures().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Requests were deleted, but " + result.undeletedPictures().size()
+                        + " picture(s) could not be removed from storage. Please contact the site administrator.");
+            }
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/admin/quotes";
     }
 
     @PostMapping("/admin/quotes/{id}/status")

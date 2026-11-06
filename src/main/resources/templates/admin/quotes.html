@@ -17,6 +17,8 @@
         </div>
     </div>
 
+    <div class="admin-alert admin-alert-success" th:if="${message}" th:text="${message}"></div>
+    <div class="admin-alert admin-alert-error" th:if="${error}" th:text="${error}"></div>
     <section class="admin-card">
         <form class="admin-filter-form" th:action="@{/admin/quotes}" method="get">
             <label class="admin-filter-field admin-filter-search">
@@ -75,10 +77,12 @@
             1 matching quote
         </p>
 
+        <form th:action="@{/admin/quotes/delete}" method="get">
         <div class="admin-table-wrap">
             <table class="admin-table">
                 <thead>
                 <tr>
+                    <th>Select</th>
                     <th>Date</th>
                     <th>Service</th>
                     <th>Customer</th>
@@ -92,9 +96,10 @@
                 </thead>
                 <tbody>
                 <tr th:if="${quotes.isEmpty()}">
-                    <td colspan="9" class="admin-empty">No quote requests yet.</td>
+                    <td colspan="10" class="admin-empty">No quote requests yet.</td>
                 </tr>
                 <tr th:each="quote : ${quotes}">
+                    <td><input type="checkbox" name="ids" th:value="${quote.id}" th:attr="aria-label=${'Select quote #' + quote.id}"></td>
                     <td th:text="${quote.createdAt}">30 Apr 2026, 12:00</td>
                     <td th:text="${quote.serviceType}">Boiler Installation</td>
                     <td th:text="${quote.clientName ?: 'Not sent yet'}">Client</td>
@@ -113,6 +118,8 @@
                 </tbody>
             </table>
         </div>
+        <p th:if="${!quotes.isEmpty()}"><button type="submit" class="admin-secondary-button">Review deletion of selected requests</button></p>
+        </form>
     </section>
 </main>
 

@@ -139,3 +139,12 @@ Events: `page_view`, `phone_click`, `whatsapp_click`, and `generate_lead` after 
 The UK4RU ad 11328399 uses `?utm_source=uk4ru&utm_medium=referral&utm_campaign=boiler_services&utm_content=11328399`. Find it under Reports → Acquisition → Traffic acquisition as `uk4ru / referral`; find the contact events under Engagement → Events (report menu names depend on the selected GA collection). Use Realtime for a labelled manual installation check; do not describe the test visit as a customer.
 
 Validation commands: `node --test scripts/test_analytics.mjs` and `./mvnw test`. The Java template test checks configuration and success markers; the Node tests verify consent, URL sanitisation, contact events, withdrawal and blocked browser storage.
+
+
+## Permanent deletion of admin requests — 6 November 2026
+
+Select individual requests in `/admin/quotes`, then use **Review deletion of selected requests**. The review page lists the selected IDs, dates and names. The final authenticated POST requires CSRF and an explicit confirmation checkbox. Only the reviewed IDs are deleted; requests arriving later remain in the database. There is no archive or restore action.
+
+The database deletion is transactional and rejects a stale selection before deleting any rows. Private uploaded and job photos are removed only after commit, only for validated stored filenames, and only when no surviving request references the same photo. A storage cleanup failure is reported in the admin interface. Existing emails, exports and hosting backups are outside this action. No schema migration is required.
+
+Validation: 331 regular tests passed (9 integration tests skipped without the dedicated QA environment), followed by the selected deletion integration test on a fresh disposable local PostgreSQL database. Checks cover authenticated access, required CSRF and confirmation, stale selection, preservation of unselected records and shared photos, deletion of exclusive photos, and no email delivery.

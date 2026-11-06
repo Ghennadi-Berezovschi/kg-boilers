@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Review permanent deletion</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20261030-mobile-audit-v2')}">
+</head>
+<body class="admin-page">
+<div th:replace="~{admin/_admin_header :: adminHeader}"></div>
+<main class="admin-shell">
+    <a class="admin-back-link" th:href="@{/admin/quotes}">← All quote requests</a>
+    <section class="admin-card">
+        <h1>Review permanent deletion</h1>
+        <p th:text="${quotes.size() + ' request(s) selected.'}">Requests selected.</p>
+        <p>These requests and their saved answers will be permanently deleted. Private photos belonging only to these requests will also be removed. This cannot be undone.</p>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead><tr><th>Quote</th><th>Received</th><th>Customer</th><th>Service</th></tr></thead>
+                <tbody><tr th:each="quote : ${quotes}">
+                    <td th:text="${'#' + quote.id}">#1</td><td th:text="${quote.createdAt}">Date</td>
+                    <td th:text="${quote.clientName ?: 'Not sent yet'}">Customer</td><td th:text="${quote.serviceType}">Service</td>
+                </tr></tbody>
+            </table>
+        </div>
+        <form th:action="@{/admin/quotes/delete}" method="post">
+            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input th:each="id : ${ids}" type="hidden" name="ids" th:value="${id}">
+            <p><label><input type="checkbox" name="confirmDeletion" value="true" required> I understand these requests will be permanently deleted.</label></p>
+            <div class="admin-filter-actions">
+                <a class="admin-secondary-button" th:href="@{/admin/quotes}">Cancel</a>
+                <button class="admin-primary-button" style="background: #b91c1c" type="submit">Permanently delete selected requests</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

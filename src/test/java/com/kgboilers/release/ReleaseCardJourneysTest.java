@@ -57,6 +57,9 @@ class ReleaseCardJourneysTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
     @Autowired JdbcTemplate jdbc;
+    @Autowired com.kgboilers.service.boilerinstallationquote.QuotePictureStorageService pictureStorage;
+    @Autowired com.kgboilers.service.admin.AdminQuoteService adminQuotes;
+    @org.springframework.beans.factory.annotation.Value("${kg.uploads.quote-pictures-dir}") String pictureDirectory;
     @MockBean PostcodeService postcodes;
     @MockBean JavaMailSender mail;
 
@@ -186,6 +189,54 @@ class ReleaseCardJourneysTest {
         verify(mail, timeout(3000).times(2)).send(any(SimpleMailMessage.class));
         MvcResult success = render(get(java.net.URI.create(result.getResponse().getRedirectedUrl())).session(journey.session()).flashAttrs(result.getFlashMap()));
         assertThat(success.getResponse().getContentAsString()).containsIgnoringCase("received");
+    }
+
+    @Test
+    void selectedDeletionRequiresConfirmationAndCsrfAndPreservesOtherRequestsAndSharedPhotos() throws Exception {
+        String email = "deletion-" + UUID.randomUUID() + "@example.invalid";
+        var uniquePicture = pictureStorage.storePictures(java.util.List.of(new org.springframework.mock.web.MockMultipartFile(
+                "pictures", "unique.png", "image/png", new byte[]{1, 2, 3}))).getFirst();
+        var sharedPicture = pictureStorage.storePictures(java.util.List.of(new org.springframework.mock.web.MockMultipartFile(
+                "pictures", "shared.png", "image/png", new byte[]{4, 5, 6}))).getFirst();
+        String uniqueJson = json.writeValueAsString(Map.of("uploadedPictures", java.util.List.of(uniquePicture)));
+        String sharedJson = json.writeValueAsString(Map.of("jobPictures", java.util.List.of(sharedPicture)));
+        String insert = "INSERT INTO quotes (postcode, service_type, client_name, client_email, status, client_answers_json) "
+                + "VALUES ('E15 4DH', 'boiler-installation', 'Deletion QA', ?, 'NEW_LEAD', CAST(? AS jsonb)) RETURNING id";
+        Long first = jdbc.queryForObject(insert, Long.class, email, uniqueJson);
+        Long second = jdbc.queryForObject(insert, Long.class, email, sharedJson);
+        Long kept = jdbc.queryForObject(insert, Long.class, email + ".kept", sharedJson);
+        var authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                "deletion-qa", "", java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN")));
+        MockHttpSession admin = new MockHttpSession();
+        admin.setAttribute("SPRING_SECURITY_CONTEXT", new org.springframework.security.core.context.SecurityContextImpl(authentication));
+        assertThat(mvc.perform(get("/admin/quotes/delete").param("ids", first.toString())).andReturn().getResponse().getStatus()).isEqualTo(302);
+        MvcResult review = render(get("/admin/quotes/delete").param("ids", first.toString(), second.toString()).session(admin));
+        assertThat(review.getResponse().getContentAsString()).contains("Review permanent deletion", "This cannot be undone", "confirmDeletion");
+        assertThat(count(email)).isEqualTo(2);
+        var csrf = (org.springframework.security.web.csrf.CsrfToken) review.getRequest().getAttribute("_csrf");
+        var cookies = review.getResponse().getCookies();
+        assertThat(mvc.perform(post("/admin/quotes/delete").session(admin).param("ids", first.toString())
+                .param("confirmDeletion", "true")).andReturn().getResponse().getStatus()).isEqualTo(403);
+        assertThat(mvc.perform(post("/admin/quotes/delete").session(admin).cookie(cookies).param("ids", first.toString())
+                .param(csrf.getParameterName(), csrf.getToken())).andReturn().getResponse().getStatus()).isEqualTo(400);
+        var stale = mvc.perform(post("/admin/quotes/delete").session(admin).cookie(cookies)
+                .param("ids", first.toString(), Long.toString(Long.MAX_VALUE)).param("confirmDeletion", "true")
+                .param(csrf.getParameterName(), csrf.getToken())).andReturn();
+        assertThat(new HashMap<>(stale.getFlashMap())).containsKey("error");
+        assertThat(count(email)).isEqualTo(2);
+        var deleted = mvc.perform(post("/admin/quotes/delete").session(admin).cookie(cookies)
+                .param("ids", first.toString(), second.toString()).param("confirmDeletion", "true")
+                .param(csrf.getParameterName(), csrf.getToken())).andReturn();
+        assertThat(deleted.getResponse().getStatus()).isEqualTo(302);
+        assertThat(new HashMap<>(deleted.getFlashMap())).containsEntry("message", "2 request(s) permanently deleted.").doesNotContainKey("error");
+        assertThat(count(email)).isZero();
+        assertThat(count(email + ".kept")).isEqualTo(1);
+        assertThat(java.nio.file.Files.exists(java.nio.file.Path.of(pictureDirectory, uniquePicture.getStoredFilename()))).isFalse();
+        assertThat(java.nio.file.Files.exists(java.nio.file.Path.of(pictureDirectory, sharedPicture.getStoredFilename()))).isTrue();
+        assertThat(mvc.perform(get("/admin/quotes/" + first).session(admin)).andReturn().getResponse().getStatus()).isEqualTo(404);
+        adminQuotes.deleteRequests(java.util.List.of(kept));
+        assertThat(java.nio.file.Files.exists(java.nio.file.Path.of(pictureDirectory, sharedPicture.getStoredFilename()))).isFalse();
+        verifyNoInteractions(mail);
     }
 
     @Test

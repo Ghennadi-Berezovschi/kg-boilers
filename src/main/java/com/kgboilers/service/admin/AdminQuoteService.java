@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kgboilers.model.admin.AdminAnswerSection;
 import com.kgboilers.model.admin.AdminDetailRow;
 import com.kgboilers.model.admin.AdminQuoteDetail;
+import com.kgboilers.model.admin.AdminQuoteDeletionResult;
 import com.kgboilers.model.admin.AdminQuoteFilters;
 import com.kgboilers.model.admin.AdminQuoteExtra;
 import com.kgboilers.model.admin.AdminQuoteListItem;
@@ -18,6 +19,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.ResultSet;
@@ -30,9 +35,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.regex.Pattern;
 
 @Service
 public class AdminQuoteService {
+    private static final Logger LOG = LoggerFactory.getLogger(AdminQuoteService.class);
+    private static final Pattern STORED_FILENAME = Pattern.compile(
+            "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|png|webp)");
 
     private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", Locale.UK);
@@ -92,6 +103,89 @@ public class AdminQuoteService {
                 "air-conditioning-installation",
                 "callback-request"
         );
+    }
+
+    public List<Long> validatedDeletionIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty() || ids.size() > 100 || ids.stream().anyMatch(id -> id == null || id <= 0)) {
+            throw new IllegalArgumentException("Select between 1 and 100 requests to delete.");
+        }
+        return ids.stream().distinct().toList();
+    }
+
+    public List<AdminQuoteListItem> deletionCandidates(List<Long> selectedIds) {
+        List<Long> ids = validatedDeletionIds(selectedIds);
+        List<AdminQuoteListItem> quotes = jdbcTemplate.query("""
+                SELECT id, created_at, status, service_type, client_name, client_email, client_phone, postcode,
+                       selected_boiler, recommended_boiler, installation_price_gbp, optional_extras_price_gbp
+                FROM quotes WHERE id IN (:ids) ORDER BY id
+                """, new MapSqlParameterSource("ids", ids), new QuoteListRowMapper());
+        if (quotes.size() != ids.size()) {
+            throw new IllegalArgumentException("The selected requests have changed. Select them again from the list.");
+        }
+        return quotes;
+    }
+
+    @Transactional
+    public AdminQuoteDeletionResult deleteRequests(List<Long> selectedIds) {
+        List<Long> ids = validatedDeletionIds(selectedIds);
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        List<String> snapshots = jdbcTemplate.query("""
+                SELECT client_answers_json::text AS answers FROM quotes WHERE id IN (:ids) FOR UPDATE
+                """, params, (rs, row) -> rs.getString("answers"));
+        if (snapshots.size() != ids.size()) {
+            throw new IllegalArgumentException("The selected requests have changed. Select them again from the list.");
+        }
+        Set<String> filenames = new LinkedHashSet<>();
+        snapshots.forEach(snapshot -> collectPictureFilenames(snapshot, filenames));
+        int deleted = jdbcTemplate.update("DELETE FROM quotes WHERE id IN (:ids)", params);
+        AdminQuoteDeletionResult result = new AdminQuoteDeletionResult(deleted, new ArrayList<>());
+        // Remove files only after the database commit. A rollback must preserve all pictures.
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() {
+                for (String filename : filenames) {
+                    try {
+                        if (!pictureIsReferenced(filename)) quotePictureStorageService.deletePicture(filename);
+                    } catch (Exception ex) {
+                        result.undeletedPictures().add(filename);
+                        LOG.warn("Request deleted but picture cleanup failed for {}", filename, ex);
+                    }
+                }
+            }
+        });
+        return result;
+    }
+
+    private boolean pictureIsReferenced(String filename) {
+        String reference = "[{\"storedFilename\":\"" + filename + "\"}]";
+        String urlReference = "[{\"url\":\"/uploads/quote-pictures/" + filename + "\"}]";
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject("""
+                SELECT EXISTS (SELECT 1 FROM quotes
+                  WHERE client_answers_json->'uploadedPictures' @> CAST(:reference AS jsonb)
+                     OR client_answers_json->'jobPictures' @> CAST(:reference AS jsonb)
+                     OR client_answers_json->'uploadedPictures' @> CAST(:urlReference AS jsonb)
+                     OR client_answers_json->'jobPictures' @> CAST(:urlReference AS jsonb))
+                """, new MapSqlParameterSource("reference", reference).addValue("urlReference", urlReference), Boolean.class));
+    }
+
+    private void collectPictureFilenames(String snapshot, Set<String> filenames) {
+        if (snapshot == null || snapshot.isBlank()) return;
+        try {
+            JsonNode root = objectMapper.readTree(snapshot);
+            for (String field : List.of("uploadedPictures", "jobPictures")) {
+                JsonNode pictures = root.path(field);
+                if (!pictures.isArray()) continue;
+                for (JsonNode picture : pictures) {
+                    String filename = picture.path("storedFilename").asText("");
+                    if (filename.isBlank()) {
+                        String url = picture.path("url").asText("");
+                        if (url.startsWith("/uploads/quote-pictures/")) filename = url.substring("/uploads/quote-pictures/".length());
+                    }
+                    if (STORED_FILENAME.matcher(filename).matches()) filenames.add(filename);
+                }
+            }
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Could not read saved picture information. No requests were deleted.", ex);
+        }
     }
 
     public List<String> statusOptions() {

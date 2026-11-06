@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class QuotePictureStorageService {
@@ -21,6 +22,8 @@ public class QuotePictureStorageService {
     private static final int MAX_FILES = 3;
     private static final long MAX_FILE_SIZE_BYTES = 5L * 1024L * 1024L;
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+    private static final Pattern STORED_FILENAME = Pattern.compile(
+            "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|png|webp)");
 
     private final Path uploadDirectory;
 
@@ -53,6 +56,14 @@ public class QuotePictureStorageService {
             uploadedPictures.add(storePicture(file));
         }
         return uploadedPictures;
+    }
+
+    public void deletePicture(String storedFilename) throws IOException {
+        if (storedFilename == null || !STORED_FILENAME.matcher(storedFilename).matches()) {
+            throw new IllegalArgumentException("Invalid stored picture filename.");
+        }
+        // Only unlink the named entry; Files.deleteIfExists does not follow a final symlink.
+        Files.deleteIfExists(uploadDirectory.resolve(storedFilename));
     }
 
     private UploadedPicture storePicture(MultipartFile file) {
