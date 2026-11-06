@@ -1,0 +1,16 @@
+<th:block th:fragment="analytics" th:if="${analytics != null and analytics.enabled}">
+    <link rel="stylesheet" th:href="@{/css/analytics.css(v='20261106')}">
+    <aside id="analytics-consent" class="analytics-consent" hidden aria-label="Analytics cookie choices"
+           th:attr="data-measurement-id=${analytics.measurementId},data-lead-submitted=${contactSuccess == true or callbackSuccess == true}">
+        <div>
+            <strong>Optional analytics cookies</strong>
+            <p>Allow Google Analytics to help us understand visits and improve our website? Your choice will not affect quotes or enquiries.
+                <a th:href="@{/privacy}">Privacy &amp; cookies</a></p>
+        </div>
+        <div class="analytics-consent-actions">
+            <button type="button" data-analytics-reject>Reject analytics</button>
+            <button type="button" data-analytics-accept>Accept analytics</button>
+        </div>
+    </aside>
+    <script defer th:src="@{/js/analytics.js(v='20261106')}"></script>
+</th:block>

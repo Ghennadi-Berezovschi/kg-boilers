@@ -17,4 +17,9 @@ public class HomeController {
         model.addAttribute("aboutPage", true);
         return "about";
     }
+
+    @GetMapping("/privacy")
+    public String privacy() {
+        return "privacy";
+    }
 }

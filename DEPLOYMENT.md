@@ -126,3 +126,16 @@ The owner approved a 50-mile straight-line radius from **E16 4JJ only** for Air 
 All 116 targeted quote service, wizard and API controller tests passed. The commit was pushed to `main` and manually deployed to the existing Render service as `dep-dbl2s3gae00c73ceaiag`; Render reports **Deploy succeeded | Live**. Auto-deploy remains off.
 
 Hosted checks through the custom domain passed for the home page, health endpoint and air conditioning postcode form. Air conditioning accepts E16 4JJ and SL4 1NJ (26.70 miles from E16 4JJ), and rejects PE19 1JA (50.41 miles, even though it is only 44.47 miles from the removed E4 8BJ origin) and OX1 1DP (56.68 miles). A plumbing control request for SL4 1NJ remains out of area. These checks stopped after postcode validation; no leads or test emails were submitted. Results are in `output/release-qa/air-conditioning-coverage-2026-11-03.json`.
+
+
+## Optional website analytics — 6 November 2026
+
+The production profile defaults to public measurement ID `G-EKRY32SVVL` in GA4 property `562942124` (business Google account `heatingandplumbingdirect@gmail.com`). `GA_MEASUREMENT_ID` overrides it; an empty or invalid value disables the tag and consent banner. Local development defaults to disabled. Enhanced measurement is disabled in the stream: the app explicitly emits only sanitised events.
+
+The local consent script loads Google's asynchronous tag only after acceptance. Rejection leaves enquiries working. Cookie settings in the footer allows withdrawal, clears GA cookies and reloads without the tag. The privacy notice is `/privacy`. No form values, phone numbers, arbitrary query parameters, uploaded photos or page titles are included in app-generated events. Advertising consent stays denied.
+
+Events: `page_view`, `phone_click`, `whatsapp_click`, and `generate_lead` after a successful server response. A contact click measures intent, not a connected call or a sent message. Counts omit people who decline or block analytics, and start only after deployment. Normal processed reports may lag behind Realtime.
+
+The UK4RU ad 11328399 uses `?utm_source=uk4ru&utm_medium=referral&utm_campaign=boiler_services&utm_content=11328399`. Find it under Reports → Acquisition → Traffic acquisition as `uk4ru / referral`; find the contact events under Engagement → Events (report menu names depend on the selected GA collection). Use Realtime for a labelled manual installation check; do not describe the test visit as a customer.
+
+Validation commands: `node --test scripts/test_analytics.mjs` and `./mvnw test`. The Java template test checks configuration and success markers; the Node tests verify consent, URL sanitisation, contact events, withdrawal and blocked browser storage.

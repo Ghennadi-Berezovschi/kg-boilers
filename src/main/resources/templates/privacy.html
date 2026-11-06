@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Privacy &amp; cookies | Pro Boiler Services London</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .privacy-content { max-width: 900px; padding-top: 32px; padding-bottom: 40px; line-height: 1.65; }
+        .privacy-content h1 { margin-bottom: 20px; }
+        .privacy-content h2 { margin-top: 28px; margin-bottom: 12px; font-size: 1.5rem; }
+        .privacy-content p { margin-bottom: 16px; }
+        .privacy-content a { color: #174a91; text-decoration: underline; overflow-wrap: anywhere; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/_header :: header}"></div>
+<main class="container privacy-content">
+    <section class="section">
+        <h1>Privacy &amp; cookies</h1>
+        <p>Pro Boiler Services London uses the information you provide in a quote or callback request to respond to your enquiry, discuss the work and keep a record of your request.</p>
+        <p>This may include your name, contact details, postcode, job details and any photos you choose to upload. Your request is stored on our hosting provider, Render, and notifications are sent using our email service. We do not include these form details or uploaded photos in Google Analytics.</p>
+        <h2>Essential website storage</h2>
+        <p>Session and security cookies support your quote journey and protect forms. We also remember your analytics cookie choice for up to six months. These functions are separate from optional analytics.</p>
+        <h2>Optional Google Analytics</h2>
+        <p>If you accept analytics cookies, Google Analytics records visits, pages viewed, the source of a visit, clicks on our phone and WhatsApp links, and completed enquiry submissions. Clicking a contact link does not tell us whether a call connected or a WhatsApp message was sent.</p>
+        <p>Analytics cookies help distinguish visits and visitors. We do not enable Google Signals or advertising personalisation. Analytics reports are estimates: people who decline analytics or use blocking software may not be counted.</p>
+        <p>You can accept, reject or withdraw permission using <strong>Cookie settings</strong> in the footer. The website and quote forms work if you reject analytics. Withdrawing permission stops future collection from this browser; it does not automatically erase previously collected data.</p>
+        <p>Google explains its processing at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener noreferrer">How Google uses information from sites that use its services</a>.</p>
+        <h2>Contact and your information</h2>
+        <p>To ask about your information, request access or correction, or request deletion of an enquiry, email <a th:href="'mailto:' + ${contact.email}" th:text="${contact.email}">our business email</a>. Some records may need to be kept for legitimate business or legal reasons. You may also raise a concern with the <a href="https://ico.org.uk/make-a-complaint/" rel="noopener noreferrer">Information Commissioner's Office</a>.</p>
+        <p>Last updated: 6 November 2026.</p>
+    </section>
+</main>
+<div th:replace="~{fragments/_footer :: footer}"></div>
+</body>
+</html>

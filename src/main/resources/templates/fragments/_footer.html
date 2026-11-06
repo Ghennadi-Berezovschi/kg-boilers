@@ -5,6 +5,11 @@
             <div class="footer-small">
                 Boiler installation London • Boiler repair London • Gas engineer London • Central heating repair London
             </div>
+            <div class="footer-small">
+                <a th:href="@{/privacy}">Privacy &amp; cookies</a>
+                <button th:if="${analytics != null and analytics.enabled}" type="button"
+                        class="analytics-settings" data-analytics-settings>Cookie settings</button>
+            </div>
             <nav class="footer-mobile-links" th:if="${contact != null}" aria-label="More contact options">
                 <a th:href="'mailto:' + ${contact.email}">Email us</a>
                 <a th:href="@{/callback}" href="/callback">Request callback</a>
@@ -21,6 +26,7 @@
             </div>
         </div>
     </div>
+    <th:block th:replace="~{fragments/_analytics :: analytics}"></th:block>
     <script>
         (function () {
             const resultElement = document.getElementById("result");

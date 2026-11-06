@@ -1,0 +1,9 @@
+.analytics-settings { border: 0; padding: 8px 12px; background: transparent; color: inherit; text-decoration: underline; font: inherit; cursor: pointer; min-height: 44px; }
+.analytics-consent[hidden] { display: none; }
+.analytics-consent { position: fixed; z-index: 1000; left: 16px; right: 16px; bottom: 16px; max-width: 920px; margin: auto; padding: 20px; border: 1px solid #c5d1e3; border-radius: 12px; background: #fff; color: #17243b; box-shadow: 0 4px 24px #17243b33; font-size: 15px; line-height: 1.5; }
+.analytics-consent p { margin: 8px 0 16px; }
+.analytics-consent a { color: #174a91; text-decoration: underline; }
+.analytics-consent-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.analytics-consent-actions button { flex: 1; min-height: 44px; padding: 10px 16px; background: #fff; color: #174a91; border: 2px solid #174a91; border-radius: 6px; font: inherit; font-weight: 600; cursor: pointer; }
+.analytics-consent button:focus-visible, .analytics-settings:focus-visible { outline: 3px solid #d08000; outline-offset: 3px; }
+@media (max-width: 700px) { .analytics-consent { left: 8px; right: 8px; bottom: calc(82px + env(safe-area-inset-bottom)); padding: 16px; max-height: calc(100dvh - 180px); overflow-y: auto; } }

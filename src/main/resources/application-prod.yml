@@ -1,4 +1,8 @@
 # Activate explicitly on the hosting service: SPRING_PROFILES_ACTIVE=prod.
+kg:
+  analytics:
+    measurement-id: ${GA_MEASUREMENT_ID:G-EKRY32SVVL}
+
 server:
   address: 0.0.0.0
   port: ${PORT:8080}
