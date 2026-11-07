@@ -26,7 +26,7 @@ class AnalyticsTemplateTest {
     void rendersOnlyLocalConsentAssetsAndServerConfirmedLeadMarker() {
         String html = renderFooter("G-TEST123456", true);
         assertThat(html).contains("data-measurement-id=\"G-TEST123456\"", "data-lead-submitted=\"true\"",
-                "Reject analytics", "Accept analytics", "analytics.js", "Cookie settings");
+                "Reject cookies", "Accept cookies", "analytics.js", "Cookie settings");
         assertThat(html).doesNotContain("googletagmanager.com", "google-analytics.com");
         assertThat(renderFooter("G-TEST123456", false)).contains("data-lead-submitted=\"false\"");
     }
